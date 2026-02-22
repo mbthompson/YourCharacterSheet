@@ -1445,6 +1445,83 @@
     .sheet-parchment { padding: 40px; }
     .score-item-detail { max-height: none !important; }
   }
+
+  /* ==================== PROMPT MODAL ==================== */
+  #prompt-modal { display: none; }
+
+  #prompt-modal.active {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(45, 45, 45, 0.7);
+    z-index: 2000;
+    display: flex; align-items: flex-start; justify-content: center;
+    padding: 40px 20px; overflow-y: auto;
+  }
+
+  .prompt-modal-box {
+    background: var(--white); border-radius: 6px;
+    max-width: 700px; width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    overflow: hidden; margin: auto;
+  }
+
+  .prompt-modal-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    padding: 24px 28px 20px;
+    border-bottom: 1px solid var(--border-gray);
+  }
+
+  .prompt-modal-header h2 {
+    font-family: var(--font-serif); font-size: 20px;
+    font-weight: 700; color: var(--charcoal); margin-bottom: 4px;
+  }
+
+  .prompt-modal-subtitle {
+    font-family: var(--font-sans); font-size: 12px; color: var(--light-gray);
+  }
+
+  .prompt-modal-close {
+    background: none; border: none; font-size: 24px;
+    color: var(--light-gray); cursor: pointer; padding: 4px 8px;
+    line-height: 1; border-radius: 3px; transition: color 0.2s; flex-shrink: 0;
+  }
+  .prompt-modal-close:hover { color: var(--charcoal); }
+
+  .prompt-modal-body { padding: 24px 28px; }
+
+  .prompt-modal-instructions {
+    font-family: var(--font-sans); font-size: 13px; color: var(--medium-gray);
+    line-height: 1.6; margin-bottom: 16px; padding: 12px 16px;
+    background: var(--warm-brown-pale); border-radius: 4px;
+    border-left: 3px solid var(--warm-brown);
+  }
+
+  .prompt-text-display {
+    font-family: var(--font-sans); font-size: 12px; line-height: 1.7;
+    color: var(--deep-slate); background: var(--very-light-gray);
+    border: 1px solid var(--border-gray); border-radius: 4px;
+    padding: 20px; white-space: pre-wrap; word-break: break-word;
+    max-height: 420px; overflow-y: auto;
+    -webkit-user-select: text; user-select: text;
+  }
+
+  .prompt-modal-footer {
+    padding: 16px 28px 24px;
+    display: flex; gap: 12px; align-items: center;
+    justify-content: flex-end; flex-wrap: wrap;
+  }
+
+  .prompt-copy-confirm {
+    font-family: var(--font-sans); font-size: 12px;
+    color: var(--color-strong); opacity: 0; transition: opacity 0.3s; flex: 1;
+  }
+  .prompt-copy-confirm.visible { opacity: 1; }
+
+  @media (max-width: 640px) {
+    #prompt-modal.active { padding: 0; align-items: flex-start; }
+    .prompt-modal-box { border-radius: 0; min-height: 100vh; }
+    .prompt-text-display { max-height: 320px; }
+  }
 </style>
 </head>
 <body>
@@ -1466,6 +1543,30 @@
   </div>
 </div>
 
+<!-- PROMPT MODAL -->
+<div id="prompt-modal" onclick="app.handlePromptBackdropClick(event)">
+  <div class="prompt-modal-box">
+    <div class="prompt-modal-header">
+      <div>
+        <h2>AI Character Study Prompt</h2>
+        <div class="prompt-modal-subtitle">Copy and paste into any AI assistant</div>
+      </div>
+      <button class="prompt-modal-close" onclick="app.hidePromptModal()" aria-label="Close">&times;</button>
+    </div>
+    <div class="prompt-modal-body">
+      <div class="prompt-modal-instructions">
+        Paste this into Claude, ChatGPT, or any AI assistant. It instructs the AI to write a personalised character study based on your self-reflection data.
+      </div>
+      <div class="prompt-text-display" id="prompt-text-display"></div>
+    </div>
+    <div class="prompt-modal-footer">
+      <span class="prompt-copy-confirm" id="prompt-copy-confirm">Copied to clipboard</span>
+      <button class="btn btn-ghost btn-small" onclick="app.hidePromptModal()">Close</button>
+      <button class="btn btn-primary btn-small" onclick="app.copyPrompt()">Copy Prompt</button>
+    </div>
+  </div>
+</div>
+
 <!-- EDIT VIEW -->
 <div id="edit-view">
   <div class="container-wide">
@@ -1476,6 +1577,7 @@
         <button class="btn btn-ghost btn-small" onclick="app.exportData()">Export</button>
         <button class="btn btn-ghost btn-small" onclick="app.importData()">Import</button>
         <button class="btn btn-ghost btn-small" onclick="app.showTutorial()">Guide</button>
+        <button class="btn btn-ghost btn-small" onclick="app.showPromptModal()">AI Prompt</button>
       </div>
     </div>
 
@@ -1532,6 +1634,7 @@
       <button class="btn btn-ghost btn-small" onclick="app.importData()">Import</button>
       <button class="btn btn-ghost btn-small" onclick="app.showTutorial()">Guide</button>
       <button class="btn btn-ghost btn-small" onclick="window.print()">Print</button>
+      <button class="btn btn-ghost btn-small" onclick="app.showPromptModal()">AI Prompt</button>
     </div>
   </div>
 </div>
@@ -2966,6 +3069,171 @@ const app = {
       localStorage.removeItem('charactersheet-data');
       location.reload();
     }
+  },
+
+  // ==================== AI PROMPT MODAL ====================
+
+  generatePromptText() {
+    const p = state.profile;
+    const bfiScores = this.calculateBFIScores();
+    const traits = ['openness', 'conscientiousness', 'extraversion', 'agreeableness', 'neuroticism'];
+    const date = new Date().toLocaleDateString('en-AU', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    const bfiLevel = score => score <= 2 ? 'Low' : score <= 3.5 ? 'Moderate' : 'High';
+    const bfiInterpret = (trait, score) => {
+      const info = TRAIT_INFO[trait];
+      if (score <= 2.5) return info.low;
+      if (score >= 3.5) return info.high;
+      return `Between: ${info.low.toLowerCase()} and ${info.high.toLowerCase()}`;
+    };
+
+    const relMap = { single: 'Single', partnered: 'Partnered', married: 'Married',
+      separated: 'Separated', divorced: 'Divorced', widowed: 'Widowed', complicated: "It's complicated" };
+
+    const profileParts = [];
+    if (p.name && p.name !== 'Character') profileParts.push(`Name: ${p.name}`);
+    if (p.age) profileParts.push(`Age: ${p.age}`);
+    if (p.gender) profileParts.push(`Gender: ${p.gender.charAt(0).toUpperCase() + p.gender.slice(1)}`);
+    if (p.occupation) profileParts.push(`Occupation: ${p.occupation}`);
+    if (p.location) profileParts.push(`Location: ${p.location}`);
+    if (p.relationship) profileParts.push(`Relationship status: ${relMap[p.relationship] || p.relationship}`);
+    profileParts.push(`Sheet completed: ${date}`);
+
+    const attrLines = ATTRIBUTES.map(attr => {
+      const mainScore = this.getMainScore(attr.key);
+      const mainInfo = getScoreInfo(mainScore);
+      const subLines = attr.subScores.map(sub => {
+        const subVal = state.subScores[sub.key] || 10;
+        const subInfo = getScoreInfo(subVal);
+        return `    ${sub.name}: ${subVal}/20 (${subInfo.label})`;
+      }).join('\n');
+      return `${attr.name}: ${mainScore}/20 (${mainInfo.label})\n${subLines}`;
+    }).join('\n\n');
+
+    const personalityLines = traits.map(trait => {
+      const score = bfiScores[trait];
+      const info = TRAIT_INFO[trait];
+      return `${info.name}: ${bfiLevel(score)} (${score.toFixed(1)}/5.0) — ${bfiInterpret(trait, score)}`;
+    }).join('\n');
+
+    const validAbilities = state.abilities.filter(a => a.name.trim());
+    let abilitiesText = '';
+    if (validAbilities.length > 0) {
+      const active = validAbilities.filter(a => a.status === 'active');
+      const dormant = validAbilities.filter(a => a.status === 'dormant');
+      const fmtAbility = ab => {
+        const linked = ATTRIBUTES.find(a => a.key === ab.linked)?.name || '';
+        const info = getScoreInfo(ab.score);
+        return `  ${ab.name}: ${ab.score}/20 (${info.label})${linked ? ` [linked to ${linked}]` : ''}`;
+      };
+      if (active.length > 0) abilitiesText += `Active abilities:\n${active.map(fmtAbility).join('\n')}`;
+      if (dormant.length > 0) {
+        if (active.length > 0) abilitiesText += '\n';
+        abilitiesText += `Dormant abilities (skills not currently being practised):\n${dormant.map(fmtAbility).join('\n')}`;
+      }
+    } else {
+      abilitiesText = '(No abilities recorded)';
+    }
+
+    return `You are about to write a character study — a personal portrait — of a real person based on structured self-reflection data they have gathered about themselves.
+
+The data comes from The Character Sheet, a self-reflection tool that asks people to rate themselves across eight core life attributes, each broken into sub-scores, on a 1–20 scale where 10 is average. The person completed this exercise by themselves, working through guided questions for each dimension of their life. These are not aspirational scores — they are their honest current self-assessment after careful reflection.
+
+The scale used:
+1–4 = Critical (in serious difficulty)
+5–7 = Struggling (noticeably below where they'd want to be)
+8–9 = Below Average (room for significant improvement)
+10–11 = Average (where most people land)
+12–13 = Above Average (a genuine strength)
+14–15 = Strong (going well, and they know it)
+16–17 = Excellent (people probably notice)
+18–20 = Exceptional (a defining feature of their life)
+
+10 is not a failing grade. Nobody has 20s across the board. These scores represent a moment in time.
+
+---
+PROFILE
+---
+${profileParts.join('\n')}
+
+---
+EIGHT CORE ATTRIBUTES (1–20 scale)
+---
+${attrLines}
+
+---
+PERSONALITY (Big Five / OCEAN — 1–5 scale, validated BFI-10 instrument)
+---
+${personalityLines}
+
+---
+ABILITIES
+---
+${abilitiesText}
+
+---
+YOUR TASK
+---
+Write a rich, honest character study of this person in second person ("you"). This is not a performance review, a therapy session transcript, or a list of recommendations. It is a portrait — the kind a perceptive friend or a sharp biographer might write after spending time with this data.
+
+Guidelines for your response:
+
+Length and structure: Write in flowing prose, not bullet points. Aim for 400–600 words. Use paragraphs to organise ideas, not headers. Begin without preamble — go straight into the portrait.
+
+Voice and tone: Warm but honest. Not cheerleading. Not harsh. The tone of a mentor who respects this person enough to tell them the truth. Avoid flattery. Avoid clinical detachment. Do not hedge everything with "it seems like" or "you may feel" — be direct, while acknowledging the interpretive nature of the exercise.
+
+Use the data seriously: Every attribute and sub-score is a data point. Pay particular attention to gaps and tensions — where high scores in one area coexist with low scores in a related area. These contradictions are often where the most interesting and accurate character observations live.
+
+Connect the dots: Draw connections across domains. Notice what the personality profile implies about how the attribute scores make sense — or don't. Translate the personality data into human language — do not reference trait names or numbers.
+
+Avoid generic observations: Do not write things that could apply to anyone. Ground every sentence in the specific data. The portrait should feel unmistakably about this person, not a template.
+
+Do not moralize or prescribe: Do not tell them what they should do. Do not suggest next steps, goals, or action plans. This is reflection, not coaching.
+
+End with something true: Close with an observation that feels like it captures something essential about who this person is right now — something that stays with them.`;
+  },
+
+  showPromptModal() {
+    const promptText = this.generatePromptText();
+    document.getElementById('prompt-text-display').textContent = promptText;
+    document.getElementById('prompt-copy-confirm').classList.remove('visible');
+    const modal = document.getElementById('prompt-modal');
+    modal.dataset.promptText = promptText;
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  },
+
+  hidePromptModal() {
+    document.getElementById('prompt-modal').classList.remove('active');
+    document.body.style.overflow = '';
+  },
+
+  handlePromptBackdropClick(event) {
+    if (event.target === event.currentTarget) this.hidePromptModal();
+  },
+
+  copyPrompt() {
+    const modal = document.getElementById('prompt-modal');
+    const promptText = modal.dataset.promptText;
+    const confirmEl = document.getElementById('prompt-copy-confirm');
+    if (!promptText) return;
+    const showConfirm = () => {
+      confirmEl.classList.add('visible');
+      setTimeout(() => confirmEl.classList.remove('visible'), 3000);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(promptText).then(showConfirm).catch(() => this._copyFallback(promptText, showConfirm));
+    } else {
+      this._copyFallback(promptText, showConfirm);
+    }
+  },
+
+  _copyFallback(text, onSuccess) {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.left = '-9999px';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    try { document.execCommand('copy'); onSuccess(); } catch(e) {}
+    document.body.removeChild(ta);
   }
 };
 
