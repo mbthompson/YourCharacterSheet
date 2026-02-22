@@ -730,6 +730,16 @@
     text-align: center;
   }
 
+  .sub-score-label {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-top: 4px;
+    min-height: 16px;
+  }
+
   /* Abilities Section */
   .abilities-intro {
     color: var(--medium-gray);
@@ -1853,7 +1863,9 @@ const app = {
   },
 
   renderAttributeSection(attr, index) {
-    const subs = attr.subScores.map(sub => `
+    const subs = attr.subScores.map(sub => {
+      const initInfo = getScoreInfo(state.subScores[sub.key] || 10);
+      return `
       <div class="sub-score-item">
         <div class="sub-score-name">${sub.name}</div>
         <div class="sub-score-desc">${sub.desc}</div>
@@ -1861,10 +1873,14 @@ const app = {
           <input type="range" min="1" max="20" value="${state.subScores[sub.key] || 10}"
             data-subkey="${sub.key}"
             oninput="app.updateSubScore('${sub.key}', this.value)">
-          <span class="sub-score-value" data-subkey-value="${sub.key}">${state.subScores[sub.key] || 10}</span>
+          <span class="sub-score-value" data-subkey-value="${sub.key}"
+            style="color: ${initInfo.color}">${state.subScores[sub.key] || 10}</span>
         </div>
+        <div class="sub-score-label" data-subkey-label="${sub.key}"
+          style="color: ${initInfo.color}">${initInfo.label}</div>
       </div>
-    `).join('');
+    `;
+    }).join('');
 
     const mainScore = this.getMainScore(attr.key);
     const info = getScoreInfo(mainScore);
@@ -2071,9 +2087,19 @@ const app = {
 
   updateSubScore(subKey, value) {
     state.subScores[subKey] = parseInt(value);
+    const info = getScoreInfo(parseInt(value));
 
     const valueSpan = document.querySelector(`[data-subkey-value="${subKey}"]`);
-    if (valueSpan) valueSpan.textContent = value;
+    if (valueSpan) {
+      valueSpan.textContent = value;
+      valueSpan.style.color = info.color;
+    }
+
+    const labelEl = document.querySelector(`[data-subkey-label="${subKey}"]`);
+    if (labelEl) {
+      labelEl.textContent = info.label;
+      labelEl.style.color = info.color;
+    }
 
     const attr = ATTRIBUTES.find(a => a.subScores.some(s => s.key === subKey));
     if (attr && !state.overrides[attr.key]) {
