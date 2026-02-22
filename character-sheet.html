@@ -1,0 +1,2529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Character Sheet</title>
+<style>
+  :root {
+    --warm-brown: #8B6F47;
+    --warm-brown-light: #A68B5B;
+    --warm-brown-pale: #F5F0EA;
+    --deep-slate: #4A5568;
+    --charcoal: #2D2D2D;
+    --medium-gray: #666666;
+    --light-gray: #999999;
+    --very-light-gray: #F7F7F5;
+    --border-gray: #E2E0DC;
+    --white: #FFFFFF;
+    --font-serif: Georgia, 'Times New Roman', serif;
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    --color-critical: #DC2626;
+    --color-struggling: #EA580C;
+    --color-below: #D97706;
+    --color-average: #9CA3AF;
+    --color-above: #65A30D;
+    --color-strong: #16A34A;
+    --color-excellent: #059669;
+    --color-exceptional: #047857;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font-serif);
+    color: var(--charcoal);
+    background: var(--very-light-gray);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Containers */
+  .container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .container-wide {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  /* Views */
+  #tutorial-view, #edit-view, #sheet-view, #calculating-view { display: none; }
+  #tutorial-view.active, #edit-view.active, #sheet-view.active { display: block; }
+
+  /* ==================== TUTORIAL VIEW ==================== */
+  #tutorial-view {
+    width: 100%;
+    min-height: 100vh;
+    background: var(--very-light-gray);
+  }
+
+  .tutorial-page {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 40px;
+    text-align: center;
+    background: var(--very-light-gray);
+  }
+
+  .tutorial-page-content {
+    max-width: 640px;
+    width: 100%;
+  }
+
+  .tutorial-page h1 {
+    font-size: 48px;
+    color: var(--charcoal);
+    margin-bottom: 12px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+
+  .tutorial-page h2 {
+    font-size: 36px;
+    color: var(--charcoal);
+    margin-bottom: 28px;
+    font-weight: 700;
+  }
+
+  .tutorial-page p {
+    font-size: 17px;
+    color: var(--medium-gray);
+    line-height: 1.8;
+    margin-bottom: 18px;
+  }
+
+  .tutorial-page p.lead {
+    font-size: 19px;
+    color: var(--deep-slate);
+    line-height: 1.7;
+  }
+
+  .tutorial-page ul {
+    list-style: none;
+    margin: 20px 0;
+    text-align: left;
+  }
+
+  .tutorial-page li {
+    font-size: 15px;
+    color: var(--medium-gray);
+    line-height: 1.7;
+    margin-bottom: 14px;
+  }
+
+  .tutorial-subtitle {
+    font-size: 19px;
+    color: var(--warm-brown);
+    font-style: italic;
+    margin-bottom: 32px;
+  }
+
+  .tutorial-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 40px;
+    flex-wrap: wrap;
+  }
+
+  .tutorial-skip-link {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    font-size: 13px;
+    color: var(--light-gray);
+    text-decoration: none;
+    cursor: pointer;
+    z-index: 999;
+    font-family: var(--font-sans);
+    transition: color 0.2s;
+  }
+
+  .tutorial-skip-link:hover {
+    color: var(--warm-brown);
+    text-decoration: underline;
+  }
+
+  /* Attribute preview cards in tutorial */
+  .attr-preview-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 32px 0;
+    text-align: left;
+  }
+
+  .attr-preview-card {
+    background: var(--white);
+    border: 1px solid var(--border-gray);
+    border-radius: 8px;
+    padding: 18px;
+  }
+
+  .attr-preview-name {
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--charcoal);
+    margin-bottom: 4px;
+  }
+
+  .attr-preview-tagline {
+    font-size: 13px;
+    color: var(--warm-brown);
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  /* Score table in tutorial */
+  .score-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 28px 0;
+    text-align: left;
+    font-size: 14px;
+  }
+
+  .score-table th {
+    background: var(--warm-brown-pale);
+    padding: 10px 14px;
+    border: 1px solid var(--border-gray);
+    font-weight: 600;
+    color: var(--charcoal);
+    text-align: left;
+  }
+
+  .score-table td {
+    padding: 10px 14px;
+    border: 1px solid var(--border-gray);
+    color: var(--medium-gray);
+  }
+
+  .score-table tr:nth-child(even) {
+    background: var(--white);
+  }
+
+  .score-table .score-color {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+
+  /* Tutorial form inputs */
+  .tutorial-form {
+    margin: 40px 0;
+    text-align: left;
+  }
+
+  .tutorial-form label {
+    display: block;
+    font-family: var(--font-sans);
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--light-gray);
+    margin-bottom: 6px;
+  }
+
+  .tutorial-form input,
+  .tutorial-form select {
+    font-family: var(--font-serif);
+    font-size: 16px;
+    border: 1px solid var(--border-gray);
+    padding: 12px;
+    border-radius: 4px;
+    width: 100%;
+    color: var(--charcoal);
+    margin-bottom: 16px;
+  }
+
+  .tutorial-form input:focus,
+  .tutorial-form select:focus {
+    outline: none;
+    border-color: var(--warm-brown);
+  }
+
+  /* ==================== CALCULATING VIEW ==================== */
+  #calculating-view.active {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--very-light-gray);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .calc-content {
+    max-width: 500px;
+  }
+
+  .calc-step {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    color: var(--light-gray);
+    margin-bottom: 8px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.5s, transform 0.5s;
+  }
+
+  .calc-step.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .calc-step.done {
+    color: var(--warm-brown);
+  }
+
+  .calc-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border-gray);
+    border-top: 3px solid var(--warm-brown);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 32px auto;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  /* ==================== BUTTONS ==================== */
+  .btn {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 500;
+    padding: 12px 32px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-primary {
+    background: var(--warm-brown);
+    color: var(--white);
+  }
+
+  .btn-primary:hover {
+    background: var(--warm-brown-light);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--warm-brown);
+    border: 1.5px solid var(--warm-brown);
+  }
+
+  .btn-secondary:hover {
+    background: var(--warm-brown-pale);
+  }
+
+  .btn-small {
+    padding: 8px 20px;
+    font-size: 12px;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--light-gray);
+    border: 1px solid var(--border-gray);
+  }
+
+  .btn-ghost:hover {
+    color: var(--warm-brown);
+    border-color: var(--warm-brown);
+  }
+
+  /* ==================== EDIT VIEW ==================== */
+  #edit-view {
+    padding: 40px 0;
+    min-height: 100vh;
+  }
+
+  .edit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border-gray);
+    position: sticky;
+    top: 0;
+    background: var(--very-light-gray);
+    z-index: 100;
+    padding-top: 10px;
+  }
+
+  .edit-header h1 {
+    font-size: 24px;
+    color: var(--charcoal);
+  }
+
+  .edit-header .button-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  /* Profile Section */
+  .profile-section {
+    background: var(--white);
+    border: 1px solid var(--border-gray);
+    border-radius: 8px;
+    padding: 32px;
+    margin-bottom: 40px;
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+
+  .profile-photo {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: var(--very-light-gray);
+    border: 2px solid var(--border-gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .profile-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+
+  .profile-photo-placeholder {
+    font-size: 40px;
+    color: var(--light-gray);
+  }
+
+  .profile-photo:hover {
+    border-color: var(--warm-brown);
+    background: var(--warm-brown-pale);
+  }
+
+  #photo-input, #import-input { display: none; }
+
+  .profile-inputs {
+    display: grid;
+    gap: 16px;
+  }
+
+  .profile-inputs label {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--light-gray);
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .profile-inputs input, .profile-inputs select {
+    font-family: var(--font-serif);
+    font-size: 16px;
+    border: 1px solid var(--border-gray);
+    padding: 10px 12px;
+    border-radius: 4px;
+    color: var(--charcoal);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .profile-inputs input:focus, .profile-inputs select:focus {
+    border-color: var(--warm-brown);
+  }
+
+  /* Navigation */
+  .section-nav {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-gray);
+    position: sticky;
+    top: 80px;
+    background: var(--very-light-gray);
+    z-index: 99;
+  }
+
+  .section-nav button {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    padding: 8px 16px;
+    border: 1px solid var(--border-gray);
+    background: var(--white);
+    color: var(--medium-gray);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .section-nav button:hover {
+    border-color: var(--warm-brown);
+    color: var(--warm-brown);
+  }
+
+  .section-nav button.active {
+    background: var(--warm-brown);
+    color: var(--white);
+    border-color: var(--warm-brown);
+  }
+
+  /* Attribute Sections */
+  .attribute-section {
+    background: var(--white);
+    border: 1px solid var(--border-gray);
+    border-radius: 8px;
+    padding: 40px;
+    margin-bottom: 40px;
+    display: none;
+  }
+
+  .attribute-section.active { display: block; }
+
+  .attribute-section .section-label {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--light-gray);
+    margin-bottom: 8px;
+  }
+
+  .attribute-section h2 {
+    font-size: 32px;
+    color: var(--charcoal);
+    margin-bottom: 4px;
+  }
+
+  .attribute-section .tagline {
+    font-style: italic;
+    color: var(--warm-brown);
+    font-size: 16px;
+    margin-bottom: 24px;
+  }
+
+  .attribute-description {
+    color: var(--medium-gray);
+    font-size: 15px;
+    line-height: 1.7;
+    margin-bottom: 28px;
+  }
+
+  .reflection-prompt {
+    background: var(--warm-brown-pale);
+    border-left: 4px solid var(--warm-brown);
+    padding: 16px 20px;
+    margin-bottom: 28px;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .reflection-prompt .prompt-label {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--warm-brown);
+    margin-bottom: 6px;
+  }
+
+  .reflection-prompt p {
+    font-style: italic;
+    color: var(--medium-gray);
+    font-size: 15px;
+  }
+
+  /* Main Score */
+  .main-score-area {
+    background: var(--very-light-gray);
+    border-radius: 6px;
+    padding: 28px;
+    margin-bottom: 32px;
+    text-align: center;
+  }
+
+  .score-label {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--light-gray);
+    margin-bottom: 12px;
+  }
+
+  .score-display {
+    font-size: 56px;
+    font-weight: 700;
+    color: var(--warm-brown);
+    margin-bottom: 4px;
+    font-family: var(--font-sans);
+  }
+
+  .score-meaning {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 16px;
+  }
+
+  .override-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 12px;
+  }
+
+  .override-toggle {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    padding: 4px 10px;
+    background: transparent;
+    border: 1px solid var(--border-gray);
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--medium-gray);
+    transition: all 0.2s;
+  }
+
+  .override-toggle.active {
+    background: var(--warm-brown);
+    color: var(--white);
+    border-color: var(--warm-brown);
+  }
+
+  .main-score-input {
+    width: 60px;
+    text-align: center;
+    font-family: var(--font-sans);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--warm-brown);
+    border: 1px solid var(--border-gray);
+    padding: 6px;
+    border-radius: 4px;
+    outline: none;
+  }
+
+  .main-score-input:focus {
+    border-color: var(--warm-brown);
+  }
+
+  .indicator {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    color: var(--light-gray);
+    font-style: italic;
+  }
+
+  /* Range sliders */
+  input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    max-width: 400px;
+    height: 4px;
+    background: var(--border-gray);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--warm-brown);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+
+  input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: var(--warm-brown);
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+  }
+
+  /* Sub-scores */
+  .sub-scores {
+    margin-top: 28px;
+    padding-top: 28px;
+    border-top: 1px solid var(--border-gray);
+  }
+
+  .sub-score-item {
+    padding: 18px 0;
+    border-bottom: 1px solid var(--border-gray);
+  }
+
+  .sub-score-item:last-child { border-bottom: none; }
+
+  .sub-score-name {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--deep-slate);
+    margin-bottom: 4px;
+  }
+
+  .sub-score-desc {
+    font-size: 13px;
+    color: var(--light-gray);
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+
+  .sub-score-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .sub-score-row input[type="range"] {
+    max-width: 250px;
+    flex: 1;
+  }
+
+  .sub-score-value {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--warm-brown);
+    min-width: 32px;
+    text-align: center;
+  }
+
+  /* Abilities Section */
+  .abilities-intro {
+    color: var(--medium-gray);
+    font-size: 15px;
+    line-height: 1.7;
+    margin-bottom: 28px;
+  }
+
+  .ability-item {
+    display: grid;
+    grid-template-columns: 1.5fr 70px 120px auto;
+    gap: 12px;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border-gray);
+  }
+
+  .ability-item:last-child { border-bottom: none; }
+
+  .ability-item input[type="text"],
+  .ability-item input[type="number"],
+  .ability-item select {
+    font-family: var(--font-serif);
+    font-size: 14px;
+    border: 1px solid var(--border-gray);
+    padding: 8px 10px;
+    border-radius: 4px;
+    color: var(--charcoal);
+    outline: none;
+  }
+
+  .ability-item input[type="text"]:focus,
+  .ability-item input[type="number"]:focus,
+  .ability-item select:focus {
+    border-color: var(--warm-brown);
+  }
+
+  .ability-item input[type="text"] { font-style: italic; }
+  .ability-item input[type="number"] { text-align: center; font-weight: 600; color: var(--warm-brown); }
+  .ability-item select { font-size: 13px; color: var(--medium-gray); background: var(--white); }
+
+  .ability-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .status-toggle {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 3px;
+    border: 1px solid transparent;
+    cursor: pointer;
+  }
+
+  .status-toggle.active { background: #E6F4EA; color: #1B7A3D; }
+  .status-toggle.dormant { background: #F0F0F0; color: var(--light-gray); }
+
+  .ability-remove {
+    font-size: 18px;
+    color: var(--light-gray);
+    cursor: pointer;
+    border: none;
+    background: none;
+    padding: 4px 8px;
+    border-radius: 3px;
+  }
+
+  .ability-remove:hover { color: #c53030; background: #FFF5F5; }
+
+  .section-nav-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+    margin-top: 32px;
+    padding-top: 28px;
+    border-top: 1px solid var(--border-gray);
+  }
+
+  /* ==================== SHEET VIEW ==================== */
+  #sheet-view {
+    padding: 60px 0;
+    animation: fadeIn 0.6s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .sheet-container {
+    background: var(--white);
+    border-radius: 8px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+  }
+
+  .sheet-parchment {
+    background: linear-gradient(to bottom, #FAFAF8, #F5F0EA);
+    padding: 60px;
+  }
+
+  .sheet-header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--border-gray);
+  }
+
+  .sheet-profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+
+  .sheet-photo {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: var(--very-light-gray);
+    border: 2px solid var(--border-gray);
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+
+  .sheet-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .sheet-photo-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    color: var(--light-gray);
+  }
+
+  .sheet-header h1 {
+    font-size: 36px;
+    color: var(--charcoal);
+    margin-bottom: 4px;
+  }
+
+  .sheet-meta {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--light-gray);
+  }
+
+  .sheet-meta span { margin: 0 8px; }
+
+  /* Radar */
+  .sheet-radar {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .sheet-radar canvas {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* ==================== SCORE ITEMS (Sheet) ==================== */
+  .scores-grid {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 48px;
+  }
+
+  .score-item {
+    background: var(--very-light-gray);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    overflow: hidden;
+  }
+
+  .score-item:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+
+  .score-item-summary {
+    display: grid;
+    grid-template-columns: 130px 50px 1fr;
+    gap: 14px;
+    align-items: center;
+    padding: 14px 18px;
+  }
+
+  .score-item-name {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--deep-slate);
+  }
+
+  .score-item-value {
+    font-family: var(--font-sans);
+    font-size: 18px;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  /* Spectrum bar — shows colored zones with a marker */
+  .spectrum-bar {
+    position: relative;
+    height: 8px;
+    border-radius: 4px;
+    overflow: visible;
+    background: linear-gradient(to right,
+      var(--color-critical) 0%, var(--color-critical) 20%,
+      var(--color-struggling) 20%, var(--color-struggling) 35%,
+      var(--color-below) 35%, var(--color-below) 45%,
+      var(--color-average) 45%, var(--color-average) 65%,
+      var(--color-above) 65%, var(--color-above) 75%,
+      var(--color-strong) 75%, var(--color-strong) 85%,
+      var(--color-excellent) 85%, var(--color-excellent) 95%,
+      var(--color-exceptional) 95%, var(--color-exceptional) 100%
+    );
+    opacity: 0.25;
+  }
+
+  .spectrum-marker {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2.5px solid var(--white);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    transition: left 0.6s ease-out;
+  }
+
+  /* Expanded detail */
+  .score-item-detail {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-out;
+    background: var(--white);
+    border-top: 1px solid transparent;
+  }
+
+  .score-item.expanded .score-item-detail {
+    max-height: 1200px;
+    border-top-color: var(--border-gray);
+  }
+
+  .score-item-detail-inner {
+    padding: 24px;
+  }
+
+  .score-item-detail-desc {
+    font-size: 14px;
+    color: var(--medium-gray);
+    line-height: 1.7;
+    margin-bottom: 16px;
+  }
+
+  .score-item-detail-prompt {
+    background: var(--warm-brown-pale);
+    border-left: 3px solid var(--warm-brown);
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    border-radius: 0 4px 4px 0;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--medium-gray);
+  }
+
+  .sub-score-bar-item {
+    display: grid;
+    grid-template-columns: 110px 40px 1fr;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .sub-score-bar-name {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    color: var(--deep-slate);
+    font-weight: 500;
+    text-align: right;
+  }
+
+  .sub-score-bar-value {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .sub-bar-track {
+    height: 6px;
+    border-radius: 3px;
+    background: var(--border-gray);
+    overflow: hidden;
+  }
+
+  .sub-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.6s ease-out;
+  }
+
+  .score-item-expand-hint {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    color: var(--light-gray);
+    text-align: right;
+    padding: 0 18px 10px;
+    transition: opacity 0.2s;
+  }
+
+  .score-item.expanded .score-item-expand-hint {
+    opacity: 0;
+  }
+
+  /* ==================== BIG FIVE (Sheet) ==================== */
+  .personality-section {
+    margin-bottom: 48px;
+  }
+
+  .personality-section-title {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--light-gray);
+    margin-bottom: 8px;
+    text-align: center;
+  }
+
+  .personality-section-subtitle {
+    font-size: 14px;
+    color: var(--medium-gray);
+    text-align: center;
+    margin-bottom: 24px;
+    font-style: italic;
+  }
+
+  .big-five-item {
+    background: var(--very-light-gray);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin-bottom: 8px;
+  }
+
+  .big-five-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4px;
+  }
+
+  .big-five-name {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--deep-slate);
+  }
+
+  .big-five-level {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .big-five-desc {
+    font-size: 13px;
+    color: var(--light-gray);
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+
+  .big-five-bar-track {
+    height: 6px;
+    border-radius: 3px;
+    background: var(--border-gray);
+    position: relative;
+    overflow: visible;
+  }
+
+  .big-five-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.6s ease-out;
+  }
+
+  /* Abilities on Sheet */
+  .sheet-abilities {
+    margin-bottom: 48px;
+  }
+
+  .section-title {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--light-gray);
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  .abilities-list { display: grid; gap: 6px; }
+
+  .ability-row {
+    display: grid;
+    grid-template-columns: 1fr 50px 100px 80px;
+    gap: 12px;
+    align-items: center;
+    padding: 10px 16px;
+    background: var(--very-light-gray);
+    border-radius: 4px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+  }
+
+  .ability-row-name { color: var(--charcoal); font-weight: 500; }
+  .ability-row-score { font-weight: 700; text-align: center; }
+  .ability-row-linked { color: var(--light-gray); font-size: 12px; }
+
+  .ability-row-status {
+    text-align: right;
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+
+  .ability-row-status.active { background: #E6F4EA; color: #1B7A3D; }
+  .ability-row-status.dormant { background: #F0F0F0; color: var(--light-gray); }
+
+  /* Sheet Footer */
+  .sheet-footer {
+    text-align: center;
+    padding: 40px 0 0;
+    border-top: 1px solid var(--border-gray);
+    font-style: italic;
+    color: var(--light-gray);
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .sheet-actions {
+    background: var(--white);
+    padding: 24px;
+    border-top: 1px solid var(--border-gray);
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  /* ==================== RESPONSIVE ==================== */
+  @media (max-width: 640px) {
+    .container { padding: 0 16px; }
+    .container-wide { padding: 0 16px; }
+    .profile-section { grid-template-columns: 1fr; gap: 24px; }
+    .profile-photo { width: 100px; height: 100px; }
+    .section-nav { gap: 6px; }
+    .section-nav button { font-size: 11px; padding: 6px 12px; }
+    .attribute-section { padding: 24px; }
+    .ability-item { grid-template-columns: 1fr; gap: 8px; }
+    .score-item-summary { grid-template-columns: 100px 40px 1fr; gap: 10px; padding: 12px 14px; }
+    .ability-row { grid-template-columns: 1fr 40px 60px; gap: 8px; }
+    .sheet-parchment { padding: 32px 20px; }
+    .sheet-header h1 { font-size: 28px; }
+    .tutorial-page { padding: 40px 20px; }
+    .tutorial-page h1 { font-size: 36px; }
+    .tutorial-page h2 { font-size: 28px; }
+    .attr-preview-grid { grid-template-columns: 1fr; }
+    .sub-score-bar-item { grid-template-columns: 90px 30px 1fr; }
+    .big-five-item { padding: 14px 16px; }
+  }
+
+  /* ==================== PRINT ==================== */
+  @media print {
+    body { background: white; }
+    #edit-view, #tutorial-view, #calculating-view, .edit-header, .sheet-actions, .btn, .tutorial-skip-link { display: none !important; }
+    .sheet-container { box-shadow: none; }
+    .sheet-parchment { padding: 40px; }
+    .score-item-detail { max-height: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TUTORIAL VIEW -->
+<div id="tutorial-view">
+  <a class="tutorial-skip-link" onclick="app.skipTutorial()">Skip to my sheet</a>
+  <div id="tutorial-pages-container"></div>
+</div>
+
+<!-- CALCULATING VIEW -->
+<div id="calculating-view">
+  <div class="calc-content">
+    <div class="calc-spinner"></div>
+    <div class="calc-step" id="calc-step-1">Compiling your responses...</div>
+    <div class="calc-step" id="calc-step-2">Calculating attribute scores...</div>
+    <div class="calc-step" id="calc-step-3">Analysing personality profile...</div>
+    <div class="calc-step" id="calc-step-4">Generating your character sheet...</div>
+  </div>
+</div>
+
+<!-- EDIT VIEW -->
+<div id="edit-view">
+  <div class="container-wide">
+    <div class="edit-header">
+      <h1>Character Sheet</h1>
+      <div class="button-group">
+        <button class="btn btn-primary btn-small" onclick="app.viewSheet()">View Sheet</button>
+        <button class="btn btn-ghost btn-small" onclick="app.exportData()">Export</button>
+        <button class="btn btn-ghost btn-small" onclick="app.importData()">Import</button>
+        <button class="btn btn-ghost btn-small" onclick="app.showTutorial()">Guide</button>
+      </div>
+    </div>
+
+    <!-- Profile -->
+    <div class="profile-section">
+      <div class="profile-photo" onclick="document.getElementById('photo-input').click()">
+        <img id="profile-img" style="display: none;">
+        <div class="profile-photo-placeholder" id="photo-placeholder">+</div>
+      </div>
+      <div class="profile-inputs">
+        <div>
+          <label>Name</label>
+          <input type="text" id="input-name" placeholder="Your name" onchange="app.updateProfile()">
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div>
+            <label>Age</label>
+            <input type="number" id="input-age" placeholder="Age" onchange="app.updateProfile()">
+          </div>
+          <div>
+            <label>Gender</label>
+            <select id="input-gender" onchange="app.updateProfile()">
+              <option value="">Select...</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="non-binary">Non-binary</option>
+              <option value="other">Other</option>
+              <option value="prefer-not">Prefer not to say</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+    <input type="file" id="photo-input" accept="image/*" onchange="app.uploadPhoto(event)">
+    <input type="file" id="import-input" accept=".json" style="display:none" onchange="app.handleImport(event)">
+
+    <!-- Navigation -->
+    <div class="section-nav" id="section-nav"></div>
+
+    <!-- Sections Container -->
+    <div id="sections-container"></div>
+  </div>
+</div>
+
+<!-- SHEET VIEW -->
+<div id="sheet-view">
+  <div class="container">
+    <div class="sheet-container">
+      <div class="sheet-parchment">
+        <div class="sheet-header">
+          <div class="sheet-profile">
+            <div class="sheet-photo">
+              <img id="sheet-img" style="display: none;">
+              <div class="sheet-photo-placeholder" id="sheet-photo-placeholder">+</div>
+            </div>
+            <h1 id="sheet-name">Character</h1>
+            <div class="sheet-meta" id="sheet-meta"></div>
+          </div>
+        </div>
+
+        <div class="sheet-radar">
+          <canvas id="radarChart"></canvas>
+        </div>
+
+        <div class="scores-grid" id="scores-grid"></div>
+
+        <div class="personality-section" id="personality-section-container"></div>
+
+        <div class="sheet-abilities" id="sheet-abilities-container">
+          <label class="section-title">Abilities</label>
+          <div class="abilities-list" id="sheet-abilities"></div>
+        </div>
+
+        <div class="sheet-footer">
+          The game continues. It always does.<br>
+          But now, at least, you've seen your character sheet.
+        </div>
+      </div>
+    </div>
+
+    <div class="sheet-actions">
+      <button class="btn btn-secondary btn-small" onclick="app.editSheet()">Edit</button>
+      <button class="btn btn-ghost btn-small" onclick="app.exportData()">Export</button>
+      <button class="btn btn-ghost btn-small" onclick="app.importData()">Import</button>
+      <button class="btn btn-ghost btn-small" onclick="app.showTutorial()">Guide</button>
+      <button class="btn btn-ghost btn-small" onclick="window.print()">Print</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== DATA ====================
+
+const ATTRIBUTES = [
+  {
+    key: 'body', name: 'Body', tagline: 'Your physical self — health, capability, and energy.',
+    description: 'Your Body score reflects the overall state of your physical existence. It\'s not about how you look. It\'s about how your body serves you: whether it\'s healthy, capable, energetic, and well-rested.',
+    prompt: 'If a doctor who knew everything about my physical state gave me an honest rating, what would they say?',
+    subScores: [
+      { key: 'health', name: 'Health', desc: 'Are you free from illness and injury? How are your chronic conditions managed?' },
+      { key: 'strength', name: 'Strength', desc: 'Raw physical capability. Can you lift, carry, push, pull?' },
+      { key: 'agility', name: 'Agility', desc: 'Flexibility, coordination, balance. Can you move with control and grace?' },
+      { key: 'stamina', name: 'Stamina', desc: 'Cardiovascular endurance. Could you run for a bus without distress?' },
+      { key: 'vitality', name: 'Vitality', desc: 'Your day-to-day energy levels. Do you wake up ready to go?' },
+      { key: 'rest', name: 'Rest', desc: 'Sleep quality and recovery. Are you getting enough good sleep?' },
+    ]
+  },
+  {
+    key: 'mind', name: 'Mind', tagline: 'Your mental life — clarity, emotional health, and intellectual engagement.',
+    description: 'Your Mind score captures how well your inner world is functioning. A high Mind score doesn\'t mean you\'re a genius — it means your mental life is healthy, active, and well-managed.',
+    prompt: 'How is my inner world? Is it a place of clarity and growth, or confusion and distress?',
+    subScores: [
+      { key: 'mental_health', name: 'Mental Health', desc: 'Overall psychological wellbeing. Are you free from significant depression or anxiety?' },
+      { key: 'clarity', name: 'Clarity', desc: 'Can you think clearly? Focus when you need to? Make decisions without fog?' },
+      { key: 'emotional_regulation', name: 'Emotional Regulation', desc: 'How well do you manage your emotional responses?' },
+      { key: 'learning', name: 'Learning', desc: 'Are you growing intellectually? Reading, studying, exploring new ideas?' },
+      { key: 'creativity', name: 'Creativity', desc: 'Are you generating ideas, making things, expressing yourself?' },
+    ]
+  },
+  {
+    key: 'spirit', name: 'Spirit', tagline: 'Your relationship with meaning, purpose, and your own character.',
+    description: 'Spirit reflects whether you feel your life has direction and meaning, whether you live with integrity, and whether you\'ve made peace with being the person you are. This isn\'t necessarily about religion — it\'s about the foundational questions.',
+    prompt: 'Do I feel like my life means something? Am I at peace with who I am?',
+    subScores: [
+      { key: 'purpose', name: 'Purpose', desc: 'Do you have a sense of direction? Do you know what you\'re working toward?' },
+      { key: 'integrity', name: 'Integrity', desc: 'Are you living according to your values?' },
+      { key: 'self_acceptance', name: 'Self-Acceptance', desc: 'How do you relate to your own flaws and limitations?' },
+      { key: 'gratitude', name: 'Gratitude', desc: 'Do you appreciate what you have, or are you always focused on what\'s missing?' },
+      { key: 'practice', name: 'Practice', desc: 'Do you have a regular practice that nourishes your spirit?' },
+    ]
+  },
+  {
+    key: 'heart', name: 'Heart', tagline: 'Your connections — love, belonging, and generosity.',
+    description: 'Heart captures the relational dimension of your life. The quality of our relationships is one of the strongest predictors of both happiness and longevity. Are you loved? Do you love? Are you connected?',
+    prompt: 'If I needed help at 3am, who would I call? How long is that list? And would I answer their call?',
+    subScores: [
+      { key: 'partner', name: 'Partner', desc: 'Romantic relationship satisfaction, or your peace with being single.' },
+      { key: 'family', name: 'Family', desc: 'Closeness, warmth, support, and quality of family relationships.' },
+      { key: 'friendships', name: 'Friendships', desc: 'Do you have close friends? Real ones? Do you feel known by them?' },
+      { key: 'community', name: 'Community', desc: 'Do you belong to something beyond your immediate circle?' },
+      { key: 'giving', name: 'Giving', desc: 'Generosity, charity, and service to others. Is giving part of your life?' },
+    ]
+  },
+  {
+    key: 'standing', name: 'Standing', tagline: 'Your place in the world — career, wealth, reputation, and home.',
+    description: 'Standing reflects how the external world sees you and what you\'ve built in material terms. It\'s not about vanity — it\'s about recognising that these things affect your quality of life.',
+    prompt: 'Would I be comfortable if a journalist profiled my life? Not because it\'s impressive — but because it\'s solid?',
+    subScores: [
+      { key: 'career', name: 'Career', desc: 'Satisfaction, progression, and engagement with your professional life.' },
+      { key: 'wealth', name: 'Wealth', desc: 'Net financial position, security, and trajectory.' },
+      { key: 'reputation', name: 'Reputation', desc: 'How others perceive you. Do people respect and trust you?' },
+      { key: 'home', name: 'Home', desc: 'Quality of your living situation. Does your home feel like a haven?' },
+    ]
+  },
+  {
+    key: 'resilience', name: 'Resilience', tagline: 'Your capacity to withstand adversity and recover from setbacks.',
+    description: 'Resilience only reveals itself under pressure. You might think yours is high when life is calm — but you don\'t really know until something goes wrong. Look at the evidence.',
+    prompt: 'Think about the last truly difficult thing that happened. How did you handle it? What does that tell you?',
+    subScores: [
+      { key: 'adversity_tolerance', name: 'Adversity Tolerance', desc: 'How well do you cope when things go wrong?' },
+      { key: 'recovery', name: 'Recovery', desc: 'When knocked down, how quickly do you get back up?' },
+      { key: 'adaptability', name: 'Adaptability', desc: 'How well do you handle change and unexpected pivots?' },
+      { key: 'grit', name: 'Grit', desc: 'Persistence toward long-term goals despite obstacles.' },
+    ]
+  },
+  {
+    key: 'discipline', name: 'Discipline', tagline: 'Your ability to do what you intend to do.',
+    description: 'Discipline is the engine that turns intention into action. It\'s about the gap between what you plan to do and what you actually do. The most honest stat on the sheet.',
+    prompt: 'If I made a list of everything I said I\'d do this month, what percentage did I actually do?',
+    subScores: [
+      { key: 'habits', name: 'Habits', desc: 'Do you have consistent daily routines? Do you maintain them?' },
+      { key: 'follow_through', name: 'Follow-Through', desc: 'Do you finish what you start? Do you honour your commitments?' },
+      { key: 'impulse_control', name: 'Impulse Control', desc: 'Can you resist short-term temptation for long-term goals?' },
+      { key: 'time_management', name: 'Time Management', desc: 'Do you use your time effectively? Do you know where your hours go?' },
+    ]
+  },
+  {
+    key: 'joy', name: 'Joy', tagline: 'Whether you\'re actually enjoying your life.',
+    description: 'Joy is the attribute most people forget to check. You can be healthy, successful, disciplined, and loved — and still not be having a good time. Are you enjoying this?',
+    prompt: 'When did I last feel genuinely delighted? How long ago was that? And what does that tell me?',
+    subScores: [
+      { key: 'pleasure', name: 'Pleasure', desc: 'Do you enjoy simple things? Food, music, sunlight? Are your senses alive?' },
+      { key: 'play', name: 'Play', desc: 'Do you have fun? Do you do things purely because they\'re enjoyable?' },
+      { key: 'humour', name: 'Humour', desc: 'Do you laugh? Is there room for lightness and absurdity in your life?' },
+      { key: 'flow', name: 'Flow', desc: 'Do you experience deep engagement, losing track of time in activities?' },
+      { key: 'savouring', name: 'Savouring', desc: 'Do you slow down to appreciate good moments while they\'re happening?' },
+    ]
+  }
+];
+
+const BFI_ITEMS = [
+  { trait: 'extraversion', reverse: true, text: 'I see myself as someone who is reserved' },
+  { trait: 'agreeableness', reverse: false, text: 'I see myself as someone who is generally trusting' },
+  { trait: 'conscientiousness', reverse: true, text: 'I see myself as someone who tends to be lazy' },
+  { trait: 'neuroticism', reverse: true, text: 'I see myself as someone who is relaxed, handles stress well' },
+  { trait: 'openness', reverse: true, text: 'I see myself as someone who has few artistic interests' },
+  { trait: 'extraversion', reverse: false, text: 'I see myself as someone who is outgoing, sociable' },
+  { trait: 'agreeableness', reverse: true, text: 'I see myself as someone who tends to find fault with others' },
+  { trait: 'conscientiousness', reverse: false, text: 'I see myself as someone who does a thorough job' },
+  { trait: 'neuroticism', reverse: false, text: 'I see myself as someone who gets nervous easily' },
+  { trait: 'openness', reverse: false, text: 'I see myself as someone who has an active imagination' },
+];
+
+const TRAIT_INFO = {
+  openness: {
+    name: 'Openness',
+    desc: 'Your appetite for novelty, ideas, art, and new experiences.',
+    low: 'You prefer the familiar and practical',
+    high: 'You\'re drawn to novelty and ideas'
+  },
+  conscientiousness: {
+    name: 'Conscientiousness',
+    desc: 'Your tendency toward organisation, discipline, and thoroughness.',
+    low: 'You\'re spontaneous and flexible',
+    high: 'You\'re systematic and goal-directed'
+  },
+  extraversion: {
+    name: 'Extraversion',
+    desc: 'Your orientation toward the outer world of people and activity.',
+    low: 'You prefer quieter, calmer settings',
+    high: 'You\'re energised by people and activity'
+  },
+  agreeableness: {
+    name: 'Agreeableness',
+    desc: 'Your orientation toward cooperation and trust with others.',
+    low: 'You\'re direct and skeptical',
+    high: 'You\'re trusting and cooperative'
+  },
+  neuroticism: {
+    name: 'Neuroticism',
+    desc: 'Your tendency to experience negative emotions and stress.',
+    low: 'You\'re emotionally steady and even-keeled',
+    high: 'You feel things intensely and deeply'
+  }
+};
+
+const SCORE_LABELS = [
+  { min: 1, max: 4, label: 'Critical', color: 'var(--color-critical)' },
+  { min: 5, max: 7, label: 'Struggling', color: 'var(--color-struggling)' },
+  { min: 8, max: 9, label: 'Below Average', color: 'var(--color-below)' },
+  { min: 10, max: 11, label: 'Average', color: 'var(--color-average)' },
+  { min: 12, max: 13, label: 'Above Average', color: 'var(--color-above)' },
+  { min: 14, max: 15, label: 'Strong', color: 'var(--color-strong)' },
+  { min: 16, max: 17, label: 'Excellent', color: 'var(--color-excellent)' },
+  { min: 18, max: 20, label: 'Exceptional', color: 'var(--color-exceptional)' },
+];
+
+function getScoreInfo(score) {
+  const s = Math.max(1, Math.min(20, Math.round(score)));
+  for (const sl of SCORE_LABELS) {
+    if (s >= sl.min && s <= sl.max) return { label: sl.label, color: sl.color };
+  }
+  return { label: 'Average', color: 'var(--color-average)' };
+}
+
+// State
+const state = {
+  profile: { name: 'Character', age: '', gender: '', photo: null },
+  scores: {},
+  subScores: {},
+  overrides: {},
+  bfiResponses: {},
+  abilities: []
+};
+
+let currentSection = 0;
+let saveTimeout = null;
+
+// ==================== APP ====================
+
+const app = {
+  init() {
+    const saved = localStorage.getItem('charactersheet-data');
+
+    if (saved) {
+      this.loadFromStorage();
+      this.showSheet();
+    } else {
+      this.showTutorial();
+    }
+  },
+
+  initializeNewSheet() {
+    ATTRIBUTES.forEach(attr => {
+      state.scores[attr.key] = 10;
+      state.overrides[attr.key] = false;
+      attr.subScores.forEach(sub => {
+        state.subScores[sub.key] = 10;
+      });
+    });
+
+    BFI_ITEMS.forEach((item, i) => {
+      state.bfiResponses[i] = 3;
+    });
+
+    state.abilities = [];
+  },
+
+  // ==================== TUTORIAL ====================
+
+  showTutorial() {
+    document.getElementById('tutorial-view').classList.add('active');
+    document.getElementById('edit-view').classList.remove('active');
+    document.getElementById('sheet-view').classList.remove('active');
+    document.getElementById('calculating-view').classList.remove('active');
+    this.renderTutorial();
+    window.scrollTo(0, 0);
+  },
+
+  renderTutorial() {
+    const container = document.getElementById('tutorial-pages-container');
+
+    const attrCards = ATTRIBUTES.map(a => `
+      <div class="attr-preview-card">
+        <div class="attr-preview-name">${a.name}</div>
+        <div class="attr-preview-tagline">${a.tagline}</div>
+      </div>
+    `).join('');
+
+    const pages = [
+      // PAGE 1 — Welcome
+      `<div class="tutorial-page">
+        <div class="tutorial-page-content">
+          <h1>THE CHARACTER SHEET</h1>
+          <p class="tutorial-subtitle">A Guide to Knowing Yourself</p>
+          <p class="lead" style="margin-top: 32px;">You've been playing the most complex game ever designed for your entire life. It has no tutorial, no pause button, and the rules keep changing.</p>
+          <p>This is your invitation to stop and look at your character sheet.</p>
+          <p>It's a structured self-reflection tool — a way to take an honest, clear-eyed look at who you are right now across the dimensions that matter most. Not where you think you stand. Not where you wish you stood. Where you actually are, today.</p>
+          <p>Some of what you see will make you proud. Some of it might be uncomfortable. All of it is useful.</p>
+          <div class="tutorial-actions">
+            <button class="btn btn-primary" onclick="app.scrollToPage(1)">Begin</button>
+          </div>
+        </div>
+      </div>`,
+
+      // PAGE 2 — How It Works
+      `<div class="tutorial-page">
+        <div class="tutorial-page-content">
+          <h2>How It Works</h2>
+          <p style="margin-top: 24px;">Your character is defined by <strong>eight core attributes</strong>. Each one represents a fundamental dimension of a human life. Together, they form a complete portrait — not of who you want to be, but of who you are.</p>
+          <p>You'll rate each attribute on a <strong>1–20 scale</strong>, where 10 is average. Each attribute has sub-scores that help you think carefully about what's really going on beneath the surface.</p>
+          <p>There is no total score. Your attributes are never summed into a single number. Life is not an optimisation problem, and the person with the highest total is not winning — they might simply be the least honest.</p>
+          <p>You'll also capture your <strong>abilities</strong> — the specific skills and pursuits that make you you — and take a brief <strong>personality snapshot</strong> based on the Big Five model from psychology.</p>
+          <div class="tutorial-actions">
+            <button class="btn btn-secondary" onclick="app.scrollToPage(0)">Back</button>
+            <button class="btn btn-primary" onclick="app.scrollToPage(2)">Continue</button>
+          </div>
+        </div>
+      </div>`,
+
+      // PAGE 3 — The Eight Attributes
+      `<div class="tutorial-page">
+        <div class="tutorial-page-content">
+          <h2>The Eight Attributes</h2>
+          <p style="margin-top: 16px;">Each represents a different dimension of your life. Some are things within your control — your effort, your character, your choices. Others are influenced by your actions but subject to forces beyond you. The measure of a life well-lived is not your scores, but how you relate to them.</p>
+          <div class="attr-preview-grid">${attrCards}</div>
+          <p style="font-size: 14px; color: var(--light-gray);">You'll rate each one with sub-scores that automatically combine into your main attribute score. You can override the auto-calculation if you feel the whole is different from the sum of its parts.</p>
+          <div class="tutorial-actions">
+            <button class="btn btn-secondary" onclick="app.scrollToPage(1)">Back</button>
+            <button class="btn btn-primary" onclick="app.scrollToPage(3)">Continue</button>
+          </div>
+        </div>
+      </div>`,
+
+      // PAGE 4 — The Scale
+      `<div class="tutorial-page">
+        <div class="tutorial-page-content">
+          <h2>The 1–20 Scale</h2>
+          <p style="margin-top: 16px;">Every score uses the same scale, giving you a common language across very different areas of your life.</p>
+          <table class="score-table">
+            <tr><th>Score</th><th>Meaning</th></tr>
+            <tr><td><span class="score-color" style="background:var(--color-critical)"></span><strong>1–4</strong></td><td>Critical — in serious difficulty</td></tr>
+            <tr><td><span class="score-color" style="background:var(--color-struggling)"></span><strong>5–7</strong></td><td>Struggling — noticeably below where you'd want to be</td></tr>
+            <tr><td><span class="score-color" style="background:var(--color-below)"></span><strong>8–9</strong></td><td>Below Average — room for improvement</td></tr>
+            <tr><td><span class="score-color" style="background:var(--color-average)"></span><strong>10–11</strong></td><td>Average — where most people land</td></tr>
+            <tr><td><span class="score-color" style="background:var(--color-above)"></span><strong>12–13</strong></td><td>Above Average — a genuine strength</td></tr>
+            <tr><td><span class="score-color" style="background:var(--color-strong)"></span><strong>14–15</strong></td><td>Strong — going well, and you know it</td></tr>
+            <tr><td><span class="score-color" style="background:var(--color-excellent)"></span><strong>16–17</strong></td><td>Excellent — people probably notice</td></tr>
+            <tr><td><span class="score-color" style="background:var(--color-exceptional)"></span><strong>18–20</strong></td><td>Exceptional — a defining feature of your life</td></tr>
+          </table>
+          <p style="text-align: left; font-size: 14px; color: var(--medium-gray);">10 is not a failing grade — it's where most people are. Nobody has 20s across the board. And these scores move: they change with your circumstances, your effort, and plain luck. The sheet is designed to be revisited.</p>
+          <div class="tutorial-actions">
+            <button class="btn btn-secondary" onclick="app.scrollToPage(2)">Back</button>
+            <button class="btn btn-primary" onclick="app.scrollToPage(4)">Continue</button>
+          </div>
+        </div>
+      </div>`,
+
+      // PAGE 5 — Let's Begin
+      `<div class="tutorial-page">
+        <div class="tutorial-page-content">
+          <h2>Let's Begin</h2>
+          <p style="margin-top: 32px; font-size: 18px;">Take your time. Be honest. There are no right answers and no one is grading you.</p>
+          <p style="font-size: 17px;">This sheet is for you alone — unless you choose to share it.</p>
+          <div class="tutorial-form">
+            <label>Your Name</label>
+            <input type="text" id="tutorial-name" placeholder="Enter your name">
+            <label>Age (optional)</label>
+            <input type="number" id="tutorial-age" placeholder="Age">
+            <label>Gender (optional)</label>
+            <select id="tutorial-gender">
+              <option value="">Select...</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="non-binary">Non-binary</option>
+              <option value="other">Other</option>
+              <option value="prefer-not">Prefer not to say</option>
+            </select>
+          </div>
+          <div class="tutorial-actions">
+            <button class="btn btn-secondary" onclick="app.scrollToPage(3)">Back</button>
+            <button class="btn btn-primary" onclick="app.completeTutorial()">Create My Sheet</button>
+          </div>
+        </div>
+      </div>`
+    ];
+
+    container.innerHTML = pages.join('');
+  },
+
+  scrollToPage(index) {
+    const pages = document.querySelectorAll('.tutorial-page');
+    if (pages[index]) {
+      pages[index].scrollIntoView({ behavior: 'smooth' });
+    }
+  },
+
+  skipTutorial() {
+    this.completeTutorial();
+  },
+
+  completeTutorial() {
+    const name = document.getElementById('tutorial-name')?.value || 'Character';
+    const age = document.getElementById('tutorial-age')?.value || '';
+    const gender = document.getElementById('tutorial-gender')?.value || '';
+
+    state.profile.name = name;
+    state.profile.age = age;
+    state.profile.gender = gender;
+
+    document.getElementById('tutorial-view').classList.remove('active');
+    this.showEdit();
+
+    // Only initialize if this is truly a new sheet
+    if (!localStorage.getItem('charactersheet-data')) {
+      this.initializeNewSheet();
+    }
+    this.buildEditView();
+    this.save();
+  },
+
+  // ==================== VIEW MANAGEMENT ====================
+
+  showEdit() {
+    document.getElementById('edit-view').classList.add('active');
+    document.getElementById('sheet-view').classList.remove('active');
+    document.getElementById('tutorial-view').classList.remove('active');
+    document.getElementById('calculating-view').classList.remove('active');
+  },
+
+  showSheet() {
+    document.getElementById('edit-view').classList.remove('active');
+    document.getElementById('tutorial-view').classList.remove('active');
+    document.getElementById('calculating-view').classList.remove('active');
+    document.getElementById('sheet-view').classList.add('active');
+    this.renderSheet();
+  },
+
+  editSheet() {
+    this.showEdit();
+    this.buildEditView();
+  },
+
+  viewSheet() {
+    // Show calculating animation
+    this.save();
+    document.getElementById('edit-view').classList.remove('active');
+    document.getElementById('calculating-view').classList.add('active');
+
+    const steps = ['calc-step-1', 'calc-step-2', 'calc-step-3', 'calc-step-4'];
+    let i = 0;
+
+    const showNext = () => {
+      if (i < steps.length) {
+        const el = document.getElementById(steps[i]);
+        el.classList.add('visible');
+        if (i > 0) {
+          document.getElementById(steps[i-1]).classList.add('done');
+        }
+        i++;
+        setTimeout(showNext, 700);
+      } else {
+        // All done — show sheet
+        setTimeout(() => {
+          // Reset animation states
+          steps.forEach(id => {
+            const el = document.getElementById(id);
+            el.classList.remove('visible', 'done');
+          });
+          document.getElementById('calculating-view').classList.remove('active');
+          this.showSheet();
+        }, 600);
+      }
+    };
+
+    setTimeout(showNext, 300);
+  },
+
+  buildEditView() {
+    this.renderProfile();
+    this.renderNav();
+    this.renderSections();
+  },
+
+  // ==================== PROFILE ====================
+
+  renderProfile() {
+    document.getElementById('input-name').value = state.profile.name || '';
+    document.getElementById('input-age').value = state.profile.age || '';
+    document.getElementById('input-gender').value = state.profile.gender || '';
+
+    const imgEl = document.getElementById('profile-img');
+    const placeholderEl = document.getElementById('photo-placeholder');
+
+    if (state.profile.photo) {
+      imgEl.src = state.profile.photo;
+      imgEl.style.display = 'block';
+      placeholderEl.style.display = 'none';
+    } else {
+      imgEl.style.display = 'none';
+      placeholderEl.style.display = 'block';
+    }
+  },
+
+  updateProfile() {
+    state.profile.name = document.getElementById('input-name').value || 'Character';
+    state.profile.age = document.getElementById('input-age').value;
+    state.profile.gender = document.getElementById('input-gender').value;
+    this.autoSave();
+  },
+
+  uploadPhoto(event) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        state.profile.photo = e.target.result;
+        this.renderProfile();
+        this.autoSave();
+      };
+      reader.readAsDataURL(file);
+    }
+  },
+
+  // ==================== EDIT NAV & SECTIONS ====================
+
+  renderNav() {
+    const nav = document.getElementById('section-nav');
+    nav.innerHTML = `<button onclick="app.showSection(0)">Personality</button>` +
+      ATTRIBUTES.map((attr, i) =>
+        `<button onclick="app.showSection(${i + 1})">${attr.name}</button>`
+      ).join('') +
+      `<button onclick="app.showSection(${ATTRIBUTES.length + 1})">Abilities</button>`;
+  },
+
+  renderSections() {
+    const container = document.getElementById('sections-container');
+    container.innerHTML = this.renderPersonalitySection() +
+      ATTRIBUTES.map((attr, i) =>
+        this.renderAttributeSection(attr, i + 1)
+      ).join('') +
+      this.renderAbilitiesSection();
+
+    this.showSection(currentSection);
+  },
+
+  renderAttributeSection(attr, index) {
+    const subs = attr.subScores.map(sub => `
+      <div class="sub-score-item">
+        <div class="sub-score-name">${sub.name}</div>
+        <div class="sub-score-desc">${sub.desc}</div>
+        <div class="sub-score-row">
+          <input type="range" min="1" max="20" value="${state.subScores[sub.key] || 10}"
+            oninput="app.updateSubScore('${sub.key}', this.value)">
+          <span class="sub-score-value">${state.subScores[sub.key] || 10}</span>
+        </div>
+      </div>
+    `).join('');
+
+    const mainScore = this.getMainScore(attr.key);
+    const info = getScoreInfo(mainScore);
+
+    return `
+      <div class="attribute-section" id="section-${index}">
+        <div class="section-label">Attribute ${index} of ${ATTRIBUTES.length}</div>
+        <h2>${attr.name}</h2>
+        <div class="tagline">${attr.tagline}</div>
+        <div class="attribute-description">${attr.description}</div>
+
+        <div class="reflection-prompt">
+          <div class="prompt-label">Reflect</div>
+          <p>${attr.prompt}</p>
+        </div>
+
+        <div class="main-score-area" id="main-score-${attr.key}">
+          <div class="score-label">Your ${attr.name} Score</div>
+          <div class="score-display" id="score-display-${attr.key}" style="color: ${info.color}">${mainScore}</div>
+          <div class="score-meaning" style="color: ${info.color}">${info.label}</div>
+          <div class="override-area">
+            <button class="override-toggle ${state.overrides[attr.key] ? 'active' : ''}"
+              onclick="app.toggleOverride('${attr.key}')">
+              ${state.overrides[attr.key] ? 'Override: On' : 'Override: Off'}
+            </button>
+            ${state.overrides[attr.key] ? `
+              <input type="number" min="1" max="20" value="${state.scores[attr.key] || 10}"
+                class="main-score-input"
+                onchange="app.updateScore('${attr.key}', this.value)">
+            ` : ''}
+            <span class="indicator">${state.overrides[attr.key] ? 'manual' : 'auto-calculated from sub-scores'}</span>
+          </div>
+        </div>
+
+        <div class="sub-scores">
+          ${subs}
+        </div>
+
+        <div class="section-nav-buttons">
+          ${index > 0 ? `<button class="btn btn-secondary" onclick="app.showSection(${index - 1})">Previous</button>` : '<div></div>'}
+          <button class="btn btn-primary" onclick="app.showSection(${index + 1})">Next</button>
+        </div>
+      </div>
+    `;
+  },
+
+  renderAbilitiesSection() {
+    const attrOptions = ATTRIBUTES.map(a => `<option value="${a.key}">${a.name}</option>`).join('');
+
+    const abilities = state.abilities.map((ab, i) => `
+      <div class="ability-item">
+        <input type="text" placeholder="Ability name" value="${ab.name}"
+          onchange="app.updateAbility(${i}, 'name', this.value)">
+        <input type="number" min="1" max="20" value="${ab.score}"
+          onchange="app.updateAbility(${i}, 'score', parseInt(this.value))">
+        <select onchange="app.updateAbility(${i}, 'linked', this.value)">
+          <option value="">Link to...</option>
+          ${attrOptions.replace(`value="${ab.linked}"`, `value="${ab.linked}" selected`)}
+        </select>
+        <div class="ability-controls">
+          <button class="status-toggle ${ab.status === 'active' ? 'active' : 'dormant'}"
+            onclick="app.toggleAbilityStatus(${i})">
+            ${ab.status === 'active' ? 'Active' : 'Dormant'}
+          </button>
+          <button class="ability-remove" onclick="app.removeAbility(${i})">&times;</button>
+        </div>
+      </div>
+    `).join('');
+
+    return `
+      <div class="attribute-section" id="section-${ATTRIBUTES.length + 1}">
+        <div class="section-label">Skills & Pursuits</div>
+        <h2>Abilities</h2>
+        <div class="tagline">The specific things you can do that make you you.</div>
+        <div class="abilities-intro">
+          Add your abilities below — skills, competencies, hobbies, anything you can do.
+          Rate each on the 1–20 scale, link it to a core attribute, and mark whether it's
+          something you're actively practising or something that's gone dormant.
+        </div>
+        <div class="abilities-list">${abilities}</div>
+        <button class="btn btn-secondary btn-small" style="margin-top:20px" onclick="app.addAbility()">+ Add Ability</button>
+
+        <div class="section-nav-buttons">
+          <button class="btn btn-secondary" onclick="app.showSection(${ATTRIBUTES.length})">Previous</button>
+          <button class="btn btn-primary" onclick="app.viewSheet()">View My Sheet</button>
+        </div>
+      </div>
+    `;
+  },
+
+  renderPersonalitySection() {
+    const items = BFI_ITEMS.map((item, i) => `
+      <div style="margin-bottom: 20px;">
+        <div style="font-size: 13px; color: var(--medium-gray); margin-bottom: 8px;">
+          ${i + 1}. ${item.text}
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          ${[1, 2, 3, 4, 5].map(val => `
+            <button style="padding: 6px 10px; border: 1px solid var(--border-gray); background: ${
+              (state.bfiResponses[i] || 3) === val ? 'var(--warm-brown)' : 'var(--white)'
+            }; color: ${
+              (state.bfiResponses[i] || 3) === val ? 'var(--white)' : 'var(--medium-gray)'
+            }; border-radius: 3px; cursor: pointer; font-family: var(--font-sans); font-size: 12px;"
+              onclick="app.updateBFI(${i}, ${val})">
+              ${val === 1 ? 'Strongly Disagree' : val === 2 ? 'Disagree' : val === 3 ? 'Neutral' : val === 4 ? 'Agree' : 'Strongly Agree'}
+            </button>
+          `).join('')}
+        </div>
+      </div>
+    `).join('');
+
+    return `
+      <div class="attribute-section" id="section-0">
+        <div class="section-label">Personality</div>
+        <h2>Big Five (BFI-10)</h2>
+        <div class="tagline">How you tend to move through the world.</div>
+        <div class="attribute-description">
+          Your personality measures your tendencies — not achievements. There are no good or bad profiles. Rate each statement from 1 (Strongly Disagree) to 5 (Strongly Agree) based on how you genuinely see yourself.
+        </div>
+        <div style="padding: 20px 0;">${items}</div>
+
+        <div class="section-nav-buttons">
+          <div></div>
+          <button class="btn btn-primary" onclick="app.showSection(1)">Next</button>
+        </div>
+      </div>
+    `;
+  },
+
+  showSection(index) {
+    document.querySelectorAll('.attribute-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.section-nav button').forEach(b => b.classList.remove('active'));
+
+    const section = document.getElementById(`section-${index}`);
+    if (section) {
+      section.classList.add('active');
+      currentSection = index;
+    }
+
+    const buttons = document.querySelectorAll('.section-nav button');
+    if (buttons[index]) buttons[index].classList.add('active');
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  },
+
+  // ==================== SCORE LOGIC ====================
+
+  getMainScore(attrKey) {
+    if (state.overrides[attrKey]) {
+      return state.scores[attrKey] || 10;
+    }
+
+    const attr = ATTRIBUTES.find(a => a.key === attrKey);
+    if (!attr) return 10;
+
+    const values = attr.subScores.map(sub => state.subScores[sub.key] || 10);
+    const avg = values.reduce((a, b) => a + b, 0) / values.length;
+    return Math.round(avg);
+  },
+
+  toggleOverride(attrKey) {
+    state.overrides[attrKey] = !state.overrides[attrKey];
+    if (!state.overrides[attrKey]) {
+      state.scores[attrKey] = this.getMainScore(attrKey);
+    }
+    this.refreshAttributeMainScore(attrKey);
+    this.autoSave();
+  },
+
+  refreshAttributeMainScore(attrKey) {
+    const attr = ATTRIBUTES.find(a => a.key === attrKey);
+    if (!attr) return;
+    const mainScore = this.getMainScore(attrKey);
+    const info = getScoreInfo(mainScore);
+    const scoreArea = document.getElementById(`main-score-${attrKey}`);
+    if (scoreArea) {
+      scoreArea.innerHTML = `
+        <div class="score-label">Your ${attr.name} Score</div>
+        <div class="score-display" id="score-display-${attrKey}" style="color: ${info.color}">${mainScore}</div>
+        <div class="score-meaning" style="color: ${info.color}">${info.label}</div>
+        <div class="override-area">
+          <button class="override-toggle ${state.overrides[attrKey] ? 'active' : ''}"
+            onclick="app.toggleOverride('${attrKey}')">
+            ${state.overrides[attrKey] ? 'Override: On' : 'Override: Off'}
+          </button>
+          ${state.overrides[attrKey] ? `
+            <input type="number" min="1" max="20" value="${state.scores[attrKey] || 10}"
+              class="main-score-input"
+              onchange="app.updateScore('${attrKey}', this.value)">
+          ` : ''}
+          <span class="indicator">${state.overrides[attrKey] ? 'manual' : 'auto-calculated from sub-scores'}</span>
+        </div>
+      `;
+    }
+  },
+
+  updateScore(attrKey, value) {
+    state.scores[attrKey] = parseInt(value);
+    this.refreshAttributeMainScore(attrKey);
+    this.autoSave();
+  },
+
+  updateSubScore(subKey, value) {
+    state.subScores[subKey] = parseInt(value);
+
+    const slider = document.querySelector(`input[oninput*="'${subKey}'"]`);
+    if (slider) {
+      const valueSpan = slider.parentElement.querySelector('.sub-score-value');
+      if (valueSpan) valueSpan.textContent = value;
+    }
+
+    const attr = ATTRIBUTES.find(a => a.subScores.some(s => s.key === subKey));
+    if (attr && !state.overrides[attr.key]) {
+      state.scores[attr.key] = this.getMainScore(attr.key);
+      this.refreshAttributeMainScore(attr.key);
+    }
+
+    this.autoSave();
+  },
+
+  addAbility() {
+    state.abilities.push({ name: '', score: 10, linked: '', status: 'active' });
+    this.refreshAbilitiesSection();
+    this.autoSave();
+  },
+
+  removeAbility(index) {
+    state.abilities.splice(index, 1);
+    this.refreshAbilitiesSection();
+    this.autoSave();
+  },
+
+  updateAbility(index, field, value) {
+    state.abilities[index][field] = value;
+    this.autoSave();
+  },
+
+  toggleAbilityStatus(index) {
+    state.abilities[index].status = state.abilities[index].status === 'active' ? 'dormant' : 'active';
+    this.refreshAbilitiesSection();
+    this.autoSave();
+  },
+
+  refreshAbilitiesSection() {
+    const section = document.getElementById(`section-${ATTRIBUTES.length + 1}`);
+    if (!section) return;
+    const attrOptions = ATTRIBUTES.map(a => `<option value="${a.key}">${a.name}</option>`).join('');
+    const abilities = state.abilities.map((ab, i) => `
+      <div class="ability-item">
+        <input type="text" placeholder="Ability name" value="${ab.name}"
+          onchange="app.updateAbility(${i}, 'name', this.value)">
+        <input type="number" min="1" max="20" value="${ab.score}"
+          onchange="app.updateAbility(${i}, 'score', parseInt(this.value))">
+        <select onchange="app.updateAbility(${i}, 'linked', this.value)">
+          <option value="">Link to...</option>
+          ${attrOptions.replace(new RegExp(`value="${ab.linked}"`), `value="${ab.linked}" selected`)}
+        </select>
+        <div class="ability-controls">
+          <button class="status-toggle ${ab.status === 'active' ? 'active' : 'dormant'}"
+            onclick="app.toggleAbilityStatus(${i})">
+            ${ab.status === 'active' ? 'Active' : 'Dormant'}
+          </button>
+          <button class="ability-remove" onclick="app.removeAbility(${i})">&times;</button>
+        </div>
+      </div>
+    `).join('');
+    const abilitiesList = section.querySelector('.abilities-list');
+    if (abilitiesList) abilitiesList.innerHTML = abilities;
+  },
+
+  updateBFI(index, value) {
+    state.bfiResponses[index] = value;
+    const section = document.getElementById('section-0');
+    if (section) {
+      const items = section.querySelectorAll('[style*="margin-bottom: 20px"]');
+      if (items[index]) {
+        const buttons = items[index].querySelectorAll('button');
+        buttons.forEach((btn, btnIdx) => {
+          const val = btnIdx + 1;
+          if (value === val) {
+            btn.style.background = 'var(--warm-brown)';
+            btn.style.color = 'var(--white)';
+          } else {
+            btn.style.background = 'var(--white)';
+            btn.style.color = 'var(--medium-gray)';
+          }
+        });
+      }
+    }
+    this.autoSave();
+  },
+
+  calculateBFIScores() {
+    const traits = {};
+    Object.keys(TRAIT_INFO).forEach(trait => { traits[trait] = []; });
+
+    BFI_ITEMS.forEach((item, i) => {
+      let response = state.bfiResponses[i] || 3;
+      if (item.reverse) response = 6 - response;
+      traits[item.trait].push(response);
+    });
+
+    const scores = {};
+    Object.keys(traits).forEach(trait => {
+      const mean = traits[trait].reduce((a, b) => a + b, 0) / traits[trait].length;
+      scores[trait] = Math.round(mean * 2) / 2;
+    });
+
+    return scores;
+  },
+
+  // ==================== SHEET RENDERING ====================
+
+  renderSheet() {
+    this.renderSheetHeader();
+    this.renderSheetRadar();
+    this.renderSheetScores();
+    this.renderSheetPersonality();
+    this.renderSheetAbilities();
+  },
+
+  renderSheetHeader() {
+    document.getElementById('sheet-name').textContent = state.profile.name || 'Character';
+
+    const age = state.profile.age ? `Age ${state.profile.age}` : '';
+    const gender = state.profile.gender ? (state.profile.gender.charAt(0).toUpperCase() + state.profile.gender.slice(1)) : '';
+    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    const parts = [age, gender, date].filter(Boolean);
+    document.getElementById('sheet-meta').innerHTML = parts.map(m => `<span>${m}</span>`).join('');
+
+    const imgEl = document.getElementById('sheet-img');
+    const placeholderEl = document.getElementById('sheet-photo-placeholder');
+
+    if (state.profile.photo) {
+      imgEl.src = state.profile.photo;
+      imgEl.style.display = 'block';
+      placeholderEl.style.display = 'none';
+    } else {
+      imgEl.style.display = 'none';
+      placeholderEl.style.display = 'block';
+    }
+  },
+
+  renderSheetRadar() {
+    const canvas = document.getElementById('radarChart');
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+
+    const size = 600;
+    canvas.width = size * dpr;
+    canvas.height = size * dpr;
+    canvas.style.width = size + 'px';
+    canvas.style.height = size + 'px';
+    ctx.scale(dpr, dpr);
+
+    const cx = size / 2, cy = size / 2, maxR = 180;
+    const n = ATTRIBUTES.length;
+    const angleStep = (2 * Math.PI) / n;
+    const startAngle = -Math.PI / 2;
+
+    ctx.clearRect(0, 0, size, size);
+
+    // Grid rings
+    for (let ring = 1; ring <= 4; ring++) {
+      const r = (ring / 4) * maxR;
+      ctx.beginPath();
+      for (let i = 0; i <= n; i++) {
+        const angle = startAngle + i * angleStep;
+        const x = cx + r * Math.cos(angle);
+        const y = cy + r * Math.sin(angle);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = '#E2E0DC';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+
+    // Axis lines
+    for (let i = 0; i < n; i++) {
+      const angle = startAngle + i * angleStep;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + maxR * Math.cos(angle), cy + maxR * Math.sin(angle));
+      ctx.strokeStyle = '#E2E0DC';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+
+    // Data polygon
+    const values = ATTRIBUTES.map(a => this.getMainScore(a.key));
+
+    ctx.beginPath();
+    values.forEach((val, i) => {
+      const r = (val / 20) * maxR;
+      const angle = startAngle + i * angleStep;
+      const x = cx + r * Math.cos(angle);
+      const y = cy + r * Math.sin(angle);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(139, 111, 71, 0.15)';
+    ctx.fill();
+
+    ctx.beginPath();
+    values.forEach((val, i) => {
+      const r = (val / 20) * maxR;
+      const angle = startAngle + i * angleStep;
+      const x = cx + r * Math.cos(angle);
+      const y = cy + r * Math.sin(angle);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.closePath();
+    ctx.strokeStyle = '#8B6F47';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Data points
+    values.forEach((val, i) => {
+      const r = (val / 20) * maxR;
+      const angle = startAngle + i * angleStep;
+      const x = cx + r * Math.cos(angle);
+      const y = cy + r * Math.sin(angle);
+      const info = getScoreInfo(val);
+      ctx.beginPath();
+      ctx.arc(x, y, 5, 0, 2 * Math.PI);
+      ctx.fillStyle = info.color;
+      ctx.fill();
+    });
+
+    // Labels
+    ATTRIBUTES.forEach((attr, i) => {
+      const angle = startAngle + i * angleStep;
+      const labelR = maxR + 60;
+      const x = cx + labelR * Math.cos(angle);
+      const y = cy + labelR * Math.sin(angle);
+
+      ctx.font = '13px -apple-system, Arial, sans-serif';
+      ctx.fillStyle = '#4A5568';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      if (Math.cos(angle) < -0.3) ctx.textAlign = 'right';
+      else if (Math.cos(angle) > 0.3) ctx.textAlign = 'left';
+
+      ctx.fillText(attr.name, x, y);
+
+      const score = this.getMainScore(attr.key);
+      const scoreInfo = getScoreInfo(score);
+      ctx.font = 'bold 13px -apple-system, Arial, sans-serif';
+      ctx.fillStyle = scoreInfo.color;
+      ctx.fillText(score, x, y + 18);
+    });
+  },
+
+  renderSheetScores() {
+    const html = ATTRIBUTES.map(attr => {
+      const score = this.getMainScore(attr.key);
+      const info = getScoreInfo(score);
+      const pct = ((score - 1) / 19) * 100;
+
+      const subBars = attr.subScores.map(sub => {
+        const subVal = state.subScores[sub.key] || 10;
+        const subInfo = getScoreInfo(subVal);
+        const subPct = ((subVal - 1) / 19) * 100;
+        return `
+          <div class="sub-score-bar-item">
+            <div class="sub-score-bar-name">${sub.name}</div>
+            <div class="sub-score-bar-value" style="color: ${subInfo.color}">${subVal}</div>
+            <div class="sub-bar-track">
+              <div class="sub-bar-fill" style="width: ${subPct}%; background: ${subInfo.color}"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      return `
+        <div class="score-item" onclick="this.classList.toggle('expanded')">
+          <div class="score-item-summary">
+            <div class="score-item-name">${attr.name}</div>
+            <div class="score-item-value" style="color: ${info.color}">${score}</div>
+            <div class="spectrum-bar">
+              <div class="spectrum-marker" style="left: ${pct}%; background: ${info.color}"></div>
+            </div>
+          </div>
+          <div class="score-item-expand-hint">tap to expand</div>
+          <div class="score-item-detail">
+            <div class="score-item-detail-inner">
+              <div class="score-item-detail-desc">${attr.description}</div>
+              <div class="score-item-detail-prompt">${attr.prompt}</div>
+              ${subBars}
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    document.getElementById('scores-grid').innerHTML = html;
+  },
+
+  renderSheetPersonality() {
+    const scores = this.calculateBFIScores();
+    const traits = ['openness', 'conscientiousness', 'extraversion', 'agreeableness', 'neuroticism'];
+
+    let html = `
+      <div class="personality-section-title">Personality</div>
+      <div class="personality-section-subtitle">How you tend to move through the world — tendencies, not achievements</div>
+    `;
+
+    html += traits.map(trait => {
+      const score = scores[trait]; // 1-5 scale
+      const pct = ((score - 1) / 4) * 100;
+      const info = TRAIT_INFO[trait];
+
+      let level, levelColor;
+      if (score <= 2) { level = 'Low'; levelColor = 'var(--color-struggling)'; }
+      else if (score <= 3.5) { level = 'Moderate'; levelColor = 'var(--color-average)'; }
+      else { level = 'High'; levelColor = 'var(--color-strong)'; }
+
+      const interpretation = score <= 2.5 ? info.low : score >= 3.5 ? info.high : `Between: ${info.low.toLowerCase()} and ${info.high.toLowerCase()}`;
+
+      return `
+        <div class="big-five-item">
+          <div class="big-five-header">
+            <div class="big-five-name">${info.name}</div>
+            <div class="big-five-level" style="color: ${levelColor}">${level} (${score.toFixed(1)})</div>
+          </div>
+          <div class="big-five-desc">${info.desc}</div>
+          <div class="big-five-bar-track">
+            <div class="big-five-bar-fill" style="width: ${pct}%; background: ${levelColor}"></div>
+          </div>
+          <div style="font-family: var(--font-sans); font-size: 11px; color: var(--light-gray); margin-top: 6px; font-style: italic;">${interpretation}</div>
+        </div>
+      `;
+    }).join('');
+
+    document.getElementById('personality-section-container').innerHTML = html;
+  },
+
+  renderSheetAbilities() {
+    const valid = state.abilities.filter(a => a.name.trim());
+    const container = document.getElementById('sheet-abilities-container');
+
+    if (valid.length === 0) {
+      container.style.display = 'none';
+      return;
+    }
+
+    container.style.display = 'block';
+    const html = valid.map(ab => {
+      const linked = ATTRIBUTES.find(a => a.key === ab.linked)?.name || '—';
+      const info = getScoreInfo(ab.score);
+      return `
+        <div class="ability-row">
+          <div class="ability-row-name">${ab.name}</div>
+          <div class="ability-row-score" style="color: ${info.color}">${ab.score}</div>
+          <div class="ability-row-linked">${linked}</div>
+          <div class="ability-row-status ${ab.status}">${ab.status === 'active' ? 'Active' : 'Dormant'}</div>
+        </div>
+      `;
+    }).join('');
+
+    document.getElementById('sheet-abilities').innerHTML = html;
+  },
+
+  // ==================== STORAGE ====================
+
+  autoSave() {
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => this.save(), 500);
+  },
+
+  save() {
+    const data = {
+      version: 1,
+      profile: state.profile,
+      scores: state.scores,
+      subScores: state.subScores,
+      overrides: state.overrides,
+      bfiResponses: state.bfiResponses,
+      abilities: state.abilities
+    };
+    localStorage.setItem('charactersheet-data', JSON.stringify(data));
+  },
+
+  loadFromStorage() {
+    const saved = localStorage.getItem('charactersheet-data');
+    if (!saved) return;
+
+    const data = JSON.parse(saved);
+    state.profile = data.profile || { name: 'Character', age: '', gender: '', photo: null };
+    state.scores = data.scores || {};
+    state.subScores = data.subScores || {};
+    state.overrides = data.overrides || {};
+    state.bfiResponses = data.bfiResponses || {};
+    state.abilities = data.abilities || [];
+
+    ATTRIBUTES.forEach(attr => {
+      if (!state.scores[attr.key]) state.scores[attr.key] = 10;
+      if (!state.overrides[attr.key]) state.overrides[attr.key] = false;
+      attr.subScores.forEach(sub => {
+        if (!state.subScores[sub.key]) state.subScores[sub.key] = 10;
+      });
+    });
+
+    BFI_ITEMS.forEach((item, i) => {
+      if (!state.bfiResponses[i]) state.bfiResponses[i] = 3;
+    });
+  },
+
+  exportData() {
+    const data = {
+      version: 1,
+      profile: state.profile,
+      scores: state.scores,
+      subScores: state.subScores,
+      overrides: state.overrides,
+      bfiResponses: state.bfiResponses,
+      abilities: state.abilities.filter(a => a.name.trim())
+    };
+
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `character-sheet-${state.profile.name.toLowerCase().replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  },
+
+  importData() {
+    document.getElementById('import-input').click();
+  },
+
+  handleImport(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target.result);
+        state.profile = data.profile || { name: 'Character', age: '', gender: '', photo: null };
+        state.scores = data.scores || {};
+        state.subScores = data.subScores || {};
+        state.overrides = data.overrides || {};
+        state.bfiResponses = data.bfiResponses || {};
+        state.abilities = data.abilities || [];
+
+        ATTRIBUTES.forEach(attr => {
+          if (!state.scores[attr.key]) state.scores[attr.key] = 10;
+          if (!state.overrides[attr.key]) state.overrides[attr.key] = false;
+          attr.subScores.forEach(sub => {
+            if (!state.subScores[sub.key]) state.subScores[sub.key] = 10;
+          });
+        });
+
+        BFI_ITEMS.forEach((item, i) => {
+          if (!state.bfiResponses[i]) state.bfiResponses[i] = 3;
+        });
+
+        this.save();
+        this.showSheet();
+      } catch (err) {
+        alert('Could not read file. Please select a valid Character Sheet JSON file.');
+      }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+  },
+
+  resetSheet() {
+    if (confirm('Reset all data? This cannot be undone.')) {
+      localStorage.removeItem('charactersheet-data');
+      location.reload();
+    }
+  }
+};
+
+// Initialize
+window.addEventListener('load', () => app.init());
+</script>
+
+</body>
+</html>

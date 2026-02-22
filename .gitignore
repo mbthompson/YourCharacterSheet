@@ -1,0 +1,8 @@
+# Personal data exports (may contain base64 images and personal records)
+*.json
+
+# macOS
+.DS_Store
+
+# Microsoft Office temp files
+~$*
