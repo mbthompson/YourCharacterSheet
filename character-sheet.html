@@ -896,6 +896,7 @@
   .sheet-radar canvas {
     max-width: 100%;
     height: auto;
+    aspect-ratio: 1;
   }
 
   /* ==================== SCORE ITEMS (Sheet) ==================== */
@@ -1726,6 +1727,7 @@ const app = {
     document.getElementById('calculating-view').classList.remove('active');
     document.getElementById('sheet-view').classList.add('active');
     this.renderSheet();
+    window.scrollTo(0, 0);
   },
 
   editSheet() {
@@ -1803,15 +1805,29 @@ const app = {
 
   uploadPhoto(event) {
     const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        state.profile.photo = e.target.result;
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 800;
+        let w = img.width, h = img.height;
+        if (w > MAX || h > MAX) {
+          if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+          else { w = Math.round(w * MAX / h); h = MAX; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        state.profile.photo = canvas.toDataURL('image/jpeg', 0.8);
         this.renderProfile();
         this.autoSave();
       };
-      reader.readAsDataURL(file);
-    }
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
   },
 
   // ==================== EDIT NAV & SECTIONS ====================
@@ -2046,7 +2062,9 @@ const app = {
   },
 
   updateScore(attrKey, value) {
-    state.scores[attrKey] = parseInt(value);
+    const n = parseInt(value);
+    if (isNaN(n)) return;
+    state.scores[attrKey] = Math.max(1, Math.min(20, n));
     this.refreshAttributeMainScore(attrKey);
     this.autoSave();
   },
@@ -2195,14 +2213,14 @@ const app = {
     const ctx = canvas.getContext('2d');
     const dpr = window.devicePixelRatio || 1;
 
-    const size = 600;
+    const size = 660;
     canvas.width = size * dpr;
     canvas.height = size * dpr;
     canvas.style.width = size + 'px';
     canvas.style.height = size + 'px';
     ctx.scale(dpr, dpr);
 
-    const cx = size / 2, cy = size / 2, maxR = 180;
+    const cx = size / 2, cy = size / 2, maxR = 190;
     const n = ATTRIBUTES.length;
     const angleStep = (2 * Math.PI) / n;
     const startAngle = -Math.PI / 2;
@@ -2431,7 +2449,13 @@ const app = {
       bfiResponses: state.bfiResponses,
       abilities: state.abilities
     };
-    localStorage.setItem('charactersheet-data', JSON.stringify(data));
+    try {
+      localStorage.setItem('charactersheet-data', JSON.stringify(data));
+    } catch (e) {
+      if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+        alert('Storage is full. Your changes could not be saved. Try exporting your data and clearing some browser storage.');
+      }
+    }
   },
 
   loadFromStorage() {
@@ -2482,7 +2506,8 @@ const app = {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `character-sheet-${state.profile.name.toLowerCase().replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.json`;
+    const safeName = state.profile.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'character';
+    a.download = `character-sheet-${safeName}-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
     URL.revokeObjectURL(url);
   },
