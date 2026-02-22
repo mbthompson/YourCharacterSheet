@@ -396,21 +396,79 @@
   }
 
   /* Profile Section */
-  .profile-section {
-    background: var(--white);
-    border: 1px solid var(--border-gray);
-    border-radius: 8px;
-    padding: 32px;
-    margin-bottom: 40px;
+  /* Profile section (now inside the guided flow) */
+  .profile-section-body {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .profile-photo-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .profile-photo-hint {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    color: var(--light-gray);
+  }
+
+  .profile-fields-grid {
     display: grid;
-    grid-template-columns: 120px 1fr;
-    gap: 32px;
-    align-items: start;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .profile-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .profile-field.profile-field-wide {
+    grid-column: 1 / -1;
+  }
+
+  .profile-field label {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--light-gray);
+  }
+
+  .field-optional {
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 11px;
+    color: var(--light-gray);
+    opacity: 0.7;
+  }
+
+  .profile-field input,
+  .profile-field select {
+    font-family: var(--font-serif);
+    font-size: 16px;
+    border: 1px solid var(--border-gray);
+    padding: 10px 12px;
+    border-radius: 4px;
+    color: var(--charcoal);
+    outline: none;
+    transition: border-color 0.2s;
+    background: var(--white);
+  }
+
+  .profile-field input:focus,
+  .profile-field select:focus {
+    border-color: var(--warm-brown);
   }
 
   .profile-photo {
-    width: 120px;
-    height: 120px;
+    width: 100px;
+    height: 100px;
     border-radius: 50%;
     background: var(--very-light-gray);
     border: 2px solid var(--border-gray);
@@ -441,35 +499,7 @@
 
   #photo-input, #import-input { display: none; }
 
-  .profile-inputs {
-    display: grid;
-    gap: 16px;
-  }
-
-  .profile-inputs label {
-    font-family: var(--font-sans);
-    font-size: 12px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: var(--light-gray);
-    display: block;
-    margin-bottom: 4px;
-  }
-
-  .profile-inputs input, .profile-inputs select {
-    font-family: var(--font-serif);
-    font-size: 16px;
-    border: 1px solid var(--border-gray);
-    padding: 10px 12px;
-    border-radius: 4px;
-    color: var(--charcoal);
-    outline: none;
-    transition: border-color 0.2s;
-  }
-
-  .profile-inputs input:focus, .profile-inputs select:focus {
-    border-color: var(--warm-brown);
-  }
+  /* (profile-inputs CSS removed — profile is now a guided-flow section) */
 
   /* Navigation */
   .section-nav {
@@ -506,6 +536,21 @@
     background: var(--btn-accent, var(--warm-brown));
     color: var(--white);
     border-color: var(--btn-accent, var(--warm-brown));
+  }
+
+  .section-nav button.active .nav-attr-dot {
+    background: rgba(255,255,255,0.7) !important;
+  }
+
+  .nav-attr-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    margin-right: 5px;
+    vertical-align: middle;
+    margin-top: -1px;
+    flex-shrink: 0;
   }
 
   /* Attribute Sections */
@@ -1384,6 +1429,8 @@
     .tutorial-page h1 { font-size: 36px; }
     .tutorial-page h2 { font-size: 28px; }
     .attr-preview-grid { grid-template-columns: 1fr; }
+    .profile-fields-grid { grid-template-columns: 1fr; }
+    .profile-field.profile-field-wide { grid-column: 1; }
     .sub-score-bar-item { grid-template-columns: 90px 30px 1fr; }
     .big-five-item { padding: 14px 16px; }
     .sub-step-value-row .sub-score-value { font-size: 32px; }
@@ -1432,36 +1479,6 @@
       </div>
     </div>
 
-    <!-- Profile -->
-    <div class="profile-section">
-      <div class="profile-photo" onclick="document.getElementById('photo-input').click()">
-        <img id="profile-img" style="display: none;">
-        <div class="profile-photo-placeholder" id="photo-placeholder">+</div>
-      </div>
-      <div class="profile-inputs">
-        <div>
-          <label>Name</label>
-          <input type="text" id="input-name" placeholder="Your name" onchange="app.updateProfile()">
-        </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-          <div>
-            <label>Age</label>
-            <input type="number" id="input-age" placeholder="Age" onchange="app.updateProfile()">
-          </div>
-          <div>
-            <label>Gender</label>
-            <select id="input-gender" onchange="app.updateProfile()">
-              <option value="">Select...</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="non-binary">Non-binary</option>
-              <option value="other">Other</option>
-              <option value="prefer-not">Prefer not to say</option>
-            </select>
-          </div>
-        </div>
-      </div>
-    </div>
     <input type="file" id="photo-input" accept="image/*" onchange="app.uploadPhoto(event)">
     <input type="file" id="import-input" accept=".json" style="display:none" onchange="app.handleImport(event)">
 
@@ -1695,7 +1712,7 @@ function escapeHtml(str) {
 
 // State
 const state = {
-  profile: { name: 'Character', age: '', gender: '', photo: null },
+  profile: { name: 'Character', age: '', gender: '', occupation: '', location: '', relationship: '', photo: null },
   scores: {},
   subScores: {},
   overrides: {},
@@ -1703,7 +1720,7 @@ const state = {
   abilities: []
 };
 
-let currentSection = 0;
+let currentSection = -1; // -1 = Profile, 0 = Personality, 1-8 = attributes, 9 = Abilities
 let currentSubStep = 0;  // 0 = intro, 1..N = sub-scale index within current attribute
 let currentBFIStep = -1; // -1 = BFI intro, 0–9 = individual BFI items
 let saveTimeout = null;
@@ -1764,8 +1781,8 @@ const app = {
     const container = document.getElementById('tutorial-pages-container');
 
     const attrCards = ATTRIBUTES.map(a => `
-      <div class="attr-preview-card">
-        <div class="attr-preview-name">${a.name}</div>
+      <div class="attr-preview-card" style="border-left: 3px solid var(--attr-${a.key})">
+        <div class="attr-preview-name" style="color: var(--attr-${a.key})">${a.name}</div>
         <div class="attr-preview-tagline">${a.tagline}</div>
       </div>
     `).join('');
@@ -1842,24 +1859,10 @@ const app = {
       // PAGE 5 — Let's Begin
       `<div class="tutorial-page">
         <div class="tutorial-page-content">
-          <h2>Let's Begin</h2>
+          <h2>Ready</h2>
           <p style="margin-top: 32px; font-size: 18px;">Take your time. Be honest. There are no right answers and no one is grading you.</p>
           <p style="font-size: 17px;">This sheet is for you alone — unless you choose to share it.</p>
-          <div class="tutorial-form">
-            <label>Your Name</label>
-            <input type="text" id="tutorial-name" placeholder="Enter your name">
-            <label>Age (optional)</label>
-            <input type="number" id="tutorial-age" placeholder="Age">
-            <label>Gender (optional)</label>
-            <select id="tutorial-gender">
-              <option value="">Select...</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="non-binary">Non-binary</option>
-              <option value="other">Other</option>
-              <option value="prefer-not">Prefer not to say</option>
-            </select>
-          </div>
+          <p style="margin-top: 24px; color: var(--medium-gray);">You'll start by entering a few details about yourself, then move through each section at your own pace. You can return and edit anything at any time.</p>
           <div class="tutorial-actions">
             <button class="btn btn-secondary" onclick="app.scrollToPage(3)">Back</button>
             <button class="btn btn-primary" onclick="app.completeTutorial()">Create My Sheet</button>
@@ -1879,26 +1882,24 @@ const app = {
   },
 
   skipTutorial() {
-    this.completeTutorial();
+    document.getElementById('tutorial-view').classList.remove('active');
+    this.showEdit();
+    const isNew = !localStorage.getItem('charactersheet-data');
+    if (isNew) this.initializeNewSheet();
+    this.buildEditView(isNew);
+    this.save();
   },
 
   completeTutorial() {
-    const name = document.getElementById('tutorial-name')?.value || 'Character';
-    const age = document.getElementById('tutorial-age')?.value || '';
-    const gender = document.getElementById('tutorial-gender')?.value || '';
-
-    state.profile.name = name;
-    state.profile.age = age;
-    state.profile.gender = gender;
-
     document.getElementById('tutorial-view').classList.remove('active');
     this.showEdit();
 
-    // Only initialize if this is truly a new sheet
-    if (!localStorage.getItem('charactersheet-data')) {
+    const isNew = !localStorage.getItem('charactersheet-data');
+    if (isNew) {
       this.initializeNewSheet();
     }
-    this.buildEditView();
+    // Start on Profile section for new sheets; preserve current section for returning users
+    this.buildEditView(isNew);
     this.save();
   },
 
@@ -1960,38 +1961,92 @@ const app = {
     setTimeout(showNext, 300);
   },
 
-  buildEditView() {
+  buildEditView(startOnProfile) {
     if (!GLOBAL_STEP_MAP) GLOBAL_STEP_MAP = buildGlobalStepMap();
-    this.renderProfile();
+    if (startOnProfile) currentSection = -1;
     this.renderNav();
     this.renderSections();
   },
 
   // ==================== PROFILE ====================
 
-  renderProfile() {
-    document.getElementById('input-name').value = state.profile.name || '';
-    document.getElementById('input-age').value = state.profile.age || '';
-    document.getElementById('input-gender').value = state.profile.gender || '';
-
-    const imgEl = document.getElementById('profile-img');
-    const placeholderEl = document.getElementById('photo-placeholder');
-
-    if (state.profile.photo) {
-      imgEl.src = state.profile.photo;
-      imgEl.style.display = 'block';
-      placeholderEl.style.display = 'none';
-    } else {
-      imgEl.style.display = 'none';
-      placeholderEl.style.display = 'block';
-    }
+  renderProfileSection() {
+    const p = state.profile;
+    const photoHtml = p.photo
+      ? `<img id="profile-img" src="${p.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+      : `<img id="profile-img" style="display:none;"><div class="profile-photo-placeholder" id="photo-placeholder">+</div>`;
+    return `
+      <div class="attribute-section" id="section-profile">
+        <div class="attribute-section-header">
+          <h2>About You</h2>
+          <span class="tagline">A few details for your character sheet.</span>
+        </div>
+        <div class="profile-section-body">
+          <div class="profile-photo-wrap">
+            <div class="profile-photo" onclick="document.getElementById('photo-input').click()" title="Click to add a photo">
+              ${photoHtml}
+            </div>
+            <div class="profile-photo-hint">Click to add a photo</div>
+          </div>
+          <div class="profile-fields-grid">
+            <div class="profile-field profile-field-wide">
+              <label>Name</label>
+              <input type="text" id="input-name" placeholder="Your name" value="${escapeHtml(p.name || '')}" oninput="app.updateProfile()">
+            </div>
+            <div class="profile-field">
+              <label>Age <span class="field-optional">(optional)</span></label>
+              <input type="number" id="input-age" placeholder="e.g. 34" min="1" max="120" value="${escapeHtml(p.age || '')}" oninput="app.updateProfile()">
+            </div>
+            <div class="profile-field">
+              <label>Gender <span class="field-optional">(optional)</span></label>
+              <select id="input-gender" onchange="app.updateProfile()">
+                <option value="">Select...</option>
+                <option value="male"${p.gender === 'male' ? ' selected' : ''}>Male</option>
+                <option value="female"${p.gender === 'female' ? ' selected' : ''}>Female</option>
+                <option value="non-binary"${p.gender === 'non-binary' ? ' selected' : ''}>Non-binary</option>
+                <option value="other"${p.gender === 'other' ? ' selected' : ''}>Other</option>
+                <option value="prefer-not"${p.gender === 'prefer-not' ? ' selected' : ''}>Prefer not to say</option>
+              </select>
+            </div>
+            <div class="profile-field profile-field-wide">
+              <label>Occupation <span class="field-optional">(optional)</span></label>
+              <input type="text" id="input-occupation" placeholder="e.g. Teacher, Software engineer, Student" value="${escapeHtml(p.occupation || '')}" oninput="app.updateProfile()">
+            </div>
+            <div class="profile-field">
+              <label>Location <span class="field-optional">(optional)</span></label>
+              <input type="text" id="input-location" placeholder="e.g. Melbourne" value="${escapeHtml(p.location || '')}" oninput="app.updateProfile()">
+            </div>
+            <div class="profile-field">
+              <label>Relationship <span class="field-optional">(optional)</span></label>
+              <select id="input-relationship" onchange="app.updateProfile()">
+                <option value="">Select...</option>
+                <option value="single"${p.relationship === 'single' ? ' selected' : ''}>Single</option>
+                <option value="partnered"${p.relationship === 'partnered' ? ' selected' : ''}>Partnered</option>
+                <option value="married"${p.relationship === 'married' ? ' selected' : ''}>Married</option>
+                <option value="separated"${p.relationship === 'separated' ? ' selected' : ''}>Separated</option>
+                <option value="divorced"${p.relationship === 'divorced' ? ' selected' : ''}>Divorced</option>
+                <option value="widowed"${p.relationship === 'widowed' ? ' selected' : ''}>Widowed</option>
+                <option value="complicated"${p.relationship === 'complicated' ? ' selected' : ''}>It's complicated</option>
+              </select>
+            </div>
+          </div>
+          <div class="sub-step-nav" style="margin-top: 32px;">
+            <div></div>
+            <button class="btn btn-primary" onclick="app.stepForward()">Next</button>
+          </div>
+        </div>
+      </div>
+    `;
   },
 
   updateProfile() {
-    state.profile.name = document.getElementById('input-name').value || 'Character';
-    state.profile.age = document.getElementById('input-age').value;
-    state.profile.gender = document.getElementById('input-gender').value;
-    this.autoSave();
+    state.profile.name = document.getElementById('input-name')?.value || 'Character';
+    state.profile.age = document.getElementById('input-age')?.value || '';
+    state.profile.gender = document.getElementById('input-gender')?.value || '';
+    state.profile.occupation = document.getElementById('input-occupation')?.value || '';
+    state.profile.location = document.getElementById('input-location')?.value || '';
+    state.profile.relationship = document.getElementById('input-relationship')?.value || '';
+    this.scheduleSave();
   },
 
   uploadPhoto(event) {
@@ -2013,7 +2068,11 @@ const app = {
         canvas.height = h;
         canvas.getContext('2d').drawImage(img, 0, 0, w, h);
         state.profile.photo = canvas.toDataURL('image/jpeg', 0.8);
-        this.renderProfile();
+        // Update profile photo in the section without full rebuild
+        const profileImgEl = document.getElementById('profile-img');
+        const photoPlaceholderEl = document.getElementById('photo-placeholder');
+        if (profileImgEl) { profileImgEl.src = state.profile.photo; profileImgEl.style.display = 'block'; }
+        if (photoPlaceholderEl) photoPlaceholderEl.style.display = 'none';
         this.autoSave();
       };
       img.src = e.target.result;
@@ -2025,16 +2084,19 @@ const app = {
 
   renderNav() {
     const nav = document.getElementById('section-nav');
-    nav.innerHTML = `<button onclick="app.showSection(0)">Personality</button>` +
+    nav.innerHTML =
+      `<button data-section="-1" onclick="app.showSection(-1)">Profile</button>` +
+      `<button data-section="0" onclick="app.showSection(0)">Personality</button>` +
       ATTRIBUTES.map((attr, i) =>
-        `<button onclick="app.showSection(${i + 1})" style="--btn-accent: var(--attr-${attr.key})">${attr.name}</button>`
+        `<button data-section="${i + 1}" onclick="app.showSection(${i + 1})" style="--btn-accent: var(--attr-${attr.key})"><span class="nav-attr-dot" style="background: var(--attr-${attr.key})"></span>${attr.name}</button>`
       ).join('') +
-      `<button onclick="app.showSection(${ATTRIBUTES.length + 1})">Abilities</button>`;
+      `<button data-section="${ATTRIBUTES.length + 1}" onclick="app.showSection(${ATTRIBUTES.length + 1})">Abilities</button>`;
   },
 
   renderSections() {
     const container = document.getElementById('sections-container');
-    container.innerHTML = this.renderPersonalitySection() +
+    container.innerHTML = this.renderProfileSection() +
+      this.renderPersonalitySection() +
       ATTRIBUTES.map((attr, i) =>
         this.renderAttributeSection(attr, i + 1)
       ).join('') +
@@ -2197,17 +2259,21 @@ const app = {
   _activateSection(index) {
     document.querySelectorAll('.attribute-section').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.section-nav button').forEach(b => b.classList.remove('active'));
-    const section = document.getElementById(`section-${index}`);
+    const sectionId = index === -1 ? 'section-profile' : `section-${index}`;
+    const section = document.getElementById(sectionId);
     if (section) section.classList.add('active');
-    const buttons = document.querySelectorAll('.section-nav button');
-    if (buttons[index]) buttons[index].classList.add('active');
+    const btn = document.querySelector(`.section-nav button[data-section="${index}"]`);
+    if (btn) btn.classList.add('active');
     currentSection = index;
   },
 
   showSection(index) {
     this._activateSection(index);
     currentSubStep = 0;
-    if (index === 0) {
+    if (index === -1) {
+      // Profile section — just scroll to it
+      this._scrollToSection();
+    } else if (index === 0) {
       // Personality section: reset to BFI intro
       currentBFIStep = -1;
       this.showBFIStep(-1);
@@ -2295,6 +2361,7 @@ const app = {
   },
 
   stepForward() {
+    if (currentSection === -1) { this.showSection(0); return; } // Profile -> Personality
     if (currentSection === 0) {
       // BFI navigation
       if (currentBFIStep === -1) { this.showBFIStep(0); return; }
@@ -2311,11 +2378,12 @@ const app = {
   },
 
   stepBack() {
+    if (currentSection === -1) return; // Profile has no previous
     if (currentSection === 0) {
       // BFI navigation
       if (currentBFIStep > 0) { this.showBFIStep(currentBFIStep - 1); return; }
       if (currentBFIStep === 0) { this.showBFIStep(-1); return; } // back to BFI intro
-      return; // on intro, no previous
+      this.showSection(-1); return; // BFI intro -> Profile
     }
 
     if (currentSection === ATTRIBUTES.length + 1) {
@@ -2523,10 +2591,13 @@ const app = {
 
     const age = state.profile.age ? `Age ${state.profile.age}` : '';
     const gender = state.profile.gender ? (state.profile.gender.charAt(0).toUpperCase() + state.profile.gender.slice(1)) : '';
-    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    const occupation = state.profile.occupation || '';
+    const location = state.profile.location || '';
+    const relationship = state.profile.relationship ? (state.profile.relationship.charAt(0).toUpperCase() + state.profile.relationship.slice(1)) : '';
+    const date = new Date().toLocaleDateString('en-AU', { year: 'numeric', month: 'long', day: 'numeric' });
 
-    const parts = [age, gender, date].filter(Boolean);
-    document.getElementById('sheet-meta').innerHTML = parts.map(m => `<span>${m}</span>`).join('');
+    const parts = [age, gender, occupation, location, relationship, date].filter(Boolean);
+    document.getElementById('sheet-meta').innerHTML = parts.map(m => `<span>${escapeHtml(m)}</span>`).join('');
 
     const imgEl = document.getElementById('sheet-img');
     const placeholderEl = document.getElementById('sheet-photo-placeholder');
@@ -2804,7 +2875,11 @@ const app = {
       return;
     }
 
-    state.profile = data.profile || { name: 'Character', age: '', gender: '', photo: null };
+    state.profile = data.profile || { name: 'Character', age: '', gender: '', occupation: '', location: '', relationship: '', photo: null };
+    // Back-fill new fields for existing saves
+    if (!state.profile.occupation) state.profile.occupation = '';
+    if (!state.profile.location) state.profile.location = '';
+    if (!state.profile.relationship) state.profile.relationship = '';
     state.scores = data.scores || {};
     state.subScores = data.subScores || {};
     state.overrides = data.overrides || {};

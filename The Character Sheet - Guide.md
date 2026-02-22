@@ -86,7 +86,7 @@ Each attribute has a set of sub-scores: more specific facets that help you think
 
 ---
 
-### 1. Body
+### 1. Body `#7B6B8D`
 *Your physical self — health, capability, and energy.*
 
 Your Body score reflects the overall state of your physical existence. It's not about how you look. It's about how your body serves you: whether it's healthy, capable, energetic, and well-rested.
@@ -104,7 +104,7 @@ Your Body score reflects the overall state of your physical existence. It's not 
 
 ---
 
-### 2. Mind
+### 2. Mind `#4A7C8C`
 *Your mental life — clarity, emotional health, and intellectual engagement.*
 
 Your Mind score captures how well your inner world is functioning. This includes your cognitive sharpness, your emotional regulation, your psychological wellbeing, and your engagement with learning and ideas. A high Mind score doesn't mean you're a genius — it means your mental life is healthy, active, and well-managed.
@@ -121,7 +121,7 @@ Your Mind score captures how well your inner world is functioning. This includes
 
 ---
 
-### 3. Spirit
+### 3. Spirit `#8C6B4A`
 *Your relationship with meaning, purpose, and your own character.*
 
 Spirit is the deepest attribute. It reflects whether you feel your life has direction and meaning, whether you live with integrity, and whether you've made peace with being the person you are. This isn't necessarily about religion — though for some people it will be. It's about the foundational questions: Why am I here? Am I living in a way I respect? Can I accept myself as I am while still wanting to grow?
@@ -138,7 +138,7 @@ Spirit is the deepest attribute. It reflects whether you feel your life has dire
 
 ---
 
-### 4. Heart
+### 4. Heart `#8C4A5A`
 *Your connections — love, belonging, and generosity.*
 
 Heart captures the relational dimension of your life. Humans are social creatures, and the quality of our relationships is one of the strongest predictors of both happiness and longevity. This attribute asks: Are you loved? Do you love? Are you connected to others in ways that sustain you?
@@ -155,7 +155,7 @@ Heart captures the relational dimension of your life. Humans are social creature
 
 ---
 
-### 5. Standing
+### 5. Standing `#6B7A4A`
 *Your place in the world — career, wealth, reputation, and home.*
 
 Standing reflects how the external world sees you and what you've built in material terms. This is the most outward-facing attribute. It's not about vanity — it's about recognising that where you live, what you earn, how your career is going, and what others think of you all affect your quality of life, whether or not you think they should.
@@ -171,7 +171,7 @@ Standing reflects how the external world sees you and what you've built in mater
 
 ---
 
-### 6. Resilience
+### 6. Resilience `#4A6B7A`
 *Your capacity to withstand adversity and recover from setbacks.*
 
 Resilience is different from every other attribute because it only reveals itself under pressure. You might think your Resilience is high when life is going well — but you don't really know until something goes wrong. This attribute asks you to honestly assess: When life hits me, how do I respond? And how do I know? Look at the evidence from the last time things got hard.
@@ -187,7 +187,7 @@ Resilience is different from every other attribute because it only reveals itsel
 
 ---
 
-### 7. Discipline
+### 7. Discipline `#5A5A6B`
 *Your ability to do what you intend to do.*
 
 Discipline is the engine that turns intention into action. You can have brilliant goals, deep motivation, and a clear plan — and still fail because you can't consistently execute. This attribute is about the gap between what you plan to do and what you actually do. It's the most honest stat on the sheet, because you can't fool yourself: either you did the thing, or you didn't.
@@ -203,7 +203,7 @@ Discipline is the engine that turns intention into action. You can have brillian
 
 ---
 
-### 8. Joy
+### 8. Joy `#8C7A4A`
 *Whether you're actually enjoying your life.*
 
 Joy is the attribute most people forget to check. You can be healthy, successful, disciplined, resilient, loved, and purposeful — and still not be having a good time. Joy asks the simplest and most important question: Are you enjoying this? Not in a hedonistic, pleasure-seeking way, but in the full sense: do you experience genuine delight, playfulness, laughter, and engagement in your daily life?
