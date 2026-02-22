@@ -26,6 +26,15 @@
     --color-strong: #16A34A;
     --color-excellent: #059669;
     --color-exceptional: #047857;
+    /* Per-attribute accent colours — muted, distinct hues. Remove these 8 lines to revert all accents to warm-brown. */
+    --attr-body:        #7B6B8D;
+    --attr-mind:        #4A7C8C;
+    --attr-spirit:      #8C6B4A;
+    --attr-heart:       #8C4A5A;
+    --attr-standing:    #6B7A4A;
+    --attr-resilience:  #4A6B7A;
+    --attr-discipline:  #5A5A6B;
+    --attr-joy:         #8C7A4A;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -494,9 +503,9 @@
   }
 
   .section-nav button.active {
-    background: var(--warm-brown);
+    background: var(--btn-accent, var(--warm-brown));
     color: var(--white);
-    border-color: var(--warm-brown);
+    border-color: var(--btn-accent, var(--warm-brown));
   }
 
   /* Attribute Sections */
@@ -509,7 +518,10 @@
     display: none;
   }
 
-  .attribute-section.active { display: block; }
+  .attribute-section.active {
+    display: block;
+    border-left: 4px solid var(--section-accent, var(--warm-brown));
+  }
 
   .attribute-section .section-label {
     font-family: var(--font-sans);
@@ -520,18 +532,7 @@
     margin-bottom: 8px;
   }
 
-  .attribute-section h2 {
-    font-size: 32px;
-    color: var(--charcoal);
-    margin-bottom: 4px;
-  }
-
-  .attribute-section .tagline {
-    font-style: italic;
-    color: var(--warm-brown);
-    font-size: 16px;
-    margin-bottom: 24px;
-  }
+  /* .attribute-section h2 and .tagline are now styled inside .attribute-section-header */
 
   .attribute-description {
     color: var(--medium-gray);
@@ -823,12 +824,40 @@
   /* ==================== GUIDED SUB-STEP LAYOUT ==================== */
 
   .attribute-section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
     margin-bottom: 28px;
-    padding-bottom: 20px;
+    padding-bottom: 16px;
     border-bottom: 1px solid var(--border-gray);
   }
 
-  .attribute-step-content.stepping {
+  .attribute-section-header h2 {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--section-accent, var(--warm-brown));
+    margin: 0;
+    flex-shrink: 0;
+  }
+
+  .attribute-section-header .tagline {
+    font-style: italic;
+    color: var(--medium-gray);
+    font-size: 13px;
+    margin: 0;
+    flex: 1;
+  }
+
+  .step-counter {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    color: var(--light-gray);
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  .attribute-step-content.stepping,
+  .bfi-step-content.stepping {
     animation: stepFadeIn 0.25s ease-out;
   }
 
@@ -848,10 +877,10 @@
 
   .sub-step-question-name {
     font-family: var(--font-sans);
-    font-size: 22px;
+    font-size: 26px;
     font-weight: 700;
     color: var(--deep-slate);
-    margin-bottom: 8px;
+    margin-bottom: 12px;
   }
 
   .sub-step-body .sub-score-desc {
@@ -900,6 +929,60 @@
     padding-top: 28px;
     border-top: 1px solid var(--border-gray);
     margin-top: 8px;
+  }
+
+  /* BFI one-by-one buttons */
+  .bfi-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 24px 0 32px;
+  }
+
+  .bfi-btn {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    padding: 14px 20px;
+    border: 1.5px solid var(--border-gray);
+    background: var(--white);
+    color: var(--medium-gray);
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+  }
+
+  .bfi-btn:hover {
+    border-color: var(--warm-brown);
+    color: var(--warm-brown);
+  }
+
+  .bfi-btn.selected {
+    background: var(--warm-brown);
+    color: var(--white);
+    border-color: var(--warm-brown);
+  }
+
+  .bfi-question {
+    font-style: italic;
+    font-weight: 600;
+    color: var(--deep-slate);
+  }
+
+  /* Scale anchors for sub-scale descriptions */
+  .scale-anchors {
+    font-size: 12px;
+    color: var(--light-gray);
+    line-height: 1.7;
+    display: block;
+    margin-top: 12px;
+    font-family: var(--font-sans);
+  }
+
+  .scale-anchors em {
+    font-style: normal;
+    font-weight: 600;
+    color: var(--medium-gray);
   }
 
   /* ==================== SHEET VIEW ==================== */
@@ -1445,12 +1528,12 @@ const ATTRIBUTES = [
     description: 'Your Body score reflects the overall state of your physical existence. It\'s not about how you look. It\'s about how your body serves you: whether it\'s healthy, capable, energetic, and well-rested.',
     prompt: 'If a doctor who knew everything about my physical state gave me an honest rating, what would they say?',
     subScores: [
-      { key: 'health', name: 'Health', desc: 'Are you free from illness and injury? How are your chronic conditions managed?' },
-      { key: 'strength', name: 'Strength', desc: 'Raw physical capability. Can you lift, carry, push, pull?' },
-      { key: 'agility', name: 'Agility', desc: 'Flexibility, coordination, balance. Can you move with control and grace?' },
-      { key: 'stamina', name: 'Stamina', desc: 'Cardiovascular endurance. Could you run for a bus without distress?' },
-      { key: 'vitality', name: 'Vitality', desc: 'Your day-to-day energy levels. Do you wake up ready to go?' },
-      { key: 'rest', name: 'Rest', desc: 'Sleep quality and recovery. Are you getting enough good sleep?' },
+      { key: 'health', name: 'Health', desc: 'Considers chronic conditions, illness, injury history, and current health status. Not about perfection — about how your body is actually functioning day to day.<br><br><span class="scale-anchors"><em>1–4:</em> Managing serious illness, chronic pain, or frequent health crises &nbsp;·&nbsp; <em>9–12:</em> Generally healthy; minor issues managed, no major limitations &nbsp;·&nbsp; <em>18–20:</em> Excellent health across the board; rarely sick, conditions well-controlled or absent</span>' },
+      { key: 'strength', name: 'Strength', desc: 'Physical capacity — lifting, carrying, pushing. Not about being an athlete; about whether your body can handle the physical demands of your actual life.<br><br><span class="scale-anchors"><em>1–4:</em> Significant physical weakness; struggle with ordinary tasks &nbsp;·&nbsp; <em>9–12:</em> Average capability; can handle everyday physical demands &nbsp;·&nbsp; <em>18–20:</em> Noticeably strong; physical capability is a genuine asset</span>' },
+      { key: 'agility', name: 'Agility', desc: 'Flexibility, coordination, balance, and ease of movement. Declines quietly with age and inactivity — most people only notice when they lose it.<br><br><span class="scale-anchors"><em>1–4:</em> Stiff, uncoordinated, or at meaningful injury risk &nbsp;·&nbsp; <em>9–12:</em> Adequate mobility; can move through daily life without issue &nbsp;·&nbsp; <em>18–20:</em> Excellent flexibility and coordination; fluid, controlled movement</span>' },
+      { key: 'stamina', name: 'Stamina', desc: 'Cardiovascular fitness. How long your body can sustain effort — walking, climbing stairs, running for a bus.<br><br><span class="scale-anchors"><em>1–4:</em> Breathless after light activity; cardiovascular fitness is poor &nbsp;·&nbsp; <em>9–12:</em> Reasonable fitness; can handle moderate sustained effort &nbsp;·&nbsp; <em>18–20:</em> Strong endurance; sustained physical effort feels comfortable</span>' },
+      { key: 'vitality', name: 'Vitality', desc: 'Your energy across the day — not just morning freshness, but sustained capacity. A leading indicator of overall health and lifestyle.<br><br><span class="scale-anchors"><em>1–4:</em> Chronically exhausted; energy is a daily struggle &nbsp;·&nbsp; <em>9–12:</em> Adequate energy for normal demands; some afternoon tiredness &nbsp;·&nbsp; <em>18–20:</em> Consistently high energy throughout the day; feels alive and ready</span>' },
+      { key: 'rest', name: 'Rest', desc: 'Quality and quantity of sleep, plus recovery from exertion. The foundation everything else rests on.<br><br><span class="scale-anchors"><em>1–4:</em> Chronically sleep-deprived or very poor sleep quality &nbsp;·&nbsp; <em>9–12:</em> Generally adequate sleep; occasional poor nights &nbsp;·&nbsp; <em>18–20:</em> Excellent sleep consistently; wake refreshed; recover well from effort</span>' },
     ]
   },
   {
@@ -1458,11 +1541,11 @@ const ATTRIBUTES = [
     description: 'Your Mind score captures how well your inner world is functioning. A high Mind score doesn\'t mean you\'re a genius — it means your mental life is healthy, active, and well-managed.',
     prompt: 'How is my inner world? Is it a place of clarity and growth, or confusion and distress?',
     subScores: [
-      { key: 'mental_health', name: 'Mental Health', desc: 'Overall psychological wellbeing. Are you free from significant depression or anxiety?' },
-      { key: 'clarity', name: 'Clarity', desc: 'Can you think clearly? Focus when you need to? Make decisions without fog?' },
-      { key: 'emotional_regulation', name: 'Emotional Regulation', desc: 'How well do you manage your emotional responses?' },
-      { key: 'learning', name: 'Learning', desc: 'Are you growing intellectually? Reading, studying, exploring new ideas?' },
-      { key: 'creativity', name: 'Creativity', desc: 'Are you generating ideas, making things, expressing yourself?' },
+      { key: 'mental_health', name: 'Mental Health', desc: 'Freedom from significant depression, anxiety, or other psychological conditions — and if present, how well they are managed.<br><br><span class="scale-anchors"><em>1–4:</em> Significant symptoms affecting daily function &nbsp;·&nbsp; <em>9–12:</em> Mostly okay; manageable stress and occasional low periods &nbsp;·&nbsp; <em>18–20:</em> Genuinely good psychological health; stable, rarely overwhelmed</span>' },
+      { key: 'clarity', name: 'Clarity', desc: 'The quality of your thinking — focused, decisive, unfogged. Affected by sleep, stress, diet, and exercise more than people realise.<br><br><span class="scale-anchors"><em>1–4:</em> Persistent mental fog; difficulty focusing or making decisions &nbsp;·&nbsp; <em>9–12:</em> Generally clear-headed; normal concentration with effort &nbsp;·&nbsp; <em>18–20:</em> Sharp, focused, decisive; thinking feels clean and efficient</span>' },
+      { key: 'emotional_regulation', name: 'Emotional Regulation', desc: 'How well you manage your emotional responses — not suppression, but the ability to feel without being hijacked.<br><br><span class="scale-anchors"><em>1–4:</em> Frequently overwhelmed, reactive, or emotionally chaotic &nbsp;·&nbsp; <em>9–12:</em> Mostly regulated; can manage everyday emotional demands &nbsp;·&nbsp; <em>18–20:</em> Excellent emotional control; responds rather than reacts; calm under pressure</span>' },
+      { key: 'learning', name: 'Learning', desc: 'Active intellectual growth. Are you currently expanding what you know and can do?<br><br><span class="scale-anchors"><em>1–4:</em> Little or no intellectual engagement; growth has stalled &nbsp;·&nbsp; <em>9–12:</em> Some learning happening; occasional reading or skill development &nbsp;·&nbsp; <em>18–20:</em> Consistently and actively learning; growth is a regular part of life</span>' },
+      { key: 'creativity', name: 'Creativity', desc: 'The expression of ideas, making of things, or novel problem-solving. Not just art — any domain where you generate rather than consume.<br><br><span class="scale-anchors"><em>1–4:</em> Little to no creative activity or expression &nbsp;·&nbsp; <em>9–12:</em> Occasional creativity; some projects or ideas pursued &nbsp;·&nbsp; <em>18–20:</em> Highly creative output; making and generating is a significant part of life</span>' },
     ]
   },
   {
@@ -1470,11 +1553,11 @@ const ATTRIBUTES = [
     description: 'Spirit reflects whether you feel your life has direction and meaning, whether you live with integrity, and whether you\'ve made peace with being the person you are. This isn\'t necessarily about religion — it\'s about the foundational questions.',
     prompt: 'Do I feel like my life means something? Am I at peace with who I am?',
     subScores: [
-      { key: 'purpose', name: 'Purpose', desc: 'Do you have a sense of direction? Do you know what you\'re working toward?' },
-      { key: 'integrity', name: 'Integrity', desc: 'Are you living according to your values?' },
-      { key: 'self_acceptance', name: 'Self-Acceptance', desc: 'How do you relate to your own flaws and limitations?' },
-      { key: 'gratitude', name: 'Gratitude', desc: 'Do you appreciate what you have, or are you always focused on what\'s missing?' },
-      { key: 'practice', name: 'Practice', desc: 'Do you have a regular practice that nourishes your spirit?' },
+      { key: 'purpose', name: 'Purpose', desc: 'A felt sense that your life has direction — that you\'re working toward something that matters. Not necessarily a grand mission; even a clear personal north star counts.<br><br><span class="scale-anchors"><em>1–4:</em> Drifting; no clear sense of direction or what matters &nbsp;·&nbsp; <em>9–12:</em> Some sense of purpose; direction exists but may be vague &nbsp;·&nbsp; <em>18–20:</em> Clear, felt purpose; daily life connects to something meaningful</span>' },
+      { key: 'integrity', name: 'Integrity', desc: 'Living in alignment with your values. The gap between what you say you believe and how you actually behave.<br><br><span class="scale-anchors"><em>1–4:</em> Significant gap between stated values and actual behaviour &nbsp;·&nbsp; <em>9–12:</em> Mostly aligned; occasional compromises &nbsp;·&nbsp; <em>18–20:</em> High integrity; actions consistently reflect values; little internal conflict</span>' },
+      { key: 'self_acceptance', name: 'Self-Acceptance', desc: 'How you relate to your own flaws, failures, and limitations — with harshness or with honest compassion.<br><br><span class="scale-anchors"><em>1–4:</em> Harsh self-critic; significant shame or self-rejection &nbsp;·&nbsp; <em>9–12:</em> Generally okay with yourself; some areas of self-criticism &nbsp;·&nbsp; <em>18–20:</em> Genuine self-acceptance; owns flaws without being defined by them</span>' },
+      { key: 'gratitude', name: 'Gratitude', desc: 'The ability to notice and appreciate what\'s good, without pretending the bad doesn\'t exist.<br><br><span class="scale-anchors"><em>1–4:</em> Predominantly focused on lack, complaint, or what\'s missing &nbsp;·&nbsp; <em>9–12:</em> Moderate appreciation; gratitude present but inconsistent &nbsp;·&nbsp; <em>18–20:</em> Regularly notices and savours what\'s good; genuine thankfulness</span>' },
+      { key: 'practice', name: 'Practice', desc: 'A regular discipline that nourishes the spirit — meditation, prayer, journalling, time in nature, whatever grounds you.<br><br><span class="scale-anchors"><em>1–4:</em> No regular practice; inner life left to chance &nbsp;·&nbsp; <em>9–12:</em> Some practice; irregular or just beginning &nbsp;·&nbsp; <em>18–20:</em> Consistent and meaningful practice; a genuine anchor in daily life</span>' },
     ]
   },
   {
@@ -1482,11 +1565,11 @@ const ATTRIBUTES = [
     description: 'Heart captures the relational dimension of your life. The quality of our relationships is one of the strongest predictors of both happiness and longevity. Are you loved? Do you love? Are you connected?',
     prompt: 'If I needed help at 3am, who would I call? How long is that list? And would I answer their call?',
     subScores: [
-      { key: 'partner', name: 'Partner', desc: 'Romantic relationship satisfaction, or your peace with being single.' },
-      { key: 'family', name: 'Family', desc: 'Closeness, warmth, support, and quality of family relationships.' },
-      { key: 'friendships', name: 'Friendships', desc: 'Do you have close friends? Real ones? Do you feel known by them?' },
-      { key: 'community', name: 'Community', desc: 'Do you belong to something beyond your immediate circle?' },
-      { key: 'giving', name: 'Giving', desc: 'Generosity, charity, and service to others. Is giving part of your life?' },
+      { key: 'partner', name: 'Partner', desc: 'Quality and satisfaction in your romantic relationship — or, if single, your peace and acceptance of that. Rate this in terms of love, trust, and connection, not just whether a relationship exists.<br><br><span class="scale-anchors"><em>1–4:</em> In a deeply unhappy relationship, or painfully struggling with being single &nbsp;·&nbsp; <em>9–12:</em> Relationship is okay or singleness is manageable &nbsp;·&nbsp; <em>18–20:</em> Deeply loving, trusting relationship — or fully at peace and content as single</span>' },
+      { key: 'family', name: 'Family', desc: 'The quality of your family relationships — parents, siblings, children. Warmth, closeness, and support — not obligation or surface contact.<br><br><span class="scale-anchors"><em>1–4:</em> Family relationships are painful, estranged, or a significant source of distress &nbsp;·&nbsp; <em>9–12:</em> Adequate family connection; some warmth with some distance or tension &nbsp;·&nbsp; <em>18–20:</em> Close, warm, and genuinely supportive family relationships</span>' },
+      { key: 'friendships', name: 'Friendships', desc: 'Real friendships — people who know you, who you\'d call in a crisis, who are genuinely in your life. Not followers or acquaintances.<br><br><span class="scale-anchors"><em>1–4:</em> Few or no close friends; significant loneliness &nbsp;·&nbsp; <em>9–12:</em> A small circle; some real connection &nbsp;·&nbsp; <em>18–20:</em> Rich friendships; genuinely known and loved by people you care about</span>' },
+      { key: 'community', name: 'Community', desc: 'Belonging to something beyond your immediate circle — a neighbourhood, a group, a cause, a shared identity.<br><br><span class="scale-anchors"><em>1–4:</em> No real sense of belonging beyond immediate family &nbsp;·&nbsp; <em>9–12:</em> Some community connection; occasional participation &nbsp;·&nbsp; <em>18–20:</em> Strong sense of belonging; active, valued member of a community</span>' },
+      { key: 'giving', name: 'Giving', desc: 'The role generosity, charity, and service to others play in your life.<br><br><span class="scale-anchors"><em>1–4:</em> Little or no giving; self-focused by default &nbsp;·&nbsp; <em>9–12:</em> Some giving; charitable when prompted &nbsp;·&nbsp; <em>18–20:</em> Generosity is a core part of your life; giving of time, money, or effort is regular and meaningful</span>' },
     ]
   },
   {
@@ -1494,10 +1577,10 @@ const ATTRIBUTES = [
     description: 'Standing reflects how the external world sees you and what you\'ve built in material terms. It\'s not about vanity — it\'s about recognising that these things affect your quality of life.',
     prompt: 'Would I be comfortable if a journalist profiled my life? Not because it\'s impressive — but because it\'s solid?',
     subScores: [
-      { key: 'career', name: 'Career', desc: 'Satisfaction, progression, and engagement with your professional life.' },
-      { key: 'wealth', name: 'Wealth', desc: 'Net financial position, security, and trajectory.' },
-      { key: 'reputation', name: 'Reputation', desc: 'How others perceive you. Do people respect and trust you?' },
-      { key: 'home', name: 'Home', desc: 'Quality of your living situation. Does your home feel like a haven?' },
+      { key: 'career', name: 'Career', desc: 'Satisfaction, engagement, and progression in your professional life. Not just income — fulfilment, direction, and whether your work feels worthwhile.<br><br><span class="scale-anchors"><em>1–4:</em> Deeply dissatisfied, stalled, or in the wrong role &nbsp;·&nbsp; <em>9–12:</em> Job is okay; adequate but not inspiring &nbsp;·&nbsp; <em>18–20:</em> Genuinely engaged and progressing; work feels meaningful and directional</span>' },
+      { key: 'wealth', name: 'Wealth', desc: 'Your net financial position, financial security, and trajectory — not just income. Are you building or eroding?<br><br><span class="scale-anchors"><em>1–4:</em> In financial distress; debt, insecurity, or significant instability &nbsp;·&nbsp; <em>9–12:</em> Financially stable; covering needs with some margin &nbsp;·&nbsp; <em>18–20:</em> Genuinely financially secure; building wealth; money is not a source of anxiety</span>' },
+      { key: 'reputation', name: 'Reputation', desc: 'How others — professionally and personally — perceive and talk about you. Are you trusted and respected?<br><br><span class="scale-anchors"><em>1–4:</em> Reputation is damaged, unclear, or a source of concern &nbsp;·&nbsp; <em>9–12:</em> Reasonably regarded; not notable in either direction &nbsp;·&nbsp; <em>18–20:</em> Genuinely respected; trusted, well-regarded in your field or community</span>' },
+      { key: 'home', name: 'Home', desc: 'The quality, comfort, and security of your living situation. Does where you live support or undermine your life?<br><br><span class="scale-anchors"><em>1–4:</em> Home situation is poor, precarious, or a source of significant stress &nbsp;·&nbsp; <em>9–12:</em> Adequate home; comfortable enough &nbsp;·&nbsp; <em>18–20:</em> Home feels like a genuine haven; safe, comfortable, and yours</span>' },
     ]
   },
   {
@@ -1505,10 +1588,10 @@ const ATTRIBUTES = [
     description: 'Resilience only reveals itself under pressure. You might think yours is high when life is calm — but you don\'t really know until something goes wrong. Look at the evidence.',
     prompt: 'Think about the last truly difficult thing that happened. How did you handle it? What does that tell you?',
     subScores: [
-      { key: 'adversity_tolerance', name: 'Adversity Tolerance', desc: 'How well do you cope when things go wrong?' },
-      { key: 'recovery', name: 'Recovery', desc: 'When knocked down, how quickly do you get back up?' },
-      { key: 'adaptability', name: 'Adaptability', desc: 'How well do you handle change and unexpected pivots?' },
-      { key: 'grit', name: 'Grit', desc: 'Persistence toward long-term goals despite obstacles.' },
+      { key: 'adversity_tolerance', name: 'Adversity Tolerance', desc: 'How well you hold up when things go wrong — your capacity to function under difficulty without collapsing.<br><br><span class="scale-anchors"><em>1–4:</em> Falls apart under moderate pressure; adversity is destabilising &nbsp;·&nbsp; <em>9–12:</em> Manages most difficulties adequately; struggles with major ones &nbsp;·&nbsp; <em>18–20:</em> Remains functional and even-keeled under significant adversity</span>' },
+      { key: 'recovery', name: 'Recovery', desc: 'How quickly and fully you bounce back after setbacks, disappointments, or failures.<br><br><span class="scale-anchors"><em>1–4:</em> Takes a very long time to recover; setbacks leave lasting marks &nbsp;·&nbsp; <em>9–12:</em> Recovers at a normal rate; some things linger longer than they should &nbsp;·&nbsp; <em>18–20:</em> Bounces back quickly and fully; rarely carries forward the weight of past setbacks</span>' },
+      { key: 'adaptability', name: 'Adaptability', desc: 'Your ability to change course when circumstances change — to pivot, adjust, and thrive in new conditions.<br><br><span class="scale-anchors"><em>1–4:</em> Struggles significantly with change; rigidity under uncertainty &nbsp;·&nbsp; <em>9–12:</em> Adapts adequately to most changes with some effort &nbsp;·&nbsp; <em>18–20:</em> Highly adaptable; change is handled with flexibility and composure</span>' },
+      { key: 'grit', name: 'Grit', desc: 'Sustained effort toward long-term goals despite obstacles, boredom, and setbacks. Not intensity — consistency over time.<br><br><span class="scale-anchors"><em>1–4:</em> Gives up easily when things get hard or boring &nbsp;·&nbsp; <em>9–12:</em> Persists through most challenges but wavers under sustained difficulty &nbsp;·&nbsp; <em>18–20:</em> Remarkable persistence; continues working toward goals even through extended hardship</span>' },
     ]
   },
   {
@@ -1516,10 +1599,10 @@ const ATTRIBUTES = [
     description: 'Discipline is the engine that turns intention into action. It\'s about the gap between what you plan to do and what you actually do. The most honest stat on the sheet.',
     prompt: 'If I made a list of everything I said I\'d do this month, what percentage did I actually do?',
     subScores: [
-      { key: 'habits', name: 'Habits', desc: 'Do you have consistent daily routines? Do you maintain them?' },
-      { key: 'follow_through', name: 'Follow-Through', desc: 'Do you finish what you start? Do you honour your commitments?' },
-      { key: 'impulse_control', name: 'Impulse Control', desc: 'Can you resist short-term temptation for long-term goals?' },
-      { key: 'time_management', name: 'Time Management', desc: 'Do you use your time effectively? Do you know where your hours go?' },
+      { key: 'habits', name: 'Habits', desc: 'The quality and consistency of your daily routines — the things you do automatically that shape your life.<br><br><span class="scale-anchors"><em>1–4:</em> Few or no consistent habits; daily structure is largely absent &nbsp;·&nbsp; <em>9–12:</em> Some habits; inconsistent maintenance &nbsp;·&nbsp; <em>18–20:</em> Strong, consistent habits; daily routines are a genuine asset</span>' },
+      { key: 'follow_through', name: 'Follow-Through', desc: 'Whether you actually finish what you start and keep the commitments you make — to yourself and others.<br><br><span class="scale-anchors"><em>1–4:</em> Regularly fails to follow through; commitments are unreliable &nbsp;·&nbsp; <em>9–12:</em> Generally follows through on commitments; some things slip &nbsp;·&nbsp; <em>18–20:</em> Highly reliable; finishes what is started; word is trusted</span>' },
+      { key: 'impulse_control', name: 'Impulse Control', desc: 'Your capacity to resist short-term temptation in service of long-term goals.<br><br><span class="scale-anchors"><em>1–4:</em> Frequently acts on impulse; short-term wins over long-term routinely &nbsp;·&nbsp; <em>9–12:</em> Reasonable self-control in most situations; some weaknesses &nbsp;·&nbsp; <em>18–20:</em> Strong impulse control; consistently chooses long-term over short-term</span>' },
+      { key: 'time_management', name: 'Time Management', desc: 'How well you use your hours — planning, prioritising, and following through on how you intended to spend your time.<br><br><span class="scale-anchors"><em>1–4:</em> Time feels chaotic and uncontrolled; days slip by without intention &nbsp;·&nbsp; <em>9–12:</em> Adequate time management; broadly purposeful but some waste &nbsp;·&nbsp; <em>18–20:</em> Excellent use of time; hours are used deliberately and productively</span>' },
     ]
   },
   {
@@ -1527,11 +1610,11 @@ const ATTRIBUTES = [
     description: 'Joy is the attribute most people forget to check. You can be healthy, successful, disciplined, and loved — and still not be having a good time. Are you enjoying this?',
     prompt: 'When did I last feel genuinely delighted? How long ago was that? And what does that tell me?',
     subScores: [
-      { key: 'pleasure', name: 'Pleasure', desc: 'Do you enjoy simple things? Food, music, sunlight? Are your senses alive?' },
-      { key: 'play', name: 'Play', desc: 'Do you have fun? Do you do things purely because they\'re enjoyable?' },
-      { key: 'humour', name: 'Humour', desc: 'Do you laugh? Is there room for lightness and absurdity in your life?' },
-      { key: 'flow', name: 'Flow', desc: 'Do you experience deep engagement, losing track of time in activities?' },
-      { key: 'savouring', name: 'Savouring', desc: 'Do you slow down to appreciate good moments while they\'re happening?' },
+      { key: 'pleasure', name: 'Pleasure', desc: 'Enjoyment of simple sensory pleasures — food, music, beauty, comfort. Are your senses alive to the world?<br><br><span class="scale-anchors"><em>1–4:</em> Little pleasure in daily experience; senses feel dull or muted &nbsp;·&nbsp; <em>9–12:</em> Enjoys some pleasures regularly; nothing remarkable &nbsp;·&nbsp; <em>18–20:</em> Richly alive to simple pleasures; everyday experience is a source of genuine enjoyment</span>' },
+      { key: 'play', name: 'Play', desc: 'Whether fun and play have a genuine place in your life — things done purely for enjoyment, with no goal but the thing itself.<br><br><span class="scale-anchors"><em>1–4:</em> Little to no play; life is all responsibility and no fun &nbsp;·&nbsp; <em>9–12:</em> Some fun; occasional play, though often edged out by obligations &nbsp;·&nbsp; <em>18–20:</em> Play is a genuine and regular part of life; you have real fun, regularly</span>' },
+      { key: 'humour', name: 'Humour', desc: 'Whether laughter, lightness, and absurdity have a place in your daily life.<br><br><span class="scale-anchors"><em>1–4:</em> Life feels heavy; little laughter or levity &nbsp;·&nbsp; <em>9–12:</em> Reasonably good humour; laughs regularly &nbsp;·&nbsp; <em>18–20:</em> Genuine wit and lightness; laughter is frequent and real</span>' },
+      { key: 'flow', name: 'Flow', desc: 'Whether you regularly experience deep absorption in activities — losing track of time, fully present in what you\'re doing.<br><br><span class="scale-anchors"><em>1–4:</em> Rarely or never experiences flow; most activities feel effortful or hollow &nbsp;·&nbsp; <em>9–12:</em> Occasional flow states; some activities that fully absorb &nbsp;·&nbsp; <em>18–20:</em> Regular flow experiences; deep engagement is a common feature of life</span>' },
+      { key: 'savouring', name: 'Savouring', desc: 'The practice of slowing down to notice and appreciate good moments while they\'re happening — rather than rushing past them.<br><br><span class="scale-anchors"><em>1–4:</em> Rarely stops to appreciate; always looking ahead or elsewhere &nbsp;·&nbsp; <em>9–12:</em> Sometimes savours; notices good moments but often lets them pass &nbsp;·&nbsp; <em>18–20:</em> Consistently and deliberately savours; present, appreciative, unhurried with what\'s good</span>' },
     ]
   }
 ];
@@ -1622,6 +1705,7 @@ const state = {
 
 let currentSection = 0;
 let currentSubStep = 0;  // 0 = intro, 1..N = sub-scale index within current attribute
+let currentBFIStep = -1; // -1 = BFI intro, 0–9 = individual BFI items
 let saveTimeout = null;
 
 // Global step map — built once, used by stepForward/stepBack
@@ -1943,7 +2027,7 @@ const app = {
     const nav = document.getElementById('section-nav');
     nav.innerHTML = `<button onclick="app.showSection(0)">Personality</button>` +
       ATTRIBUTES.map((attr, i) =>
-        `<button onclick="app.showSection(${i + 1})">${attr.name}</button>`
+        `<button onclick="app.showSection(${i + 1})" style="--btn-accent: var(--attr-${attr.key})">${attr.name}</button>`
       ).join('') +
       `<button onclick="app.showSection(${ATTRIBUTES.length + 1})">Abilities</button>`;
   },
@@ -1958,7 +2042,9 @@ const app = {
 
     this.showSection(currentSection);
     // Restore non-zero sub-step if returning mid-section (e.g. from sheet view)
-    if (currentSection >= 1 && currentSection <= ATTRIBUTES.length && currentSubStep > 0) {
+    if (currentSection === 0 && currentBFIStep >= 0) {
+      this.showBFIStep(currentBFIStep);
+    } else if (currentSection >= 1 && currentSection <= ATTRIBUTES.length && currentSubStep > 0) {
       this.showSubStep(currentSubStep);
     }
   },
@@ -1968,11 +2054,11 @@ const app = {
     // populated by showSubStep() at navigation time. No sub-scores, no
     // main-score-area — scores are revealed only on the character sheet.
     return `
-      <div class="attribute-section" id="section-${index}">
+      <div class="attribute-section" id="section-${index}" style="--section-accent: var(--attr-${attr.key})">
         <div class="attribute-section-header">
-          <div class="section-label">Attribute ${index} of ${ATTRIBUTES.length}</div>
           <h2>${attr.name}</h2>
-          <div class="tagline">${attr.tagline}</div>
+          <span class="tagline" id="attr-tagline-${attr.key}">${attr.tagline}</span>
+          <span class="step-counter" id="step-counter-${attr.key}"></span>
         </div>
         <div class="attribute-step-content">
           ${this.renderIntroStep(attr, index)}
@@ -2026,42 +2112,86 @@ const app = {
   },
 
   renderPersonalitySection() {
-    const items = BFI_ITEMS.map((item, i) => `
-      <div style="margin-bottom: 20px;">
-        <div style="font-size: 13px; color: var(--medium-gray); margin-bottom: 8px;">
-          ${i + 1}. ${item.text}
-        </div>
-        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-          ${[1, 2, 3, 4, 5].map(val => `
-            <button style="padding: 6px 10px; border: 1px solid var(--border-gray); background: ${
-              (state.bfiResponses[i] || 3) === val ? 'var(--warm-brown)' : 'var(--white)'
-            }; color: ${
-              (state.bfiResponses[i] || 3) === val ? 'var(--white)' : 'var(--medium-gray)'
-            }; border-radius: 3px; cursor: pointer; font-family: var(--font-sans); font-size: 12px;"
-              onclick="app.updateBFI(${i}, ${val})">
-              ${val === 1 ? 'Strongly Disagree' : val === 2 ? 'Disagree' : val === 3 ? 'Neutral' : val === 4 ? 'Agree' : 'Strongly Agree'}
-            </button>
-          `).join('')}
-        </div>
-      </div>
-    `).join('');
-
     return `
       <div class="attribute-section" id="section-0">
-        <div class="section-label">Personality</div>
-        <h2>Big Five (BFI-10)</h2>
-        <div class="tagline">How you tend to move through the world.</div>
-        <div class="attribute-description">
-          Your personality measures your tendencies — not achievements. There are no good or bad profiles. Rate each statement from 1 (Strongly Disagree) to 5 (Strongly Agree) based on how you genuinely see yourself.
+        <div class="attribute-section-header">
+          <h2>Personality</h2>
+          <span class="tagline" id="attr-tagline-personality">How you tend to move through the world.</span>
+          <span class="step-counter" id="step-counter-personality"></span>
         </div>
-        <div style="padding: 20px 0;">${items}</div>
+        <div class="bfi-step-content">
+          ${this.renderBFIIntro()}
+        </div>
+      </div>
+    `;
+  },
 
-        <div class="section-nav-buttons">
+  renderBFIIntro() {
+    return `
+      <div class="sub-step-intro">
+        <div class="attribute-description">
+          Your personality captures your tendencies — not your achievements or values.
+          There are no good or bad profiles here. Answer based on how you genuinely see
+          yourself, not how you'd like to be. Ten short statements, rated 1–5.
+        </div>
+        <div class="sub-step-nav">
           <div></div>
+          <button class="btn btn-primary" onclick="app.stepForward()">Begin &mdash; 10 questions</button>
+        </div>
+      </div>
+    `;
+  },
+
+  renderBFIItem(index) {
+    const item = BFI_ITEMS[index];
+    const current = state.bfiResponses[index] !== undefined ? state.bfiResponses[index] : 0;
+    const labels = ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree'];
+    const buttons = [1, 2, 3, 4, 5].map(val => `
+      <button class="bfi-btn${current === val ? ' selected' : ''}"
+        onclick="app.updateBFI(${index}, ${val})">
+        ${labels[val - 1]}
+      </button>
+    `).join('');
+    return `
+      <div class="sub-step-body">
+        <div class="sub-step-question-name bfi-question">${item.text}</div>
+        <div class="bfi-buttons">${buttons}</div>
+        <div class="sub-step-nav">
+          <button class="btn btn-secondary" onclick="app.stepBack()">Previous</button>
           <button class="btn btn-primary" onclick="app.stepForward()">Next</button>
         </div>
       </div>
     `;
+  },
+
+  showBFIStep(stepIndex) {
+    currentBFIStep = stepIndex;
+    const content = document.querySelector('#section-0 .bfi-step-content');
+    if (!content) return;
+    content.classList.remove('stepping');
+    void content.offsetWidth;
+    content.classList.add('stepping');
+    const taglineEl = document.getElementById('attr-tagline-personality');
+    const counterEl = document.getElementById('step-counter-personality');
+    if (stepIndex === -1) {
+      content.innerHTML = this.renderBFIIntro();
+      if (taglineEl) taglineEl.style.display = '';
+      if (counterEl) counterEl.textContent = '';
+    } else {
+      content.innerHTML = this.renderBFIItem(stepIndex);
+      if (taglineEl) taglineEl.style.display = 'none';
+      if (counterEl) counterEl.textContent = `${stepIndex + 1} of ${BFI_ITEMS.length}`;
+    }
+    this._scrollToSection();
+  },
+
+  _scrollToSection() {
+    const section = document.querySelector('.attribute-section.active');
+    if (!section) return;
+    const navEl = document.getElementById('section-nav');
+    const navH = navEl ? navEl.offsetHeight + 12 : 60;
+    const top = section.getBoundingClientRect().top + window.scrollY - navH;
+    window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
   },
 
   _activateSection(index) {
@@ -2077,11 +2207,16 @@ const app = {
   showSection(index) {
     this._activateSection(index);
     currentSubStep = 0;
-    // For attribute sections, render the intro step into the content slot
-    if (index >= 1 && index <= ATTRIBUTES.length) {
+    if (index === 0) {
+      // Personality section: reset to BFI intro
+      currentBFIStep = -1;
+      this.showBFIStep(-1);
+    } else if (index >= 1 && index <= ATTRIBUTES.length) {
+      // Attribute section: render the intro step into the content slot
       this.showSubStep(0);
+    } else {
+      this._scrollToSection();
     }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   },
 
   showSubStep(subStepIndex) {
@@ -2099,11 +2234,21 @@ const app = {
     const totalSubs = attr.subScores.length;
     if (subStepIndex === 0) {
       content.innerHTML = this.renderIntroStep(attr, currentSection);
+      // Show tagline on intro, hide step counter
+      const taglineEl = document.getElementById(`attr-tagline-${attr.key}`);
+      const counterEl = document.getElementById(`step-counter-${attr.key}`);
+      if (taglineEl) taglineEl.style.display = '';
+      if (counterEl) counterEl.textContent = '';
     } else {
       const sub = attr.subScores[subStepIndex - 1];
       content.innerHTML = this.renderSubScoreStep(attr, sub, subStepIndex, totalSubs);
+      // Hide tagline on sub-scale steps, show step counter
+      const taglineEl = document.getElementById(`attr-tagline-${attr.key}`);
+      const counterEl = document.getElementById(`step-counter-${attr.key}`);
+      if (taglineEl) taglineEl.style.display = 'none';
+      if (counterEl) counterEl.textContent = `${subStepIndex} of ${totalSubs}`;
     }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    this._scrollToSection();
   },
 
   renderIntroStep(attr, sectionIndex) {
@@ -2128,7 +2273,6 @@ const app = {
     const info = getScoreInfo(currentVal);
     return `
       <div class="sub-step-body">
-        <div class="step-progress">${stepNumber} of ${totalSubs}</div>
         <div class="sub-step-question-name">${sub.name}</div>
         <div class="sub-score-desc">${sub.desc}</div>
         <div class="sub-step-slider-area">
@@ -2151,7 +2295,12 @@ const app = {
   },
 
   stepForward() {
-    if (currentSection === 0) { this.showSection(1); return; }
+    if (currentSection === 0) {
+      // BFI navigation
+      if (currentBFIStep === -1) { this.showBFIStep(0); return; }
+      if (currentBFIStep < BFI_ITEMS.length - 1) { this.showBFIStep(currentBFIStep + 1); return; }
+      this.showSection(1); return; // Last BFI item -> Body intro
+    }
     if (currentSection === ATTRIBUTES.length + 1) { this.viewSheet(); return; }
     const attr = ATTRIBUTES[currentSection - 1];
     if (currentSubStep < attr.subScores.length) {
@@ -2162,14 +2311,18 @@ const app = {
   },
 
   stepBack() {
-    if (currentSection === 0) return; // Personality has no previous
+    if (currentSection === 0) {
+      // BFI navigation
+      if (currentBFIStep > 0) { this.showBFIStep(currentBFIStep - 1); return; }
+      if (currentBFIStep === 0) { this.showBFIStep(-1); return; } // back to BFI intro
+      return; // on intro, no previous
+    }
 
     if (currentSection === ATTRIBUTES.length + 1) {
       // Abilities -> last attribute's last sub-score
       const lastAttr = ATTRIBUTES[ATTRIBUTES.length - 1];
       this._activateSection(ATTRIBUTES.length);
       this.showSubStep(lastAttr.subScores.length);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
@@ -2177,13 +2330,14 @@ const app = {
       this.showSubStep(currentSubStep - 1);
     } else {
       if (currentSection === 1) {
-        this.showSection(0); // Body intro -> Personality
+        // Body intro -> Personality, land on last BFI item
+        this._activateSection(0);
+        this.showBFIStep(BFI_ITEMS.length - 1);
       } else {
         // Go to previous attribute's last sub-scale (not its intro)
         const prevAttr = ATTRIBUTES[currentSection - 2];
         this._activateSection(currentSection - 1);
         this.showSubStep(prevAttr.subScores.length);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }
   },
@@ -2324,22 +2478,13 @@ const app = {
 
   updateBFI(index, value) {
     state.bfiResponses[index] = value;
-    const section = document.getElementById('section-0');
-    if (section) {
-      const items = section.querySelectorAll('[style*="margin-bottom: 20px"]');
-      if (items[index]) {
-        const buttons = items[index].querySelectorAll('button');
-        buttons.forEach((btn, btnIdx) => {
-          const val = btnIdx + 1;
-          if (value === val) {
-            btn.style.background = 'var(--warm-brown)';
-            btn.style.color = 'var(--white)';
-          } else {
-            btn.style.background = 'var(--white)';
-            btn.style.color = 'var(--medium-gray)';
-          }
-        });
-      }
+    // Targeted update: just toggle the .selected class on the visible buttons
+    const content = document.querySelector('#section-0 .bfi-step-content');
+    if (content) {
+      const buttons = content.querySelectorAll('.bfi-btn');
+      buttons.forEach((btn, i) => {
+        btn.classList.toggle('selected', i + 1 === value);
+      });
     }
     this.autoSave();
   },
