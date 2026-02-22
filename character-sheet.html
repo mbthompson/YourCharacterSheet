@@ -820,6 +820,88 @@
     border-top: 1px solid var(--border-gray);
   }
 
+  /* ==================== GUIDED SUB-STEP LAYOUT ==================== */
+
+  .attribute-section-header {
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-gray);
+  }
+
+  .attribute-step-content.stepping {
+    animation: stepFadeIn 0.25s ease-out;
+  }
+
+  @keyframes stepFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .step-progress {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--light-gray);
+    margin-bottom: 20px;
+  }
+
+  .sub-step-question-name {
+    font-family: var(--font-sans);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--deep-slate);
+    margin-bottom: 8px;
+  }
+
+  .sub-step-body .sub-score-desc {
+    font-size: 15px;
+    color: var(--medium-gray);
+    line-height: 1.7;
+    margin-bottom: 32px;
+  }
+
+  .sub-step-slider-area {
+    margin-bottom: 36px;
+  }
+
+  .sub-step-slider-area input[type="range"] {
+    width: 100%;
+    max-width: 100%;
+    height: 6px;
+    margin-bottom: 16px;
+  }
+
+  .sub-step-value-row {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  .sub-step-value-row .sub-score-value {
+    font-size: 40px;
+    font-weight: 700;
+    font-family: var(--font-sans);
+    min-width: 52px;
+  }
+
+  .sub-step-value-row .sub-score-label {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  .sub-step-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding-top: 28px;
+    border-top: 1px solid var(--border-gray);
+    margin-top: 8px;
+  }
+
   /* ==================== SHEET VIEW ==================== */
   #sheet-view {
     padding: 60px 0;
@@ -1221,6 +1303,8 @@
     .attr-preview-grid { grid-template-columns: 1fr; }
     .sub-score-bar-item { grid-template-columns: 90px 30px 1fr; }
     .big-five-item { padding: 14px 16px; }
+    .sub-step-value-row .sub-score-value { font-size: 32px; }
+    .sub-step-question-name { font-size: 18px; }
   }
 
   /* ==================== PRINT ==================== */
@@ -1537,7 +1621,19 @@ const state = {
 };
 
 let currentSection = 0;
+let currentSubStep = 0;  // 0 = intro, 1..N = sub-scale index within current attribute
 let saveTimeout = null;
+
+// Global step map — built once, used by stepForward/stepBack
+function buildGlobalStepMap() {
+  const map = [];
+  ATTRIBUTES.forEach((attr, i) => {
+    map.push({ section: i + 1, subStep: 0 });
+    attr.subScores.forEach((_, j) => map.push({ section: i + 1, subStep: j + 1 }));
+  });
+  return map; // 46 entries total across 8 attributes
+}
+let GLOBAL_STEP_MAP = null;
 
 // ==================== APP ====================
 
@@ -1781,6 +1877,7 @@ const app = {
   },
 
   buildEditView() {
+    if (!GLOBAL_STEP_MAP) GLOBAL_STEP_MAP = buildGlobalStepMap();
     this.renderProfile();
     this.renderNav();
     this.renderSections();
@@ -1860,68 +1957,25 @@ const app = {
       this.renderAbilitiesSection();
 
     this.showSection(currentSection);
+    // Restore non-zero sub-step if returning mid-section (e.g. from sheet view)
+    if (currentSection >= 1 && currentSection <= ATTRIBUTES.length && currentSubStep > 0) {
+      this.showSubStep(currentSubStep);
+    }
   },
 
   renderAttributeSection(attr, index) {
-    const subs = attr.subScores.map(sub => {
-      const initInfo = getScoreInfo(state.subScores[sub.key] || 10);
-      return `
-      <div class="sub-score-item">
-        <div class="sub-score-name">${sub.name}</div>
-        <div class="sub-score-desc">${sub.desc}</div>
-        <div class="sub-score-row">
-          <input type="range" min="1" max="20" value="${state.subScores[sub.key] || 10}"
-            data-subkey="${sub.key}"
-            oninput="app.updateSubScore('${sub.key}', this.value)">
-          <span class="sub-score-value" data-subkey-value="${sub.key}"
-            style="color: ${initInfo.color}">${state.subScores[sub.key] || 10}</span>
-        </div>
-        <div class="sub-score-label" data-subkey-label="${sub.key}"
-          style="color: ${initInfo.color}">${initInfo.label}</div>
-      </div>
-    `;
-    }).join('');
-
-    const mainScore = this.getMainScore(attr.key);
-    const info = getScoreInfo(mainScore);
-
+    // Renders the section shell only. The .attribute-step-content slot is
+    // populated by showSubStep() at navigation time. No sub-scores, no
+    // main-score-area — scores are revealed only on the character sheet.
     return `
       <div class="attribute-section" id="section-${index}">
-        <div class="section-label">Attribute ${index} of ${ATTRIBUTES.length}</div>
-        <h2>${attr.name}</h2>
-        <div class="tagline">${attr.tagline}</div>
-        <div class="attribute-description">${attr.description}</div>
-
-        <div class="reflection-prompt">
-          <div class="prompt-label">Reflect</div>
-          <p>${attr.prompt}</p>
+        <div class="attribute-section-header">
+          <div class="section-label">Attribute ${index} of ${ATTRIBUTES.length}</div>
+          <h2>${attr.name}</h2>
+          <div class="tagline">${attr.tagline}</div>
         </div>
-
-        <div class="main-score-area" id="main-score-${attr.key}">
-          <div class="score-label">Your ${attr.name} Score</div>
-          <div class="score-display" id="score-display-${attr.key}" style="color: ${info.color}">${mainScore}</div>
-          <div class="score-meaning" style="color: ${info.color}">${info.label}</div>
-          <div class="override-area">
-            <button class="override-toggle ${state.overrides[attr.key] ? 'active' : ''}"
-              onclick="app.toggleOverride('${attr.key}')">
-              ${state.overrides[attr.key] ? 'Override: On' : 'Override: Off'}
-            </button>
-            ${state.overrides[attr.key] ? `
-              <input type="number" min="1" max="20" value="${state.scores[attr.key] || 10}"
-                class="main-score-input"
-                onchange="app.updateScore('${attr.key}', this.value)">
-            ` : ''}
-            <span class="indicator">${state.overrides[attr.key] ? 'manual' : 'auto-calculated from sub-scores'}</span>
-          </div>
-        </div>
-
-        <div class="sub-scores">
-          ${subs}
-        </div>
-
-        <div class="section-nav-buttons">
-          ${index > 0 ? `<button class="btn btn-secondary" onclick="app.showSection(${index - 1})">Previous</button>` : '<div></div>'}
-          <button class="btn btn-primary" onclick="app.showSection(${index + 1})">Next</button>
+        <div class="attribute-step-content">
+          ${this.renderIntroStep(attr, index)}
         </div>
       </div>
     `;
@@ -1964,7 +2018,7 @@ const app = {
         <button class="btn btn-secondary btn-small" style="margin-top:20px" onclick="app.addAbility()">+ Add Ability</button>
 
         <div class="section-nav-buttons">
-          <button class="btn btn-secondary" onclick="app.showSection(${ATTRIBUTES.length})">Previous</button>
+          <button class="btn btn-secondary" onclick="app.stepBack()">Previous</button>
           <button class="btn btn-primary" onclick="app.viewSheet()">View My Sheet</button>
         </div>
       </div>
@@ -2004,26 +2058,134 @@ const app = {
 
         <div class="section-nav-buttons">
           <div></div>
-          <button class="btn btn-primary" onclick="app.showSection(1)">Next</button>
+          <button class="btn btn-primary" onclick="app.stepForward()">Next</button>
         </div>
       </div>
     `;
   },
 
-  showSection(index) {
+  _activateSection(index) {
     document.querySelectorAll('.attribute-section').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.section-nav button').forEach(b => b.classList.remove('active'));
-
     const section = document.getElementById(`section-${index}`);
-    if (section) {
-      section.classList.add('active');
-      currentSection = index;
-    }
-
+    if (section) section.classList.add('active');
     const buttons = document.querySelectorAll('.section-nav button');
     if (buttons[index]) buttons[index].classList.add('active');
+    currentSection = index;
+  },
 
+  showSection(index) {
+    this._activateSection(index);
+    currentSubStep = 0;
+    // For attribute sections, render the intro step into the content slot
+    if (index >= 1 && index <= ATTRIBUTES.length) {
+      this.showSubStep(0);
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  },
+
+  showSubStep(subStepIndex) {
+    currentSubStep = subStepIndex;
+    const attr = ATTRIBUTES[currentSection - 1];
+    if (!attr) return;
+    const section = document.getElementById(`section-${currentSection}`);
+    if (!section) return;
+    const content = section.querySelector('.attribute-step-content');
+    if (!content) return;
+    // Trigger CSS fade animation
+    content.classList.remove('stepping');
+    void content.offsetWidth; // force reflow to restart animation
+    content.classList.add('stepping');
+    const totalSubs = attr.subScores.length;
+    if (subStepIndex === 0) {
+      content.innerHTML = this.renderIntroStep(attr, currentSection);
+    } else {
+      const sub = attr.subScores[subStepIndex - 1];
+      content.innerHTML = this.renderSubScoreStep(attr, sub, subStepIndex, totalSubs);
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  },
+
+  renderIntroStep(attr, sectionIndex) {
+    const totalSubs = attr.subScores.length;
+    return `
+      <div class="sub-step-intro">
+        <div class="attribute-description">${attr.description}</div>
+        <div class="reflection-prompt">
+          <div class="prompt-label">Reflect</div>
+          <p>${attr.prompt}</p>
+        </div>
+        <div class="sub-step-nav">
+          <button class="btn btn-secondary" onclick="app.stepBack()">Previous</button>
+          <button class="btn btn-primary" onclick="app.stepForward()">Begin &mdash; ${totalSubs} questions</button>
+        </div>
+      </div>
+    `;
+  },
+
+  renderSubScoreStep(attr, sub, stepNumber, totalSubs) {
+    const currentVal = state.subScores[sub.key] || 10;
+    const info = getScoreInfo(currentVal);
+    return `
+      <div class="sub-step-body">
+        <div class="step-progress">${stepNumber} of ${totalSubs}</div>
+        <div class="sub-step-question-name">${sub.name}</div>
+        <div class="sub-score-desc">${sub.desc}</div>
+        <div class="sub-step-slider-area">
+          <input type="range" min="1" max="20" value="${currentVal}"
+            data-subkey="${sub.key}"
+            oninput="app.updateSubScore('${sub.key}', this.value)">
+          <div class="sub-step-value-row">
+            <span class="sub-score-value" data-subkey-value="${sub.key}"
+              style="color: ${info.color}">${currentVal}</span>
+            <span class="sub-score-label" data-subkey-label="${sub.key}"
+              style="color: ${info.color}">${info.label}</span>
+          </div>
+        </div>
+        <div class="sub-step-nav">
+          <button class="btn btn-secondary" onclick="app.stepBack()">Previous</button>
+          <button class="btn btn-primary" onclick="app.stepForward()">Next</button>
+        </div>
+      </div>
+    `;
+  },
+
+  stepForward() {
+    if (currentSection === 0) { this.showSection(1); return; }
+    if (currentSection === ATTRIBUTES.length + 1) { this.viewSheet(); return; }
+    const attr = ATTRIBUTES[currentSection - 1];
+    if (currentSubStep < attr.subScores.length) {
+      this.showSubStep(currentSubStep + 1);
+    } else {
+      this.showSection(currentSection < ATTRIBUTES.length ? currentSection + 1 : ATTRIBUTES.length + 1);
+    }
+  },
+
+  stepBack() {
+    if (currentSection === 0) return; // Personality has no previous
+
+    if (currentSection === ATTRIBUTES.length + 1) {
+      // Abilities -> last attribute's last sub-score
+      const lastAttr = ATTRIBUTES[ATTRIBUTES.length - 1];
+      this._activateSection(ATTRIBUTES.length);
+      this.showSubStep(lastAttr.subScores.length);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    if (currentSubStep > 0) {
+      this.showSubStep(currentSubStep - 1);
+    } else {
+      if (currentSection === 1) {
+        this.showSection(0); // Body intro -> Personality
+      } else {
+        // Go to previous attribute's last sub-scale (not its intro)
+        const prevAttr = ATTRIBUTES[currentSection - 2];
+        this._activateSection(currentSection - 1);
+        this.showSubStep(prevAttr.subScores.length);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
   },
 
   // ==================== SCORE LOGIC ====================
