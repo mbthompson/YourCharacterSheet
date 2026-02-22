@@ -14,16 +14,16 @@ A web-based self-reflection tool styled as a life character sheet. It combines t
 - Runs locally in Chrome (primary target) and mobile browsers
 - Data persistence: localStorage (primary, for seamless mobile use) + JSON file export/import (for backup, transfer, and versioning)
 - All CSS and JS are inline in the single HTML file
-- Approximately 2500 lines, ~80KB
+- Approximately 3300 lines, ~105KB
 
 ## Four Views
 
 The app has four views, controlled by adding/removing an `.active` class on their container divs. Only one should be active at a time (except `#calculating-view` which overlays as a fixed overlay).
 
 1. **Tutorial (`#tutorial-view`)** — Five scrollable pages: Welcome, How It Works, The Eight Attributes (with preview cards), The 1-20 Scale (with color-coded table), Let's Begin (name/age/gender input). Horizontal paging via `scrollToPage()`. Skip link always visible.
-2. **Edit (`#edit-view`)** — Profile section (name, age, gender, photo) + section-based navigation. Sections: Personality (BFI-10), then one per attribute, then Abilities. Previous/Next buttons on each section.
+2. **Edit (`#edit-view`)** — Profile section + section-based navigation. Sections: Personality (BFI-10 one item at a time), then one per attribute (intro → one sub-scale at a time), then Abilities. Previous/Next buttons on each section. Header buttons: View Sheet, Export, Import, Guide, AI Prompt.
 3. **Calculating (`#calculating-view`)** — Full-screen fixed overlay with a spinner and four sequential text steps that animate in. Plays for ~3 seconds before revealing the sheet. Triggered by `viewSheet()`.
-4. **Sheet (`#sheet-view`)** — The final character sheet. Radar chart, profile info, expandable score cards with spectrum bars, Big Five personality display with full descriptions, abilities grid.
+4. **Sheet (`#sheet-view`)** — The final character sheet. Radar chart, profile info, expandable score cards with spectrum bars, Big Five personality display with full descriptions, abilities grid. Action buttons: Edit, Export, Import, Guide, Print, AI Prompt.
 
 ## Init Logic
 - Saved data in localStorage → straight to Sheet view
@@ -33,7 +33,7 @@ The app has four views, controlled by adding/removing an `.active` class on thei
 ## Core Data Model
 
 ### Profile
-- Name, age, gender, profile picture (base64)
+- Name, age, gender, occupation, location, relationship status, profile picture (base64)
 
 ### Eight Core Attributes (1-20 scale)
 Each has sub-scores that auto-average to produce the main score (user can manually override).
@@ -89,7 +89,7 @@ Defines all 8 attributes with: `key`, `name`, `tagline`, `description`, `prompt`
 ### The `state` object
 ```
 state = {
-  profile: { name, age, gender, photo },
+  profile: { name, age, gender, occupation, location, relationship, photo },
   scores: { body: 10, mind: 10, ... },       // main attribute scores
   subScores: { health: 10, strength: 10, ... }, // all sub-scores by key
   overrides: { body: false, mind: false, ... }, // whether main score is manually set
@@ -109,10 +109,22 @@ Previous versions had a bug where any small change (BFI button click, ability ad
 **Do NOT call `renderSections()` from within update handlers.** Only call it when you need a full rebuild (e.g., after loading data).
 
 ### Section navigation
-`currentSection` tracks which edit section is visible (0 = Personality, 1-8 = attributes, 9 = Abilities). `showSection(index)` manages visibility. `renderSections()` rebuilds all sections and then calls `showSection(currentSection)` — not `showSection(0)`.
+`currentSection` tracks which edit section is visible (-1 = Profile, 0 = Personality, 1-8 = attributes, 9 = Abilities). Within Personality, `currentBFIStep` tracks -1 (intro) or 0–9 (individual BFI items). Within attributes, `currentSubStep` tracks 0 (intro) or 1..N (sub-scale index). `showSection(index)` manages visibility. `renderSections()` rebuilds all sections and then calls `showSection(currentSection)` — not `showSection(0)`.
+
+### Color-coded section nav dots
+The `#section-nav` bar shows one dot per section. Each attribute dot is colored using the score's CSS color variable via `getScoreInfo()`. Dots update live as scores change via `refreshAttributeMainScore(attrKey)`.
 
 ### Auto-save
 `save()` is called on a 500ms debounce via `scheduleSave()`. Most input handlers call `scheduleSave()`. The `viewSheet()` method calls `save()` directly before starting the calculating animation.
+
+### AI Prompt Modal (`#prompt-modal`)
+A modal overlay (same `display: none` / `.active` pattern as `#calculating-view`) that generates a plain-text prompt users can copy into any AI assistant. Key methods:
+- `generatePromptText()` — builds the full prompt as a plain string using `textContent` (not innerHTML). Includes: tool context, scale definitions, profile, all 8 attributes + sub-scores, Big Five personality (from `calculateBFIScores()`), abilities (active/dormant split), and narrative writing instructions.
+- `showPromptModal()` — sets `textContent` on `#prompt-text-display`, stores prompt in `modal.dataset.promptText`, adds `.active`, locks body scroll.
+- `hidePromptModal()` — removes `.active`, restores body scroll.
+- `handlePromptBackdropClick(event)` — closes on backdrop click using `event.target === event.currentTarget` guard.
+- `copyPrompt()` — uses `navigator.clipboard.writeText()` with `_copyFallback()` (textarea + execCommand) for file:// contexts. Shows "Copied to clipboard" fade-in for 3s.
+- The generated prompt instructs the AI to write a second-person character study (~400–600 words), in flowing prose, warm but honest, noticing tensions/contradictions across attributes, without moralizing or prescribing action.
 
 ### localStorage key
 Data is stored under `'charactersheet-data'` as JSON with a `version` field.
@@ -138,6 +150,19 @@ Data is stored under `'charactersheet-data'` as JSON with a `version` field.
 - Mobile-responsive design is required
 - Print stylesheet should produce a clean single-page character sheet
 - The `#calculating-view` must NOT have `display: flex` in its base CSS rule — it must stay `display: none` until `.active` is added. The flex layout is defined only on `#calculating-view.active`.
+- The same pattern applies to `#prompt-modal` — `display: none` at base, `display: flex` only on `#prompt-modal.active`. Do not break this.
+- Live slider score labels: sub-score sliders in the edit flow update a color-coded label in real time via `oninput`. The label text and color come from `getScoreInfo()` and are applied inline.
+
+## What Has Been Built (as of 2026-02-22)
+Beyond the initial commit, the following features have been added in development sessions:
+
+- **Security & robustness fixes** — XSS-safe rendering, input validation, CSP-compatible event patterns
+- **Radar chart fix** — corrected oval distortion; canvas now renders a proper octagonal polygon
+- **Live score labels** — sub-score sliders show a real-time color-coded label as the user drags
+- **Guided edit flow** — one sub-scale at a time with attribute intros; one BFI item at a time; intro/outro screens per attribute; Previous/Next navigation throughout
+- **Profile section** — full profile edit in the flow (name, age, gender, occupation, location, relationship status, photo)
+- **Color-coded nav dots** — section nav dots update live to reflect current attribute scores
+- **AI Prompt Generator** — modal with generated plain-text prompt for paste into any AI assistant; "AI Prompt" button on both sheet and edit views
 
 ## Future Directions (not yet implemented)
 - Validated scales for core attributes (PHQ-9, GAD-7, BRS, etc.) — replacing self-assessment with psychometric instruments
