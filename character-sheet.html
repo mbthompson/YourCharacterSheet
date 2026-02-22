@@ -1506,6 +1506,15 @@ function getScoreInfo(score) {
   return { label: 'Average', color: 'var(--color-average)' };
 }
 
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 // State
 const state = {
   profile: { name: 'Character', age: '', gender: '', photo: null },
@@ -1834,8 +1843,9 @@ const app = {
         <div class="sub-score-desc">${sub.desc}</div>
         <div class="sub-score-row">
           <input type="range" min="1" max="20" value="${state.subScores[sub.key] || 10}"
+            data-subkey="${sub.key}"
             oninput="app.updateSubScore('${sub.key}', this.value)">
-          <span class="sub-score-value">${state.subScores[sub.key] || 10}</span>
+          <span class="sub-score-value" data-subkey-value="${sub.key}">${state.subScores[sub.key] || 10}</span>
         </div>
       </div>
     `).join('');
@@ -1890,7 +1900,7 @@ const app = {
 
     const abilities = state.abilities.map((ab, i) => `
       <div class="ability-item">
-        <input type="text" placeholder="Ability name" value="${ab.name}"
+        <input type="text" placeholder="Ability name" value="${escapeHtml(ab.name)}"
           onchange="app.updateAbility(${i}, 'name', this.value)">
         <input type="number" min="1" max="20" value="${ab.score}"
           onchange="app.updateAbility(${i}, 'score', parseInt(this.value))">
@@ -2044,11 +2054,8 @@ const app = {
   updateSubScore(subKey, value) {
     state.subScores[subKey] = parseInt(value);
 
-    const slider = document.querySelector(`input[oninput*="'${subKey}'"]`);
-    if (slider) {
-      const valueSpan = slider.parentElement.querySelector('.sub-score-value');
-      if (valueSpan) valueSpan.textContent = value;
-    }
+    const valueSpan = document.querySelector(`[data-subkey-value="${subKey}"]`);
+    if (valueSpan) valueSpan.textContent = value;
 
     const attr = ATTRIBUTES.find(a => a.subScores.some(s => s.key === subKey));
     if (attr && !state.overrides[attr.key]) {
@@ -2088,7 +2095,7 @@ const app = {
     const attrOptions = ATTRIBUTES.map(a => `<option value="${a.key}">${a.name}</option>`).join('');
     const abilities = state.abilities.map((ab, i) => `
       <div class="ability-item">
-        <input type="text" placeholder="Ability name" value="${ab.name}"
+        <input type="text" placeholder="Ability name" value="${escapeHtml(ab.name)}"
           onchange="app.updateAbility(${i}, 'name', this.value)">
         <input type="number" min="1" max="20" value="${ab.score}"
           onchange="app.updateAbility(${i}, 'score', parseInt(this.value))">
@@ -2396,7 +2403,7 @@ const app = {
       const info = getScoreInfo(ab.score);
       return `
         <div class="ability-row">
-          <div class="ability-row-name">${ab.name}</div>
+          <div class="ability-row-name">${escapeHtml(ab.name)}</div>
           <div class="ability-row-score" style="color: ${info.color}">${ab.score}</div>
           <div class="ability-row-linked">${linked}</div>
           <div class="ability-row-status ${ab.status}">${ab.status === 'active' ? 'Active' : 'Dormant'}</div>
@@ -2431,7 +2438,15 @@ const app = {
     const saved = localStorage.getItem('charactersheet-data');
     if (!saved) return;
 
-    const data = JSON.parse(saved);
+    let data;
+    try {
+      data = JSON.parse(saved);
+    } catch (e) {
+      localStorage.removeItem('charactersheet-data');
+      this.initializeNewSheet();
+      return;
+    }
+
     state.profile = data.profile || { name: 'Character', age: '', gender: '', photo: null };
     state.scores = data.scores || {};
     state.subScores = data.subScores || {};
