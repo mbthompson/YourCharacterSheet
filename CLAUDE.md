@@ -10,11 +10,11 @@ A web-based self-reflection tool styled as a life character sheet. It combines t
 - **Philosophy not branding**: The Infinite Game and Stoic frameworks inform the language and tone but are NOT explicitly named in user-facing text. Don't add references to "Infinite Game" or "Stoics" in the tutorial or UI — use them as the underlying philosophy that shapes how things are written.
 
 ## Architecture
-- **Single HTML file** (`character-sheet.html`) — no server, no build step, no dependencies
+- **Single HTML file** (`index.html`) — no server, no build step, no dependencies
 - Runs locally in Chrome (primary target) and mobile browsers
 - Data persistence: localStorage (primary, for seamless mobile use) + JSON file export/import (for backup, transfer, and versioning)
 - All CSS and JS are inline in the single HTML file
-- Approximately 3300 lines, ~105KB
+- Approximately 4100 lines, ~130KB
 
 ## Four Views
 
@@ -137,7 +137,7 @@ Data is stored under `'charactersheet-data'` as JSON with a `version` field.
 - **Spectrum bars**: Gradient background showing all 8 color zones at 25% opacity with a positioned colored marker dot indicating the score. Used in sheet score cards and sub-score displays.
 
 ## Key Files
-- `character-sheet.html` — The app (single file, all-in-one)
+- `index.html` — The app (single file, all-in-one)
 - `The Character Sheet - Guide.md` — The full rulebook/guide document (reference for all attribute descriptions, reflection prompts, and sub-score explanations)
 - `The Character Sheet - A Guide to Knowing Yourself.docx` — Word doc version of the guide
 - `CLAUDE.md` — This file (project context for AI assistants)
@@ -148,12 +148,16 @@ Data is stored under `'charactersheet-data'` as JSON with a `version` field.
 - All validated psychological instruments (BFI-10) must use the exact published items and scoring
 - The guide content (descriptions, prompts, reflection questions) should stay in sync between the HTML app and the markdown guide
 - Mobile-responsive design is required
-- Print stylesheet should produce a clean single-page character sheet
 - The `#calculating-view` must NOT have `display: flex` in its base CSS rule — it must stay `display: none` until `.active` is added. The flex layout is defined only on `#calculating-view.active`.
 - The same pattern applies to `#prompt-modal` — `display: none` at base, `display: flex` only on `#prompt-modal.active`. Do not break this.
 - Live slider score labels: sub-score sliders in the edit flow update a color-coded label in real time via `oninput`. The label text and color come from `getScoreInfo()` and are applied inline.
+- **JS syntax check**: `node -e "new Function(require('fs').readFileSync('index.html','utf8').match(/<script>([\s\S]*)<\/script>/)[1])"` — run before committing to catch syntax errors fast
+- **Git in Bash**: always use `git -C /path/to/repo` or chain commands in a single call — shell state does not persist between Bash tool calls
+- **Per-attribute colour variables**: `--attr-{key}` (saturated) and `--attr-{key}-pale` (pale tint) exist in `:root` for all 8 attribute keys; use for themed edit-flow UI elements
+- **Ability slider pattern**: `data-ability-value="${i}"` and `data-ability-label="${i}"` on score display spans; updated by `updateAbilityScore(index, value)` without rebuilding the list — mirrors the sub-score slider pattern
+- **Print layout**: `#scores-rule { break-before: page }` forces attributes onto page 2; `.score-item-detail-desc` and `.score-item-detail-prompt` are `display: none` in print to fit all 8 cards on one page
 
-## What Has Been Built (as of 2026-02-22)
+## What Has Been Built (as of 2026-02-24)
 Beyond the initial commit, the following features have been added in development sessions:
 
 - **Security & robustness fixes** — XSS-safe rendering, input validation, CSP-compatible event patterns
@@ -163,6 +167,12 @@ Beyond the initial commit, the following features have been added in development
 - **Profile section** — full profile edit in the flow (name, age, gender, occupation, location, relationship status, photo)
 - **Color-coded nav dots** — section nav dots update live to reflect current attribute scores
 - **AI Prompt Generator** — modal with generated plain-text prompt for paste into any AI assistant; "AI Prompt" button on both sheet and edit views
+- **Sheet view redesign** — white score cards with per-attribute left colour border, name/tagline layout, large score + label, chevron, expandable detail with sub-score bars
+- **Pre-reveal transition** — "Take a breath" acknowledgement panel shown after calculating animation; user clicks to reveal the sheet
+- **Sheet footer redesign** — reflection lead text + three-column action guide (Export / Import / AI Prompt)
+- **Attribute colours in edit flow** — reflect boxes and Begin/Next buttons use `--attr-{key}` and `--attr-{key}-pale` tints per attribute section
+- **Abilities overhaul** — range slider replaces number input (fixes uncapped values); card layout in edit view; sheet display uses `.ability-card-sheet` with attribute-coloured left border, spectrum bar, score + tier label; Active/Dormant group labels when both types present
+- **Print stylesheet** — deliberate two-page layout: page 1 = profile header + radar chart, page 2 = all 8 attribute cards with sub-scores (prose hidden to fit)
 
 ## Future Directions (not yet implemented)
 - Validated scales for core attributes (PHQ-9, GAD-7, BRS, etc.) — replacing self-assessment with psychometric instruments
