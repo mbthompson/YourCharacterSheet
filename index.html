@@ -1788,36 +1788,39 @@
     .sheet-meta-date { font-size: 8pt; margin-top: 4pt; }
 
     /* Radar chart — constrain for print */
-    .sheet-radar { margin-bottom: 20pt; }
-    .sheet-radar canvas { max-width: 260pt; }
+    .sheet-radar { margin-bottom: 16pt; }
+    .sheet-radar canvas { max-width: 240pt; }
 
-    /* Score cards — 2-column grid, all expanded */
-    .scores-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5pt; margin-bottom: 24pt; }
+    /* Attributes section starts on page 2 */
+    #scores-rule { break-before: page; margin-bottom: 8pt; }
+
+    /* Score cards — 2-column grid, all expanded, page-filling */
+    .scores-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4pt; margin-bottom: 0; }
     .score-item { break-inside: avoid; box-shadow: none; border-left-width: 3pt; }
-    .score-item-summary { padding: 8pt 10pt 4pt 10pt; }
+    .score-item-summary { padding: 6pt 10pt 3pt 10pt; }
     .score-item-name { font-size: 8pt; }
-    .score-item-tagline { font-size: 8pt; }
-    .score-item-value { font-size: 18pt; }
-    .score-item-label { font-size: 7pt; }
-    .spectrum-bar { margin: 4pt 10pt 0; opacity: 0.5 !important; }
-    .spectrum-marker { width: 8pt; height: 8pt; border-width: 1.5pt; }
+    .score-item-tagline { font-size: 7.5pt; }
+    .score-item-value { font-size: 16pt; }
+    .score-item-label { font-size: 6.5pt; }
+    .spectrum-bar { margin: 3pt 10pt 0; opacity: 0.5 !important; }
+    .spectrum-marker { width: 7pt; height: 7pt; border-width: 1.5pt; }
 
-    /* Force all score card details open */
+    /* Force all score card details open; hide prose, show sub-scores only */
     .score-item-detail {
       max-height: none !important;
       overflow: visible !important;
       border-top-color: #e0e0e0 !important;
     }
-    .score-item-detail-inner { padding: 8pt 10pt 10pt; }
-    .score-item-detail-desc { font-size: 8pt; line-height: 1.5; margin-bottom: 6pt; }
-    .score-item-detail-prompt { padding: 6pt 10pt; margin-bottom: 8pt; font-size: 8pt; }
-    .sub-score-bar-item { grid-template-columns: 80pt 28pt 1fr; gap: 6pt; margin-bottom: 5pt; }
-    .sub-score-bar-name { font-size: 8pt; }
-    .sub-score-bar-value { font-size: 9pt; }
-    .sub-bar-track { height: 4pt; }
+    .score-item-detail-inner { padding: 5pt 10pt 7pt; }
+    .score-item-detail-desc { display: none; }
+    .score-item-detail-prompt { display: none; }
+    .sub-score-bar-item { grid-template-columns: 74pt 24pt 1fr; gap: 5pt; margin-bottom: 4pt; }
+    .sub-score-bar-name { font-size: 7.5pt; }
+    .sub-score-bar-value { font-size: 8.5pt; }
+    .sub-bar-track { height: 3.5pt; }
 
     /* Section rules */
-    .sheet-section-rule { margin-bottom: 10pt; }
+    .sheet-section-rule { margin-bottom: 8pt; }
     .sheet-section-rule-text { font-size: 7pt; }
 
     /* Personality */
