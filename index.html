@@ -1161,7 +1161,7 @@
     flex-shrink: 0;
     padding: 40px 28px 48px 36px;
     border-right: 1px solid var(--border-gray);
-    background: linear-gradient(to bottom, #F7F4EF, #EDE7DC);
+    background: var(--white);
   }
 
   .sheet-sidebar-label {
@@ -1216,9 +1216,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 32px;
-    color: var(--border-gray);
-    font-family: var(--font-sans);
+    font-size: 28px;
+    font-weight: 700;
+    font-family: var(--font-serif);
+    color: var(--white);
+    background: var(--warm-brown);
+    border-radius: 50%;
+    letter-spacing: 0.02em;
   }
 
   .sheet-header h1 {
@@ -1272,7 +1276,7 @@
   .scores-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 6px;
+    gap: 14px;
     margin-bottom: 36px;
   }
 
@@ -1283,37 +1287,36 @@
     cursor: pointer;
     transition: box-shadow 0.2s;
     overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.05);
   }
 
   .score-item:hover {
-    box-shadow: 0 3px 12px rgba(0,0,0,0.09);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.11), 0 0 0 1px rgba(0,0,0,0.06);
   }
 
   .score-item-summary {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 14px 18px 6px 18px;
+    padding: 16px 16px 8px 16px;
     gap: 12px;
   }
 
   .score-item-left { flex: 1; min-width: 0; }
 
   .score-item-name {
-    font-family: var(--font-sans);
-    font-size: 13px;
+    font-family: var(--font-serif);
+    font-size: 15px;
     font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--deep-slate);
+    color: var(--charcoal);
+    line-height: 1.2;
   }
 
   .score-item-tagline {
     font-family: var(--font-sans);
     font-size: 11px;
-    color: var(--light-gray);
-    margin-top: 2px;
+    color: var(--medium-gray);
+    margin-top: 3px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1325,8 +1328,8 @@
   }
 
   .score-item-value {
-    font-family: var(--font-sans);
-    font-size: 28px;
+    font-family: var(--font-serif);
+    font-size: 30px;
     font-weight: 700;
     line-height: 1;
   }
@@ -1343,8 +1346,9 @@
   /* Spectrum bar — full width, more prominent */
   .spectrum-bar {
     position: relative;
-    height: 4px;
-    margin: 8px 18px 0 18px;
+    height: 7px;
+    border-radius: 4px;
+    margin: 8px 16px 0 16px;
     overflow: visible;
     background: linear-gradient(to right,
       var(--color-critical) 0%, var(--color-critical) 20%,
@@ -1371,18 +1375,29 @@
     transition: left 0.6s ease-out;
   }
 
-  /* Chevron expand indicator */
+  /* Expand hint + chevron */
   .score-item-chevron {
-    text-align: center;
-    padding: 6px 0 8px;
-    font-size: 11px;
-    color: var(--border-gray);
-    transition: transform 0.3s;
-    line-height: 1;
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 6px 16px 9px;
+    font-family: var(--font-sans);
+    font-size: 10px;
+    color: var(--light-gray);
+    letter-spacing: 0.03em;
+    transition: color 0.2s;
   }
 
-  .score-item.expanded .score-item-chevron {
+  .score-item-chevron .chevron-arrow {
+    font-size: 10px;
+    transition: transform 0.3s;
+    display: inline-block;
+  }
+
+  .score-item:hover .score-item-chevron { color: var(--medium-gray); }
+
+  .score-item.expanded .score-item-chevron .chevron-arrow {
     transform: rotate(180deg);
   }
 
@@ -1834,7 +1849,7 @@
     #scores-rule { break-before: page; margin-bottom: 8pt; }
 
     /* Score cards — 2-column grid, all expanded, page-filling */
-    .scores-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4pt; margin-bottom: 0; }
+    .scores-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5pt; margin-bottom: 0; }
     .score-item { break-inside: avoid; box-shadow: none; border-left-width: 3pt; }
     .score-item-summary { padding: 6pt 10pt 3pt 10pt; }
     .score-item-name { font-size: 8pt; }
@@ -3251,7 +3266,11 @@ const app = {
       placeholderEl.style.display = 'none';
     } else {
       imgEl.style.display = 'none';
-      placeholderEl.style.display = 'block';
+      // Generate initials from name
+      const name = state.profile.name || '';
+      const initials = name.trim().split(/\s+/).map(w => w[0]).filter(Boolean).slice(0, 2).join('').toUpperCase();
+      placeholderEl.textContent = initials || '?';
+      placeholderEl.style.display = 'flex';
     }
   },
 
@@ -3405,7 +3424,7 @@ const app = {
           <div class="spectrum-bar">
             <div class="spectrum-marker" style="left: ${pct}%; background: ${info.color}"></div>
           </div>
-          <div class="score-item-chevron">▾</div>
+          <div class="score-item-chevron">▸ ${attr.subScores.length} sub-scores <span class="chevron-arrow">▾</span></div>
           <div class="score-item-detail">
             <div class="score-item-detail-inner">
               <div class="score-item-detail-desc">${attr.description}</div>
