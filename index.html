@@ -1164,15 +1164,6 @@
     background: var(--white);
   }
 
-  .sheet-sidebar-label {
-    font-family: var(--font-sans);
-    font-size: 9px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--light-gray);
-    text-align: center;
-    margin-bottom: 6px;
-  }
 
   /* ── Main content ──────────────────────────── */
   .sheet-main {
@@ -1260,24 +1251,17 @@
     text-transform: uppercase;
   }
 
-  /* Radar — lives in sidebar */
-  .sheet-radar {
-    text-align: center;
-    margin-bottom: 0;
-  }
-
-  .sheet-radar canvas {
-    max-width: 100%;
-    height: auto;
-    aspect-ratio: 1;
-  }
-
   /* ==================== SCORE ITEMS (Sheet) ==================== */
   .scores-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
     gap: 14px;
     margin-bottom: 36px;
+  }
+
+  .score-item-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
   }
 
   .score-item {
@@ -1375,18 +1359,23 @@
     transition: left 0.6s ease-out;
   }
 
-  /* Expand hint + chevron */
+  /* Expand hint + chevron — styled as a clear tap target */
   .score-item-chevron {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
-    padding: 6px 16px 9px;
+    padding: 7px 16px 8px;
     font-family: var(--font-sans);
-    font-size: 10px;
-    color: var(--light-gray);
-    letter-spacing: 0.03em;
-    transition: color 0.2s;
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--medium-gray);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-top: 1px solid var(--border-gray);
+    background: rgba(0,0,0,0.015);
+    transition: color 0.2s, background 0.2s;
+    cursor: pointer;
   }
 
   .score-item-chevron .chevron-arrow {
@@ -1395,7 +1384,12 @@
     display: inline-block;
   }
 
-  .score-item:hover .score-item-chevron { color: var(--medium-gray); }
+  .score-item:hover .score-item-chevron { color: var(--charcoal); background: rgba(0,0,0,0.03); }
+
+  .score-item.expanded .score-item-chevron {
+    color: var(--warm-brown);
+    background: rgba(139,111,71,0.06);
+  }
 
   .score-item.expanded .score-item-chevron .chevron-arrow {
     transform: rotate(180deg);
@@ -1512,10 +1506,10 @@
   }
 
   .big-five-item {
-    background: var(--white);
     border-radius: 6px;
-    padding: 16px 20px;
-    margin-bottom: 6px;
+    border-left: 3px solid transparent;
+    padding: 16px 20px 16px 17px;
+    margin-bottom: 8px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.04);
   }
 
@@ -1769,14 +1763,23 @@
   }
 
   .sheet-actions {
-    background: var(--white);
-    padding: 24px;
+    margin-top: 24px;
+    padding-top: 20px;
     border-top: 1px solid var(--border-gray);
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
   }
+
+  .sheet-actions .btn {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+    font-size: 11px;
+    padding: 6px 8px;
+  }
+
+  /* Edit button: warm-brown border already makes it stand out — no need to span */
 
   /* ==================== RESPONSIVE ==================== */
   @media (max-width: 640px) {
@@ -1795,7 +1798,7 @@
     .sheet-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border-gray); padding: 28px 20px 24px; }
     .sheet-main { padding: 28px 20px 40px; }
     .sheet-header h1 { font-size: 22px; }
-    .scores-grid { grid-template-columns: 1fr 1fr; }
+    .score-item-pair { grid-template-columns: 1fr; }
     .tutorial-page { padding: 40px 20px; }
     .tutorial-page h1 { font-size: 36px; }
     .tutorial-page h2 { font-size: 28px; }
@@ -1840,16 +1843,12 @@
     .sheet-meta { font-size: 9pt; }
     .sheet-meta-date { font-size: 8pt; margin-top: 4pt; }
 
-    /* Radar chart — inline after header in print */
-    .sheet-sidebar-label { display: none; }
-    .sheet-radar { margin-bottom: 14pt; text-align: center; }
-    .sheet-radar canvas { max-width: 200pt; }
-
     /* Attributes section starts on page 2 */
     #scores-rule { break-before: page; margin-bottom: 8pt; }
 
-    /* Score cards — 2-column grid, all expanded, page-filling */
-    .scores-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5pt; margin-bottom: 0; }
+    /* Score cards — 2-column pairs, all expanded, page-filling */
+    .scores-grid { display: grid; gap: 5pt; margin-bottom: 0; }
+    .score-item-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 5pt; }
     .score-item { break-inside: avoid; box-shadow: none; border-left-width: 3pt; }
     .score-item-summary { padding: 6pt 10pt 3pt 10pt; }
     .score-item-name { font-size: 8pt; }
@@ -2062,7 +2061,7 @@
     <div class="sheet-container">
       <div class="sheet-parchment">
 
-        <!-- ── Sidebar: profile + radar ───────────────── -->
+        <!-- ── Sidebar: profile + actions ──────────────── -->
         <div class="sheet-sidebar">
           <div class="sheet-header">
             <div class="sheet-profile">
@@ -2076,9 +2075,13 @@
             </div>
           </div>
 
-          <div class="sheet-sidebar-label">Overview</div>
-          <div class="sheet-radar">
-            <canvas id="radarChart"></canvas>
+          <div class="sheet-actions">
+            <button class="btn btn-secondary btn-small" onclick="app.editSheet()">Edit</button>
+            <button class="btn btn-ghost btn-small" onclick="app.exportData()">Export</button>
+            <button class="btn btn-ghost btn-small" onclick="app.importData()">Import</button>
+            <button class="btn btn-ghost btn-small" onclick="app.showTutorial()">Guide</button>
+            <button class="btn btn-ghost btn-small" onclick="window.print()">Print</button>
+            <button class="btn btn-ghost btn-small" onclick="app.showPromptModal()">AI Prompt</button>
           </div>
         </div>
 
@@ -2120,14 +2123,7 @@
       </div>
     </div>
 
-    <div class="sheet-actions">
-      <button class="btn btn-secondary btn-small" onclick="app.editSheet()">Edit</button>
-      <button class="btn btn-ghost btn-small" onclick="app.exportData()">Export</button>
-      <button class="btn btn-ghost btn-small" onclick="app.importData()">Import</button>
-      <button class="btn btn-ghost btn-small" onclick="app.showTutorial()">Guide</button>
-      <button class="btn btn-ghost btn-small" onclick="window.print()">Print</button>
-      <button class="btn btn-ghost btn-small" onclick="app.showPromptModal()">AI Prompt</button>
-    </div>
+
   </div>
 </div>
 
@@ -3225,9 +3221,19 @@ const app = {
 
   // ==================== SHEET RENDERING ====================
 
+  toggleScorePair(el) {
+    const pair = el.closest('.score-item-pair');
+    if (!pair) { el.classList.toggle('expanded'); return; }
+    const items = pair.querySelectorAll('.score-item');
+    const willExpand = !el.classList.contains('expanded');
+    items.forEach(item => {
+      if (willExpand) item.classList.add('expanded');
+      else item.classList.remove('expanded');
+    });
+  },
+
   renderSheet() {
     this.renderSheetHeader();
-    this.renderSheetRadar();
     this.renderSheetScores();
     this.renderSheetPersonality();
     this.renderSheetAbilities();
@@ -3274,122 +3280,8 @@ const app = {
     }
   },
 
-  renderSheetRadar() {
-    const canvas = document.getElementById('radarChart');
-    const ctx = canvas.getContext('2d');
-    const dpr = window.devicePixelRatio || 1;
-
-    const size = 660;
-    canvas.width = size * dpr;
-    canvas.height = size * dpr;
-    canvas.style.width = size + 'px';
-    canvas.style.height = '';
-    ctx.scale(dpr, dpr);
-
-    const cx = size / 2, cy = size / 2, maxR = 190;
-    const n = ATTRIBUTES.length;
-    const angleStep = (2 * Math.PI) / n;
-    const startAngle = -Math.PI / 2;
-
-    ctx.clearRect(0, 0, size, size);
-
-    // Grid rings
-    for (let ring = 1; ring <= 4; ring++) {
-      const r = (ring / 4) * maxR;
-      ctx.beginPath();
-      for (let i = 0; i <= n; i++) {
-        const angle = startAngle + i * angleStep;
-        const x = cx + r * Math.cos(angle);
-        const y = cy + r * Math.sin(angle);
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      }
-      ctx.strokeStyle = '#E2E0DC';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-    }
-
-    // Axis lines
-    for (let i = 0; i < n; i++) {
-      const angle = startAngle + i * angleStep;
-      ctx.beginPath();
-      ctx.moveTo(cx, cy);
-      ctx.lineTo(cx + maxR * Math.cos(angle), cy + maxR * Math.sin(angle));
-      ctx.strokeStyle = '#E2E0DC';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-    }
-
-    // Data polygon
-    const values = ATTRIBUTES.map(a => this.getMainScore(a.key));
-
-    ctx.beginPath();
-    values.forEach((val, i) => {
-      const r = (val / 20) * maxR;
-      const angle = startAngle + i * angleStep;
-      const x = cx + r * Math.cos(angle);
-      const y = cy + r * Math.sin(angle);
-      if (i === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    });
-    ctx.closePath();
-    ctx.fillStyle = 'rgba(139, 111, 71, 0.15)';
-    ctx.fill();
-
-    ctx.beginPath();
-    values.forEach((val, i) => {
-      const r = (val / 20) * maxR;
-      const angle = startAngle + i * angleStep;
-      const x = cx + r * Math.cos(angle);
-      const y = cy + r * Math.sin(angle);
-      if (i === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    });
-    ctx.closePath();
-    ctx.strokeStyle = '#8B6F47';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    // Data points
-    values.forEach((val, i) => {
-      const r = (val / 20) * maxR;
-      const angle = startAngle + i * angleStep;
-      const x = cx + r * Math.cos(angle);
-      const y = cy + r * Math.sin(angle);
-      const info = getScoreInfo(val);
-      ctx.beginPath();
-      ctx.arc(x, y, 5, 0, 2 * Math.PI);
-      ctx.fillStyle = info.color;
-      ctx.fill();
-    });
-
-    // Labels
-    ATTRIBUTES.forEach((attr, i) => {
-      const angle = startAngle + i * angleStep;
-      const labelR = maxR + 60;
-      const x = cx + labelR * Math.cos(angle);
-      const y = cy + labelR * Math.sin(angle);
-
-      ctx.font = '13px -apple-system, Arial, sans-serif';
-      ctx.fillStyle = '#4A5568';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-
-      if (Math.cos(angle) < -0.3) ctx.textAlign = 'right';
-      else if (Math.cos(angle) > 0.3) ctx.textAlign = 'left';
-
-      ctx.fillText(attr.name, x, y);
-
-      const score = this.getMainScore(attr.key);
-      const scoreInfo = getScoreInfo(score);
-      ctx.font = 'bold 13px -apple-system, Arial, sans-serif';
-      ctx.fillStyle = scoreInfo.color;
-      ctx.fillText(score, x, y + 18);
-    });
-  },
-
   renderSheetScores() {
-    const html = ATTRIBUTES.map(attr => {
+    const cards = ATTRIBUTES.map(attr => {
       const score = this.getMainScore(attr.key);
       const info = getScoreInfo(score);
       const pct = ((score - 1) / 19) * 100;
@@ -3410,7 +3302,7 @@ const app = {
       }).join('');
 
       return `
-        <div class="score-item" style="border-left-color: var(--attr-${attr.key})" onclick="this.classList.toggle('expanded')">
+        <div class="score-item" style="border-left-color: var(--attr-${attr.key})" onclick="app.toggleScorePair(this)">
           <div class="score-item-summary">
             <div class="score-item-left">
               <div class="score-item-name">${attr.name}</div>
@@ -3424,7 +3316,7 @@ const app = {
           <div class="spectrum-bar">
             <div class="spectrum-marker" style="left: ${pct}%; background: ${info.color}"></div>
           </div>
-          <div class="score-item-chevron">▸ ${attr.subScores.length} sub-scores <span class="chevron-arrow">▾</span></div>
+          <div class="score-item-chevron">Tap to expand sub-scores <span class="chevron-arrow">▾</span></div>
           <div class="score-item-detail">
             <div class="score-item-detail-inner">
               <div class="score-item-detail-desc">${attr.description}</div>
@@ -3434,9 +3326,15 @@ const app = {
           </div>
         </div>
       `;
-    }).join('');
+    });
 
-    document.getElementById('scores-grid').innerHTML = html;
+    // Wrap in pairs so both columns expand/collapse together
+    const pairs = [];
+    for (let i = 0; i < cards.length; i += 2) {
+      pairs.push(`<div class="score-item-pair">${cards.slice(i, i + 2).join('')}</div>`);
+    }
+
+    document.getElementById('scores-grid').innerHTML = pairs.join('');
   },
 
   renderSheetPersonality() {
@@ -3448,10 +3346,20 @@ const app = {
       <div class="personality-section-subtitle">How you tend to move through the world — tendencies, not achievements</div>
     `;
 
+    // Per-trait subtle tints — non-judgmental, just for visual distinction
+    const traitColors = {
+      openness:          { bg: '#EFF6FF', border: '#93C5FD' },
+      conscientiousness: { bg: '#F0FDF4', border: '#86EFAC' },
+      extraversion:      { bg: '#FAF5FF', border: '#C4B5FD' },
+      agreeableness:     { bg: '#FFF7ED', border: '#FCA5A1' },
+      neuroticism:       { bg: '#FFFBEB', border: '#FCD34D' },
+    };
+
     html += traits.map(trait => {
       const score = scores[trait];
       const pct = ((score - 1) / 4) * 100;
       const info = TRAIT_INFO[trait];
+      const tc = traitColors[trait];
 
       // Personality traits are not scored as good/bad — use neutral warm-brown throughout
       let level;
@@ -3463,7 +3371,7 @@ const app = {
       const interpretation = score <= 2.5 ? info.low : score >= 3.5 ? info.high : `Between: ${info.low.toLowerCase()} and ${info.high.toLowerCase()}`;
 
       return `
-        <div class="big-five-item">
+        <div class="big-five-item" style="background: ${tc.bg}; border-left-color: ${tc.border}">
           <div class="big-five-header">
             <div class="big-five-name">${info.name}</div>
             <div class="big-five-level" style="color: ${levelColor}">${level}</div>
