@@ -26,15 +26,24 @@
     --color-strong: #16A34A;
     --color-excellent: #059669;
     --color-exceptional: #047857;
-    /* Per-attribute accent colours — muted, distinct hues. Remove these 8 lines to revert all accents to warm-brown. */
-    --attr-body:        #7B6B8D;
-    --attr-mind:        #4A7C8C;
-    --attr-spirit:      #8C6B4A;
-    --attr-heart:       #8C4A5A;
-    --attr-standing:    #6B7A4A;
-    --attr-resilience:  #4A6B7A;
-    --attr-discipline:  #5A5A6B;
-    --attr-joy:         #8C7A4A;
+    /* Per-attribute accent colours — muted, distinct hues. */
+    --attr-body:            #7B6B8D;
+    --attr-mind:            #4A7C8C;
+    --attr-spirit:          #8C6B4A;
+    --attr-heart:           #8C4A5A;
+    --attr-standing:        #6B7A4A;
+    --attr-resilience:      #4A6B7A;
+    --attr-discipline:      #5A5A6B;
+    --attr-joy:             #8C7A4A;
+    /* Pale tints of each attribute colour — used for reflect box backgrounds */
+    --attr-body-pale:       #EDEAF3;
+    --attr-mind-pale:       #E4EFF2;
+    --attr-spirit-pale:     #F2EDE4;
+    --attr-heart-pale:      #F2E4E9;
+    --attr-standing-pale:   #EBEFE0;
+    --attr-resilience-pale: #E0EBF0;
+    --attr-discipline-pale: #E9E9EE;
+    --attr-joy-pale:        #F2EDE0;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -1634,11 +1643,86 @@
 
   /* ==================== PRINT ==================== */
   @media print {
-    body { background: white; }
-    #edit-view, #tutorial-view, #calculating-view, .edit-header, .sheet-actions, .btn, .tutorial-skip-link { display: none !important; }
-    .sheet-container { box-shadow: none; }
-    .sheet-parchment { padding: 40px; }
-    .score-item-detail { max-height: none !important; }
+    @page { margin: 14mm 16mm; }
+
+    /* Ensure colors print accurately */
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+
+    body { background: white !important; font-size: 10pt; }
+
+    /* Hide all non-content UI */
+    #edit-view, #tutorial-view, #calculating-view, #prompt-modal,
+    .edit-header, .sheet-actions, .btn, .tutorial-skip-link,
+    .score-item-chevron, .sheet-footer-actions, .sheet-footer-close { display: none !important; }
+
+    /* Remove chrome */
+    #sheet-view { padding: 0; animation: none; }
+    .container { max-width: 100%; padding: 0; }
+    .sheet-container { box-shadow: none; border: none; }
+    .sheet-parchment { background: white !important; padding: 0; }
+
+    /* Profile header — compact for print */
+    .sheet-header { padding-bottom: 14pt; margin-bottom: 20pt; }
+    .sheet-photo { width: 72pt; height: 72pt; box-shadow: none; border: 1pt solid #ddd; }
+    .sheet-header h1 { font-size: 22pt; }
+    .sheet-occupation { font-size: 11pt; margin-bottom: 4pt; }
+    .sheet-meta { font-size: 9pt; }
+    .sheet-meta-date { font-size: 8pt; margin-top: 4pt; }
+
+    /* Radar chart — constrain for print */
+    .sheet-radar { margin-bottom: 20pt; }
+    .sheet-radar canvas { max-width: 260pt; }
+
+    /* Score cards — 2-column grid, all expanded */
+    .scores-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5pt; margin-bottom: 24pt; }
+    .score-item { break-inside: avoid; box-shadow: none; border-left-width: 3pt; }
+    .score-item-summary { padding: 8pt 10pt 4pt 10pt; }
+    .score-item-name { font-size: 8pt; }
+    .score-item-tagline { font-size: 8pt; }
+    .score-item-value { font-size: 18pt; }
+    .score-item-label { font-size: 7pt; }
+    .spectrum-bar { margin: 4pt 10pt 0; opacity: 0.5 !important; }
+    .spectrum-marker { width: 8pt; height: 8pt; border-width: 1.5pt; }
+
+    /* Force all score card details open */
+    .score-item-detail {
+      max-height: none !important;
+      overflow: visible !important;
+      border-top-color: #e0e0e0 !important;
+    }
+    .score-item-detail-inner { padding: 8pt 10pt 10pt; }
+    .score-item-detail-desc { font-size: 8pt; line-height: 1.5; margin-bottom: 6pt; }
+    .score-item-detail-prompt { padding: 6pt 10pt; margin-bottom: 8pt; font-size: 8pt; }
+    .sub-score-bar-item { grid-template-columns: 80pt 28pt 1fr; gap: 6pt; margin-bottom: 5pt; }
+    .sub-score-bar-name { font-size: 8pt; }
+    .sub-score-bar-value { font-size: 9pt; }
+    .sub-bar-track { height: 4pt; }
+
+    /* Section rules */
+    .sheet-section-rule { margin-bottom: 10pt; }
+    .sheet-section-rule-text { font-size: 7pt; }
+
+    /* Personality */
+    .personality-section { margin-bottom: 20pt; }
+    .personality-section-subtitle { font-size: 9pt; margin-bottom: 10pt; }
+    .big-five-item { padding: 8pt 12pt; margin-bottom: 4pt; box-shadow: none; break-inside: avoid; }
+    .big-five-name { font-size: 8pt; }
+    .big-five-desc { font-size: 8pt; margin-bottom: 5pt; }
+    .big-five-anchors { font-size: 7pt; }
+    .big-five-bar-track { height: 3pt; }
+    .big-five-interpretation { font-size: 8pt; margin-top: 4pt; }
+
+    /* Abilities */
+    .sheet-abilities { margin-bottom: 20pt; }
+    .ability-row { padding: 6pt 10pt; box-shadow: none; font-size: 9pt; }
+    .ability-row-status { display: inline-block !important; }
+    .ability-row-linked { display: table-cell !important; }
+
+    /* Footer — reflection text only */
+    .sheet-footer { padding-top: 16pt; }
+    .sheet-footer-reflection { margin-bottom: 0; }
+    .sheet-footer-reflection-lead { font-size: 11pt; margin-bottom: 6pt; }
+    .sheet-footer-reflection-body { font-size: 9pt; max-width: 100%; }
   }
 
   /* ==================== PROMPT MODAL ==================== */
@@ -2654,16 +2738,18 @@ const app = {
 
   renderIntroStep(attr, sectionIndex) {
     const totalSubs = attr.subScores.length;
+    const ac = `var(--attr-${attr.key})`;
+    const acp = `var(--attr-${attr.key}-pale)`;
     return `
       <div class="sub-step-intro">
         <div class="attribute-description">${attr.description}</div>
-        <div class="reflection-prompt">
-          <div class="prompt-label">Reflect</div>
+        <div class="reflection-prompt" style="background: ${acp}; border-left-color: ${ac}">
+          <div class="prompt-label" style="color: ${ac}">Reflect</div>
           <p>${attr.prompt}</p>
         </div>
         <div class="sub-step-nav">
           <button class="btn btn-secondary" onclick="app.stepBack()">Previous</button>
-          <button class="btn btn-primary" onclick="app.stepForward()">Begin &mdash; ${totalSubs} questions</button>
+          <button class="btn btn-primary" style="background: ${ac}; border-color: ${ac}" onclick="app.stepForward()">Begin &mdash; ${totalSubs} questions</button>
         </div>
       </div>
     `;
@@ -2672,6 +2758,7 @@ const app = {
   renderSubScoreStep(attr, sub, stepNumber, totalSubs) {
     const currentVal = state.subScores[sub.key] || 10;
     const info = getScoreInfo(currentVal);
+    const ac = `var(--attr-${attr.key})`;
     return `
       <div class="sub-step-body">
         <div class="sub-step-question-name">${sub.name}</div>
@@ -2689,7 +2776,7 @@ const app = {
         </div>
         <div class="sub-step-nav">
           <button class="btn btn-secondary" onclick="app.stepBack()">Previous</button>
-          <button class="btn btn-primary" onclick="app.stepForward()">Next</button>
+          <button class="btn btn-primary" style="background: ${ac}; border-color: ${ac}" onclick="app.stepForward()">Next</button>
         </div>
       </div>
     `;
@@ -3112,7 +3199,7 @@ const app = {
           <div class="score-item-detail">
             <div class="score-item-detail-inner">
               <div class="score-item-detail-desc">${attr.description}</div>
-              <div class="score-item-detail-prompt">${attr.prompt}</div>
+              <div class="score-item-detail-prompt" style="background: var(--attr-${attr.key}-pale); border-left-color: var(--attr-${attr.key})">${attr.prompt}</div>
               ${subBars}
             </div>
           </div>
