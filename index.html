@@ -1328,6 +1328,7 @@
   }
 
   /* Spectrum bar — full width, more prominent */
+  /* Percentages derived from (score-1)/19*100 at each tier boundary */
   .spectrum-bar {
     position: relative;
     height: 7px;
@@ -1335,27 +1336,27 @@
     margin: 8px 16px 0 16px;
     overflow: visible;
     background: linear-gradient(to right,
-      var(--color-critical) 0%, var(--color-critical) 20%,
-      var(--color-struggling) 20%, var(--color-struggling) 35%,
-      var(--color-below) 35%, var(--color-below) 45%,
-      var(--color-average) 45%, var(--color-average) 65%,
-      var(--color-above) 65%, var(--color-above) 75%,
-      var(--color-strong) 75%, var(--color-strong) 85%,
-      var(--color-excellent) 85%, var(--color-excellent) 95%,
-      var(--color-exceptional) 95%, var(--color-exceptional) 100%
+      var(--color-critical)    0%,     var(--color-critical)    15.8%,
+      var(--color-struggling)  15.8%,  var(--color-struggling)  31.6%,
+      var(--color-below)       31.6%,  var(--color-below)       42.1%,
+      var(--color-average)     42.1%,  var(--color-average)     52.6%,
+      var(--color-above)       52.6%,  var(--color-above)       63.2%,
+      var(--color-strong)      63.2%,  var(--color-strong)      73.7%,
+      var(--color-excellent)   73.7%,  var(--color-excellent)   84.2%,
+      var(--color-exceptional) 84.2%,  var(--color-exceptional) 100%
     );
-    opacity: 0.3;
+    opacity: 0.45;
   }
 
   .spectrum-marker {
     position: absolute;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
-    border: 2px solid var(--white);
-    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    border: 2.5px solid var(--white);
+    box-shadow: 0 1px 5px rgba(0,0,0,0.4);
     transition: left 0.6s ease-out;
   }
 
@@ -1646,19 +1647,19 @@
 
   .ability-card-sheet-spectrum {
     position: relative;
-    height: 4px;
+    height: 5px;
     width: 120px;
     background: linear-gradient(to right,
-      var(--color-critical) 0%, var(--color-critical) 20%,
-      var(--color-struggling) 20%, var(--color-struggling) 35%,
-      var(--color-below) 35%, var(--color-below) 45%,
-      var(--color-average) 45%, var(--color-average) 65%,
-      var(--color-above) 65%, var(--color-above) 75%,
-      var(--color-strong) 75%, var(--color-strong) 85%,
-      var(--color-excellent) 85%, var(--color-excellent) 95%,
-      var(--color-exceptional) 95%, var(--color-exceptional) 100%
+      var(--color-critical)    0%,     var(--color-critical)    15.8%,
+      var(--color-struggling)  15.8%,  var(--color-struggling)  31.6%,
+      var(--color-below)       31.6%,  var(--color-below)       42.1%,
+      var(--color-average)     42.1%,  var(--color-average)     52.6%,
+      var(--color-above)       52.6%,  var(--color-above)       63.2%,
+      var(--color-strong)      63.2%,  var(--color-strong)      73.7%,
+      var(--color-excellent)   73.7%,  var(--color-excellent)   84.2%,
+      var(--color-exceptional) 84.2%,  var(--color-exceptional) 100%
     );
-    opacity: 0.35;
+    opacity: 0.45;
     margin-bottom: 6px;
     margin-left: auto;
   }
@@ -1787,28 +1788,81 @@
     .container-wide { padding: 0 16px; }
     .profile-section { grid-template-columns: 1fr; gap: 24px; }
     .profile-photo { width: 100px; height: 100px; }
-    .section-nav { gap: 6px; }
-    .section-nav button { font-size: 11px; padding: 6px 12px; }
-    .attribute-section { padding: 24px; }
+
+    /* Edit header: wrap button group onto multiple lines */
+    .edit-header { flex-wrap: wrap; gap: 8px; margin-bottom: 24px; padding-bottom: 16px; }
+    .edit-header h1 { font-size: 18px; }
+    .edit-header .button-group { flex-wrap: wrap; gap: 6px; }
+    .edit-mode-toggle { order: -1; } /* mode toggle first in flow */
+
+    /* Section nav: smaller and wrappable */
+    .section-nav { gap: 5px; top: 60px; }
+    .section-nav button { font-size: 11px; padding: 6px 10px; min-height: 36px; }
+
+    /* Edit attribute sections */
+    .attribute-section { padding: 20px 16px; }
+
+    /* Sub-step: smaller heading, full-width slider */
+    .sub-step-question-name { font-size: 20px; }
+    .sub-step-value-row .sub-score-value { font-size: 32px; }
+    .sub-step-slider-area input[type="range"] { height: 8px; } /* easier to tap */
+
+    /* BFI buttons: stack vertically on very small screens */
+    .bfi-buttons { gap: 8px; }
+    .bfi-btn { min-height: 44px; } /* touch target */
+
+    /* Quick mode BFI — compact buttons */
+    .quick-bfi-buttons .bfi-btn { min-height: 40px; font-size: 11px; }
+
+    /* Quick mode sliders */
+    .quick-subscore-slider-row input[type="range"] { height: 8px; }
+    .quick-subscore-slider-row .sub-score-label { display: none; } /* save space */
+
+    /* Score cards */
     .score-item-summary { padding: 12px 14px 4px 14px; }
+    .score-item-pair { grid-template-columns: 1fr; }
+    .sub-score-bar-item { grid-template-columns: 90px 30px 1fr; }
+
+    /* Abilities on sheet */
     .ability-card-sheet { gap: 10px; }
     .ability-card-sheet-spectrum { width: 80px; }
+
     /* Sidebar stacks above main on small screens */
     .sheet-parchment { flex-direction: column; }
-    .sheet-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border-gray); padding: 28px 20px 24px; }
-    .sheet-main { padding: 28px 20px 40px; }
+    .sheet-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border-gray); padding: 24px 16px 20px; }
+    .sheet-main { padding: 24px 16px 40px; }
     .sheet-header h1 { font-size: 22px; }
-    .score-item-pair { grid-template-columns: 1fr; }
+    .sheet-actions { grid-template-columns: 1fr 1fr 1fr; }
+    /* Hide print button on mobile — less useful */
+    .sheet-actions .btn-print-hide { display: none; }
+
+    /* Tutorial */
     .tutorial-page { padding: 40px 20px; }
-    .tutorial-page h1 { font-size: 36px; }
-    .tutorial-page h2 { font-size: 28px; }
+    .tutorial-page h1 { font-size: 32px; }
+    .tutorial-page h2 { font-size: 24px; }
+    .tutorial-page p, .tutorial-page p.lead { font-size: 16px; }
+    .tutorial-actions { flex-direction: column; align-items: center; }
+    .tutorial-actions .btn { width: 100%; max-width: 280px; min-height: 48px; }
     .attr-preview-grid { grid-template-columns: 1fr; }
+
+    /* Profile fields */
     .profile-fields-grid { grid-template-columns: 1fr; }
     .profile-field.profile-field-wide { grid-column: 1; }
-    .sub-score-bar-item { grid-template-columns: 90px 30px 1fr; }
+    .profile-photo-wrap { align-items: center; }
+    .profile-photo { width: 88px; height: 88px; } /* easier tap target */
+
+    /* Personality */
     .big-five-item { padding: 14px 16px; }
-    .sub-step-value-row .sub-score-value { font-size: 32px; }
-    .sub-step-question-name { font-size: 18px; }
+
+    /* Score reveal */
+    .score-reveal-number { font-size: 48px; }
+  }
+
+  /* Narrowest phones */
+  @media (max-width: 380px) {
+    .section-nav button { font-size: 10px; padding: 5px 8px; }
+    .quick-bfi-buttons .bfi-btn { font-size: 10px; padding: 6px 6px; min-width: 52px; }
+    .edit-header .button-group .btn { font-size: 11px; padding: 6px 10px; }
   }
 
   /* ==================== PRINT ==================== */
@@ -1855,7 +1909,7 @@
     .score-item-tagline { font-size: 7.5pt; }
     .score-item-value { font-size: 16pt; }
     .score-item-label { font-size: 6.5pt; }
-    .spectrum-bar { margin: 3pt 10pt 0; opacity: 0.5 !important; }
+    .spectrum-bar { margin: 3pt 10pt 0; opacity: 0.55 !important; }
     .spectrum-marker { width: 7pt; height: 7pt; border-width: 1.5pt; }
 
     /* Force all score card details open; hide prose, show sub-scores only */
@@ -1898,6 +1952,216 @@
     .sheet-footer-reflection { margin-bottom: 0; }
     .sheet-footer-reflection-lead { font-size: 11pt; margin-bottom: 6pt; }
     .sheet-footer-reflection-body { font-size: 9pt; max-width: 100%; }
+  }
+
+  /* ==================== EDIT MODE TOGGLE ==================== */
+  .edit-mode-toggle {
+    display: flex;
+    border: 1px solid var(--border-gray);
+    border-radius: 4px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .edit-mode-btn {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    padding: 6px 14px;
+    border: none;
+    background: var(--white);
+    color: var(--medium-gray);
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .edit-mode-btn:hover {
+    background: var(--warm-brown-pale);
+    color: var(--warm-brown);
+  }
+
+  .edit-mode-btn.active {
+    background: var(--warm-brown);
+    color: var(--white);
+  }
+
+  /* ==================== QUICK MODE SECTIONS ==================== */
+  .quick-main-score {
+    text-align: center;
+    padding: 20px 24px;
+    background: var(--very-light-gray);
+    border-radius: 6px;
+    margin-bottom: 24px;
+  }
+
+  .quick-subscore-list {
+    border-top: 1px solid var(--border-gray);
+    padding-top: 4px;
+  }
+
+  .quick-subscore-item {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border-gray);
+  }
+
+  .quick-subscore-item:last-child { border-bottom: none; }
+
+  .quick-subscore-name {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--deep-slate);
+    margin-bottom: 2px;
+  }
+
+  .quick-subscore-desc {
+    font-size: 13px;
+    color: var(--light-gray);
+    margin-bottom: 8px;
+    line-height: 1.5;
+  }
+
+  .quick-subscore-slider-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .quick-subscore-slider-row input[type="range"] {
+    flex: 1;
+    max-width: none;
+    height: 5px;
+  }
+
+  .quick-subscore-slider-row .sub-score-value {
+    font-size: 18px;
+    min-width: 28px;
+    text-align: center;
+  }
+
+  .quick-subscore-slider-row .sub-score-label {
+    font-size: 11px;
+    min-width: 72px;
+  }
+
+  /* Quick BFI — all 10 items on one screen */
+  .quick-bfi-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 8px;
+  }
+
+  .quick-bfi-item {
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-gray);
+  }
+
+  .quick-bfi-item:last-child { border-bottom: none; }
+
+  .quick-bfi-question {
+    font-style: italic;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--deep-slate);
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+
+  .quick-bfi-buttons {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .quick-bfi-buttons .bfi-btn {
+    flex: 1;
+    min-width: 80px;
+    padding: 8px 10px;
+    font-size: 12px;
+    text-align: center;
+  }
+
+  /* ==================== SCORE REVEAL STEP ==================== */
+  .score-reveal-step {
+    animation: stepFadeIn 0.3s ease-out;
+  }
+
+  .score-reveal-main {
+    text-align: center;
+    padding: 28px 20px 24px;
+    background: var(--very-light-gray);
+    border-radius: 8px;
+    margin-bottom: 24px;
+  }
+
+  .score-reveal-label {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--light-gray);
+    margin-bottom: 8px;
+  }
+
+  .score-reveal-number {
+    font-family: var(--font-sans);
+    font-size: 64px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .score-reveal-tier {
+    font-family: var(--font-sans);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .score-reveal-subscores {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+
+  .score-reveal-sub-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 14px;
+    background: var(--white);
+    border-radius: 5px;
+    border: 1px solid var(--border-gray);
+  }
+
+  .score-reveal-sub-name {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--deep-slate);
+    font-weight: 500;
+  }
+
+  .score-reveal-sub-right {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  .score-reveal-sub-value {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .score-reveal-sub-label {
+    font-family: var(--font-sans);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
   }
 
   /* ==================== PROMPT MODAL ==================== */
@@ -2036,6 +2300,10 @@
     <div class="edit-header">
       <h1>Character Sheet</h1>
       <div class="button-group">
+        <div class="edit-mode-toggle" id="edit-mode-toggle">
+          <button class="edit-mode-btn" id="mode-btn-guided" onclick="app.setEditMode('guided')">Guided</button>
+          <button class="edit-mode-btn" id="mode-btn-quick" onclick="app.setEditMode('quick')">Quick</button>
+        </div>
         <button class="btn btn-primary btn-small" onclick="app.viewSheet()">View Sheet</button>
         <button class="btn btn-ghost btn-small" onclick="app.exportData()">Export</button>
         <button class="btn btn-ghost btn-small" onclick="app.importData()">Import</button>
@@ -2080,7 +2348,7 @@
             <button class="btn btn-ghost btn-small" onclick="app.exportData()">Export</button>
             <button class="btn btn-ghost btn-small" onclick="app.importData()">Import</button>
             <button class="btn btn-ghost btn-small" onclick="app.showTutorial()">Guide</button>
-            <button class="btn btn-ghost btn-small" onclick="window.print()">Print</button>
+            <button class="btn btn-ghost btn-small btn-print-hide" onclick="window.print()">Print</button>
             <button class="btn btn-ghost btn-small" onclick="app.showPromptModal()">AI Prompt</button>
           </div>
         </div>
@@ -2312,8 +2580,9 @@ const state = {
 };
 
 let currentSection = -1; // -1 = Profile, 0 = Personality, 1-8 = attributes, 9 = Abilities
-let currentSubStep = 0;  // 0 = intro, 1..N = sub-scale index within current attribute
+let currentSubStep = 0;  // 0 = intro, 1..N = sub-scale index, N+1 = score reveal
 let currentBFIStep = -1; // -1 = BFI intro, 0–9 = individual BFI items
+let editMode = 'guided'; // 'guided' | 'quick'
 let saveTimeout = null;
 
 // Global step map — built once, used by stepForward/stepBack
@@ -2474,11 +2743,15 @@ const app = {
 
   skipTutorial() {
     document.getElementById('tutorial-view').classList.remove('active');
-    this.showEdit();
-    const isNew = !localStorage.getItem('charactersheet-data');
-    if (isNew) this.initializeNewSheet();
-    this.buildEditView(isNew);
-    this.save();
+    const hasSavedData = !!localStorage.getItem('charactersheet-data');
+    if (hasSavedData) {
+      this.showSheet();
+    } else {
+      this.initializeNewSheet();
+      this.showEdit();
+      this.buildEditView(true);
+      this.save();
+    }
   },
 
   completeTutorial() {
@@ -2563,9 +2836,27 @@ const app = {
 
   buildEditView(startOnProfile) {
     if (!GLOBAL_STEP_MAP) GLOBAL_STEP_MAP = buildGlobalStepMap();
-    if (startOnProfile) currentSection = -1;
+    if (startOnProfile) {
+      currentSection = -1;
+      editMode = 'guided'; // New users start in guided mode
+    }
     this.renderNav();
     this.renderSections();
+    this._updateModeToggle();
+  },
+
+  setEditMode(mode) {
+    editMode = mode;
+    this._updateModeToggle();
+    this.renderSections();
+    this.scheduleSave();
+  },
+
+  _updateModeToggle() {
+    const guidedBtn = document.getElementById('mode-btn-guided');
+    const quickBtn = document.getElementById('mode-btn-quick');
+    if (guidedBtn) guidedBtn.classList.toggle('active', editMode === 'guided');
+    if (quickBtn) quickBtn.classList.toggle('active', editMode === 'quick');
   },
 
   // ==================== PROFILE ====================
@@ -2695,19 +2986,28 @@ const app = {
 
   renderSections() {
     const container = document.getElementById('sections-container');
-    container.innerHTML = this.renderProfileSection() +
-      this.renderPersonalitySection() +
-      ATTRIBUTES.map((attr, i) =>
-        this.renderAttributeSection(attr, i + 1)
-      ).join('') +
-      this.renderAbilitiesSection();
-
-    this.showSection(currentSection);
-    // Restore non-zero sub-step if returning mid-section (e.g. from sheet view)
-    if (currentSection === 0 && currentBFIStep >= 0) {
-      this.showBFIStep(currentBFIStep);
-    } else if (currentSection >= 1 && currentSection <= ATTRIBUTES.length && currentSubStep > 0) {
-      this.showSubStep(currentSubStep);
+    if (editMode === 'quick') {
+      container.innerHTML = this.renderProfileSection() +
+        this.renderQuickPersonalitySection() +
+        ATTRIBUTES.map((attr, i) =>
+          this.renderQuickAttributeSection(attr, i + 1)
+        ).join('') +
+        this.renderAbilitiesSection();
+      this.showSection(currentSection);
+    } else {
+      container.innerHTML = this.renderProfileSection() +
+        this.renderPersonalitySection() +
+        ATTRIBUTES.map((attr, i) =>
+          this.renderAttributeSection(attr, i + 1)
+        ).join('') +
+        this.renderAbilitiesSection();
+      this.showSection(currentSection);
+      // Restore non-zero sub-step if returning mid-section
+      if (currentSection === 0 && currentBFIStep >= 0) {
+        this.showBFIStep(currentBFIStep);
+      } else if (currentSection >= 1 && currentSection <= ATTRIBUTES.length && currentSubStep > 0) {
+        this.showSubStep(currentSubStep);
+      }
     }
   },
 
@@ -2785,6 +3085,92 @@ const app = {
         <div class="section-nav-buttons">
           <button class="btn btn-secondary" onclick="app.stepBack()">Previous</button>
           <button class="btn btn-primary" onclick="app.viewSheet()">View My Sheet</button>
+        </div>
+      </div>
+    `;
+  },
+
+  renderQuickAttributeSection(attr, index) {
+    const mainScore = this.getMainScore(attr.key);
+    const info = getScoreInfo(mainScore);
+    const ac = `var(--attr-${attr.key})`;
+
+    const subItems = attr.subScores.map(sub => {
+      const val = state.subScores[sub.key] || 10;
+      const subInfo = getScoreInfo(val);
+      // Strip scale anchors — show only the first sentence before <br>
+      const shortDesc = sub.desc.split('<br>')[0].trim();
+      return `
+        <div class="quick-subscore-item">
+          <div class="quick-subscore-name">${sub.name}</div>
+          <div class="quick-subscore-desc">${shortDesc}</div>
+          <div class="quick-subscore-slider-row">
+            <input type="range" min="1" max="20" value="${val}"
+              data-subkey="${sub.key}"
+              oninput="app.updateSubScore('${sub.key}', this.value)">
+            <span class="sub-score-value" data-subkey-value="${sub.key}" style="color: ${subInfo.color}">${val}</span>
+            <span class="sub-score-label" data-subkey-label="${sub.key}" style="color: ${subInfo.color}">${subInfo.label}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    return `
+      <div class="attribute-section" id="section-${index}" style="--section-accent: var(--attr-${attr.key})">
+        <div class="attribute-section-header">
+          <h2>${attr.name}</h2>
+          <span class="tagline">${attr.tagline}</span>
+        </div>
+        <div id="main-score-${attr.key}" class="main-score-area quick-main-score">
+          <div class="score-label">Your ${attr.name} Score</div>
+          <div class="score-display" id="score-display-${attr.key}" style="color: ${info.color}">${mainScore}</div>
+          <div class="score-meaning" style="color: ${info.color}">${info.label}</div>
+          <div class="override-area">
+            <button class="override-toggle ${state.overrides[attr.key] ? 'active' : ''}"
+              onclick="app.toggleOverride('${attr.key}')">
+              ${state.overrides[attr.key] ? 'Override: On' : 'Override: Off'}
+            </button>
+            ${state.overrides[attr.key] ? `
+              <input type="number" min="1" max="20" value="${state.scores[attr.key] || 10}"
+                class="main-score-input"
+                onchange="app.updateScore('${attr.key}', this.value)">
+            ` : ''}
+            <span class="indicator">${state.overrides[attr.key] ? 'manual' : 'auto-calculated'}</span>
+          </div>
+        </div>
+        <div class="quick-subscore-list">${subItems}</div>
+      </div>
+    `;
+  },
+
+  renderQuickPersonalitySection() {
+    const labels = ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree'];
+    const items = BFI_ITEMS.map((item, i) => {
+      const current = state.bfiResponses[i] !== undefined ? state.bfiResponses[i] : 3;
+      const buttons = [1, 2, 3, 4, 5].map(val => `
+        <button class="bfi-btn${current === val ? ' selected' : ''}"
+          data-bfi-item="${i}" data-bfi-val="${val}"
+          onclick="app.updateBFI(${i}, ${val})">${labels[val - 1]}</button>
+      `).join('');
+      return `
+        <div class="quick-bfi-item">
+          <div class="quick-bfi-question">${item.text}</div>
+          <div class="quick-bfi-buttons">${buttons}</div>
+        </div>
+      `;
+    }).join('');
+
+    return `
+      <div class="attribute-section" id="section-0">
+        <div class="attribute-section-header">
+          <h2>Personality</h2>
+          <span class="tagline">How you tend to move through the world.</span>
+        </div>
+        <div class="attribute-description" style="margin-bottom: 20px;">
+          Ten short statements rated 1–5. Answer based on how you genuinely see yourself.
+        </div>
+        <div class="bfi-step-content">
+          <div class="quick-bfi-list">${items}</div>
         </div>
       </div>
     `;
@@ -2915,21 +3301,22 @@ const app = {
     void content.offsetWidth; // force reflow to restart animation
     content.classList.add('stepping');
     const totalSubs = attr.subScores.length;
+    const taglineEl = document.getElementById(`attr-tagline-${attr.key}`);
+    const counterEl = document.getElementById(`step-counter-${attr.key}`);
     if (subStepIndex === 0) {
       content.innerHTML = this.renderIntroStep(attr, currentSection);
-      // Show tagline on intro, hide step counter
-      const taglineEl = document.getElementById(`attr-tagline-${attr.key}`);
-      const counterEl = document.getElementById(`step-counter-${attr.key}`);
       if (taglineEl) taglineEl.style.display = '';
       if (counterEl) counterEl.textContent = '';
-    } else {
+    } else if (subStepIndex <= totalSubs) {
       const sub = attr.subScores[subStepIndex - 1];
       content.innerHTML = this.renderSubScoreStep(attr, sub, subStepIndex, totalSubs);
-      // Hide tagline on sub-scale steps, show step counter
-      const taglineEl = document.getElementById(`attr-tagline-${attr.key}`);
-      const counterEl = document.getElementById(`step-counter-${attr.key}`);
       if (taglineEl) taglineEl.style.display = 'none';
       if (counterEl) counterEl.textContent = `${subStepIndex} of ${totalSubs}`;
+    } else {
+      // Score reveal step
+      content.innerHTML = this.renderScoreRevealStep(attr);
+      if (taglineEl) taglineEl.style.display = 'none';
+      if (counterEl) counterEl.textContent = 'Your scores';
     }
     this._scrollToSection();
   },
@@ -2980,6 +3367,41 @@ const app = {
     `;
   },
 
+  renderScoreRevealStep(attr) {
+    const ac = `var(--attr-${attr.key})`;
+    const mainScore = this.getMainScore(attr.key);
+    const mainInfo = getScoreInfo(mainScore);
+
+    const subItems = attr.subScores.map(sub => {
+      const val = state.subScores[sub.key] || 10;
+      const info = getScoreInfo(val);
+      return `
+        <div class="score-reveal-sub-item">
+          <div class="score-reveal-sub-name">${sub.name}</div>
+          <div class="score-reveal-sub-right">
+            <span class="score-reveal-sub-value" style="color: ${info.color}">${val}</span>
+            <span class="score-reveal-sub-label" style="color: ${info.color}">${info.label}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    return `
+      <div class="score-reveal-step">
+        <div class="score-reveal-main">
+          <div class="score-reveal-label">Your ${attr.name} Score</div>
+          <div class="score-reveal-number" style="color: ${mainInfo.color}">${mainScore}</div>
+          <div class="score-reveal-tier" style="color: ${mainInfo.color}">${mainInfo.label}</div>
+        </div>
+        <div class="score-reveal-subscores">${subItems}</div>
+        <div class="sub-step-nav">
+          <button class="btn btn-secondary" onclick="app.stepBack()">Previous</button>
+          <button class="btn btn-primary" style="background: ${ac}; border-color: ${ac}" onclick="app.stepForward()">Continue</button>
+        </div>
+      </div>
+    `;
+  },
+
   stepForward() {
     if (currentSection === -1) { this.showSection(0); return; } // Profile -> Personality
     if (currentSection === 0) {
@@ -2990,9 +3412,15 @@ const app = {
     }
     if (currentSection === ATTRIBUTES.length + 1) { this.viewSheet(); return; }
     const attr = ATTRIBUTES[currentSection - 1];
-    if (currentSubStep < attr.subScores.length) {
+    const totalSubs = attr.subScores.length;
+    if (currentSubStep < totalSubs) {
+      // Advance to next sub-score
       this.showSubStep(currentSubStep + 1);
+    } else if (currentSubStep === totalSubs) {
+      // Last sub-score done -> show score reveal
+      this.showSubStep(totalSubs + 1);
     } else {
+      // Past reveal step -> advance to next attribute/section
       this.showSection(currentSection < ATTRIBUTES.length ? currentSection + 1 : ATTRIBUTES.length + 1);
     }
   },
@@ -3007,10 +3435,10 @@ const app = {
     }
 
     if (currentSection === ATTRIBUTES.length + 1) {
-      // Abilities -> last attribute's last sub-score
+      // Abilities -> last attribute's score reveal step
       const lastAttr = ATTRIBUTES[ATTRIBUTES.length - 1];
       this._activateSection(ATTRIBUTES.length);
-      this.showSubStep(lastAttr.subScores.length);
+      this.showSubStep(lastAttr.subScores.length + 1);
       return;
     }
 
@@ -3022,10 +3450,10 @@ const app = {
         this._activateSection(0);
         this.showBFIStep(BFI_ITEMS.length - 1);
       } else {
-        // Go to previous attribute's last sub-scale (not its intro)
+        // Go to previous attribute's score reveal step
         const prevAttr = ATTRIBUTES[currentSection - 2];
         this._activateSection(currentSection - 1);
-        this.showSubStep(prevAttr.subScores.length);
+        this.showSubStep(prevAttr.subScores.length + 1);
       }
     }
   },
@@ -3189,13 +3617,21 @@ const app = {
 
   updateBFI(index, value) {
     state.bfiResponses[index] = value;
-    // Targeted update: just toggle the .selected class on the visible buttons
     const content = document.querySelector('#section-0 .bfi-step-content');
     if (content) {
-      const buttons = content.querySelectorAll('.bfi-btn');
-      buttons.forEach((btn, i) => {
-        btn.classList.toggle('selected', i + 1 === value);
-      });
+      // Quick mode: buttons have data-bfi-item attributes — only update the clicked row
+      const quickButtons = content.querySelectorAll(`.bfi-btn[data-bfi-item="${index}"]`);
+      if (quickButtons.length > 0) {
+        quickButtons.forEach(btn => {
+          btn.classList.toggle('selected', parseInt(btn.dataset.bfiVal) === value);
+        });
+      } else {
+        // Guided mode: all visible buttons belong to the current item
+        const buttons = content.querySelectorAll('.bfi-btn');
+        buttons.forEach((btn, i) => {
+          btn.classList.toggle('selected', i + 1 === value);
+        });
+      }
     }
     this.autoSave();
   },
@@ -3306,7 +3742,6 @@ const app = {
           <div class="score-item-summary">
             <div class="score-item-left">
               <div class="score-item-name">${attr.name}</div>
-              <div class="score-item-tagline">${attr.tagline}</div>
             </div>
             <div class="score-item-right">
               <div class="score-item-value" style="color: ${info.color}">${score}</div>
@@ -3316,7 +3751,7 @@ const app = {
           <div class="spectrum-bar">
             <div class="spectrum-marker" style="left: ${pct}%; background: ${info.color}"></div>
           </div>
-          <div class="score-item-chevron">Tap to expand sub-scores <span class="chevron-arrow">▾</span></div>
+          <div class="score-item-chevron">Sub-scores <span class="chevron-arrow">▾</span></div>
           <div class="score-item-detail">
             <div class="score-item-detail-inner">
               <div class="score-item-detail-desc">${attr.description}</div>
@@ -3453,7 +3888,8 @@ const app = {
       subScores: state.subScores,
       overrides: state.overrides,
       bfiResponses: state.bfiResponses,
-      abilities: state.abilities
+      abilities: state.abilities,
+      editMode: editMode
     };
     try {
       localStorage.setItem('charactersheet-data', JSON.stringify(data));
@@ -3487,6 +3923,8 @@ const app = {
     state.overrides = data.overrides || {};
     state.bfiResponses = data.bfiResponses || {};
     state.abilities = data.abilities || [];
+    // Returning users without saved mode preference default to Quick
+    editMode = data.editMode !== undefined ? data.editMode : 'quick';
 
     ATTRIBUTES.forEach(attr => {
       if (!state.scores[attr.key]) state.scores[attr.key] = 10;
@@ -3534,7 +3972,11 @@ const app = {
     reader.onload = (e) => {
       try {
         const data = JSON.parse(e.target.result);
-        state.profile = data.profile || { name: 'Character', age: '', gender: '', photo: null };
+        state.profile = data.profile || { name: 'Character', age: '', gender: '', occupation: '', location: '', relationship: '', photo: null };
+        // Back-fill new fields for older exports
+        if (!state.profile.occupation) state.profile.occupation = '';
+        if (!state.profile.location) state.profile.location = '';
+        if (!state.profile.relationship) state.profile.relationship = '';
         state.scores = data.scores || {};
         state.subScores = data.subScores || {};
         state.overrides = data.overrides || {};
