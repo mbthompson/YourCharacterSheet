@@ -1068,12 +1068,13 @@
   }
 
   .sheet-photo {
-    width: 100px;
-    height: 100px;
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
-    background: var(--very-light-gray);
-    border: 2px solid var(--border-gray);
-    margin-bottom: 16px;
+    background: var(--warm-brown-pale);
+    border: none;
+    box-shadow: 0 2px 14px rgba(0,0,0,0.13);
+    margin-bottom: 20px;
     overflow: hidden;
   }
 
@@ -1089,23 +1090,45 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 40px;
-    color: var(--light-gray);
+    font-size: 44px;
+    color: var(--border-gray);
+    font-family: var(--font-sans);
   }
 
   .sheet-header h1 {
-    font-size: 36px;
+    font-size: 40px;
     color: var(--charcoal);
     margin-bottom: 4px;
+    letter-spacing: -0.5px;
+  }
+
+  .sheet-occupation {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    color: var(--warm-brown);
+    letter-spacing: 0.04em;
+    margin-bottom: 10px;
+    font-weight: 500;
   }
 
   .sheet-meta {
     font-family: var(--font-sans);
-    font-size: 13px;
+    font-size: 12px;
     color: var(--light-gray);
+    letter-spacing: 0.02em;
   }
 
-  .sheet-meta span { margin: 0 8px; }
+  .sheet-meta span { margin: 0 6px; }
+
+  .sheet-meta-date {
+    display: block;
+    font-family: var(--font-sans);
+    font-size: 11px;
+    color: var(--border-gray);
+    margin-top: 8px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
 
   /* Radar */
   .sheet-radar {
@@ -1122,49 +1145,79 @@
   /* ==================== SCORE ITEMS (Sheet) ==================== */
   .scores-grid {
     display: grid;
-    gap: 8px;
+    gap: 6px;
     margin-bottom: 48px;
   }
 
   .score-item {
-    background: var(--very-light-gray);
+    background: var(--white);
     border-radius: 6px;
+    border-left: 4px solid var(--border-gray); /* overridden inline per attribute */
     cursor: pointer;
-    transition: all 0.2s;
+    transition: box-shadow 0.2s;
     overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   }
 
   .score-item:hover {
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    box-shadow: 0 3px 12px rgba(0,0,0,0.09);
   }
 
   .score-item-summary {
-    display: grid;
-    grid-template-columns: 130px 50px 1fr;
-    gap: 14px;
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    padding: 14px 18px;
+    padding: 14px 18px 6px 18px;
+    gap: 12px;
   }
+
+  .score-item-left { flex: 1; min-width: 0; }
 
   .score-item-name {
     font-family: var(--font-sans);
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
     color: var(--deep-slate);
+  }
+
+  .score-item-tagline {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    color: var(--light-gray);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .score-item-right {
+    text-align: right;
+    flex-shrink: 0;
   }
 
   .score-item-value {
     font-family: var(--font-sans);
-    font-size: 18px;
+    font-size: 28px;
     font-weight: 700;
-    text-align: center;
+    line-height: 1;
   }
 
-  /* Spectrum bar — shows colored zones with a marker */
+  .score-item-label {
+    font-family: var(--font-sans);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 3px;
+  }
+
+  /* Spectrum bar — full width, more prominent */
   .spectrum-bar {
     position: relative;
-    height: 8px;
-    border-radius: 4px;
+    height: 4px;
+    margin: 8px 18px 0 18px;
     overflow: visible;
     background: linear-gradient(to right,
       var(--color-critical) 0%, var(--color-critical) 20%,
@@ -1176,19 +1229,34 @@
       var(--color-excellent) 85%, var(--color-excellent) 95%,
       var(--color-exceptional) 95%, var(--color-exceptional) 100%
     );
-    opacity: 0.25;
+    opacity: 0.3;
   }
 
   .spectrum-marker {
     position: absolute;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: 14px;
-    height: 14px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
-    border: 2.5px solid var(--white);
+    border: 2px solid var(--white);
     box-shadow: 0 1px 4px rgba(0,0,0,0.3);
     transition: left 0.6s ease-out;
+  }
+
+  /* Chevron expand indicator */
+  .score-item-chevron {
+    text-align: center;
+    padding: 6px 0 8px;
+    font-size: 11px;
+    color: var(--border-gray);
+    transition: transform 0.3s;
+    line-height: 1;
+    display: block;
+  }
+
+  .score-item.expanded .score-item-chevron {
+    transform: rotate(180deg);
   }
 
   /* Expanded detail */
@@ -1196,7 +1264,7 @@
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.4s ease-out;
-    background: var(--white);
+    background: var(--very-light-gray);
     border-top: 1px solid transparent;
   }
 
@@ -1206,7 +1274,7 @@
   }
 
   .score-item-detail-inner {
-    padding: 24px;
+    padding: 20px 22px 22px;
   }
 
   .score-item-detail-desc {
@@ -1251,7 +1319,7 @@
   }
 
   .sub-bar-track {
-    height: 6px;
+    height: 5px;
     border-radius: 3px;
     background: var(--border-gray);
     overflow: hidden;
@@ -1263,17 +1331,29 @@
     transition: width 0.6s ease-out;
   }
 
-  .score-item-expand-hint {
-    font-family: var(--font-sans);
-    font-size: 11px;
-    color: var(--light-gray);
-    text-align: right;
-    padding: 0 18px 10px;
-    transition: opacity 0.2s;
+  /* ==================== SECTION RULE ==================== */
+  .sheet-section-rule {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
   }
 
-  .score-item.expanded .score-item-expand-hint {
-    opacity: 0;
+  .sheet-section-rule::before,
+  .sheet-section-rule::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-gray);
+  }
+
+  .sheet-section-rule-text {
+    font-family: var(--font-sans);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--light-gray);
+    white-space: nowrap;
   }
 
   /* ==================== BIG FIVE (Sheet) ==================== */
@@ -1281,29 +1361,20 @@
     margin-bottom: 48px;
   }
 
-  .personality-section-title {
-    font-family: var(--font-sans);
-    font-size: 12px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--light-gray);
-    margin-bottom: 8px;
-    text-align: center;
-  }
-
   .personality-section-subtitle {
-    font-size: 14px;
+    font-size: 13px;
     color: var(--medium-gray);
     text-align: center;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     font-style: italic;
   }
 
   .big-five-item {
-    background: var(--very-light-gray);
+    background: var(--white);
     border-radius: 6px;
     padding: 16px 20px;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
   }
 
   .big-five-header {
@@ -1315,15 +1386,19 @@
 
   .big-five-name {
     font-family: var(--font-sans);
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
     color: var(--deep-slate);
   }
 
   .big-five-level {
     font-family: var(--font-sans);
-    font-size: 12px;
-    font-weight: 600;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
   }
 
   .big-five-desc {
@@ -1333,18 +1408,38 @@
     line-height: 1.5;
   }
 
+  .big-five-bar-anchors {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-sans);
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--border-gray);
+    margin-bottom: 3px;
+  }
+
   .big-five-bar-track {
-    height: 6px;
+    height: 5px;
     border-radius: 3px;
     background: var(--border-gray);
     position: relative;
-    overflow: visible;
+    overflow: hidden;
   }
 
   .big-five-bar-fill {
     height: 100%;
     border-radius: 3px;
     transition: width 0.6s ease-out;
+  }
+
+  .big-five-interpretation {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    color: var(--medium-gray);
+    margin-top: 8px;
+    font-style: italic;
+    line-height: 1.5;
   }
 
   /* Abilities on Sheet */
@@ -1362,28 +1457,32 @@
     text-align: center;
   }
 
-  .abilities-list { display: grid; gap: 6px; }
+  .abilities-list { display: grid; gap: 5px; }
 
   .ability-row {
     display: grid;
-    grid-template-columns: 1fr 50px 100px 80px;
+    grid-template-columns: 1fr 44px 90px 70px;
     gap: 12px;
     align-items: center;
     padding: 10px 16px;
-    background: var(--very-light-gray);
-    border-radius: 4px;
+    background: var(--white);
+    border-radius: 5px;
     font-family: var(--font-sans);
     font-size: 13px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
   }
 
   .ability-row-name { color: var(--charcoal); font-weight: 500; }
   .ability-row-score { font-weight: 700; text-align: center; }
-  .ability-row-linked { color: var(--light-gray); font-size: 12px; }
+  .ability-row-linked { color: var(--light-gray); font-size: 11px; }
 
   .ability-row-status {
     text-align: right;
-    font-size: 11px;
-    padding: 2px 6px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 7px;
     border-radius: 3px;
   }
 
@@ -1421,8 +1520,9 @@
     .section-nav button { font-size: 11px; padding: 6px 12px; }
     .attribute-section { padding: 24px; }
     .ability-item { grid-template-columns: 1fr; gap: 8px; }
-    .score-item-summary { grid-template-columns: 100px 40px 1fr; gap: 10px; padding: 12px 14px; }
-    .ability-row { grid-template-columns: 1fr 40px 60px; gap: 8px; }
+    .score-item-summary { padding: 12px 14px 4px 14px; }
+    .ability-row { grid-template-columns: 1fr 36px; gap: 8px; }
+    .ability-row-linked, .ability-row-status { display: none; }
     .sheet-parchment { padding: 32px 20px; }
     .sheet-header h1 { font-size: 28px; }
     .tutorial-page { padding: 40px 20px; }
@@ -1601,9 +1701,10 @@
           <div class="sheet-profile">
             <div class="sheet-photo">
               <img id="sheet-img" style="display: none;">
-              <div class="sheet-photo-placeholder" id="sheet-photo-placeholder">+</div>
+              <div class="sheet-photo-placeholder" id="sheet-photo-placeholder">&#9651;</div>
             </div>
             <h1 id="sheet-name">Character</h1>
+            <div class="sheet-occupation" id="sheet-occupation" style="display:none"></div>
             <div class="sheet-meta" id="sheet-meta"></div>
           </div>
         </div>
@@ -1612,12 +1713,13 @@
           <canvas id="radarChart"></canvas>
         </div>
 
+        <div class="sheet-section-rule" id="scores-rule"><span class="sheet-section-rule-text">Eight Attributes</span></div>
         <div class="scores-grid" id="scores-grid"></div>
 
         <div class="personality-section" id="personality-section-container"></div>
 
         <div class="sheet-abilities" id="sheet-abilities-container">
-          <label class="section-title">Abilities</label>
+          <div class="sheet-section-rule"><span class="sheet-section-rule-text">Abilities</span></div>
           <div class="abilities-list" id="sheet-abilities"></div>
         </div>
 
@@ -2694,13 +2796,24 @@ const app = {
 
     const age = state.profile.age ? `Age ${state.profile.age}` : '';
     const gender = state.profile.gender ? (state.profile.gender.charAt(0).toUpperCase() + state.profile.gender.slice(1)) : '';
-    const occupation = state.profile.occupation || '';
     const location = state.profile.location || '';
-    const relationship = state.profile.relationship ? (state.profile.relationship.charAt(0).toUpperCase() + state.profile.relationship.slice(1)) : '';
+    const relMap = { single: 'Single', partnered: 'Partnered', married: 'Married',
+      separated: 'Separated', divorced: 'Divorced', widowed: 'Widowed', complicated: "It's complicated" };
+    const relationship = state.profile.relationship ? (relMap[state.profile.relationship] || state.profile.relationship) : '';
     const date = new Date().toLocaleDateString('en-AU', { year: 'numeric', month: 'long', day: 'numeric' });
 
-    const parts = [age, gender, occupation, location, relationship, date].filter(Boolean);
-    document.getElementById('sheet-meta').innerHTML = parts.map(m => `<span>${escapeHtml(m)}</span>`).join('');
+    // Occupation shown as its own subtitle element
+    const occEl = document.getElementById('sheet-occupation');
+    if (occEl) {
+      occEl.textContent = state.profile.occupation || '';
+      occEl.style.display = state.profile.occupation ? '' : 'none';
+    }
+
+    // Meta: age, gender, location, relationship on one line
+    const metaParts = [age, gender, location, relationship].filter(Boolean);
+    document.getElementById('sheet-meta').innerHTML =
+      metaParts.map(m => `<span>${escapeHtml(m)}</span>`).join('') +
+      `<span class="sheet-meta-date">${escapeHtml(date)}</span>`;
 
     const imgEl = document.getElementById('sheet-img');
     const placeholderEl = document.getElementById('sheet-photo-placeholder');
@@ -2851,15 +2964,21 @@ const app = {
       }).join('');
 
       return `
-        <div class="score-item" onclick="this.classList.toggle('expanded')">
+        <div class="score-item" style="border-left-color: var(--attr-${attr.key})" onclick="this.classList.toggle('expanded')">
           <div class="score-item-summary">
-            <div class="score-item-name">${attr.name}</div>
-            <div class="score-item-value" style="color: ${info.color}">${score}</div>
-            <div class="spectrum-bar">
-              <div class="spectrum-marker" style="left: ${pct}%; background: ${info.color}"></div>
+            <div class="score-item-left">
+              <div class="score-item-name">${attr.name}</div>
+              <div class="score-item-tagline">${attr.tagline}</div>
+            </div>
+            <div class="score-item-right">
+              <div class="score-item-value" style="color: ${info.color}">${score}</div>
+              <div class="score-item-label" style="color: ${info.color}">${info.label}</div>
             </div>
           </div>
-          <div class="score-item-expand-hint">tap to expand</div>
+          <div class="spectrum-bar">
+            <div class="spectrum-marker" style="left: ${pct}%; background: ${info.color}"></div>
+          </div>
+          <div class="score-item-chevron">▾</div>
           <div class="score-item-detail">
             <div class="score-item-detail-inner">
               <div class="score-item-detail-desc">${attr.description}</div>
@@ -2879,12 +2998,12 @@ const app = {
     const traits = ['openness', 'conscientiousness', 'extraversion', 'agreeableness', 'neuroticism'];
 
     let html = `
-      <div class="personality-section-title">Personality</div>
+      <div class="sheet-section-rule"><span class="sheet-section-rule-text">Personality</span></div>
       <div class="personality-section-subtitle">How you tend to move through the world — tendencies, not achievements</div>
     `;
 
     html += traits.map(trait => {
-      const score = scores[trait]; // 1-5 scale
+      const score = scores[trait];
       const pct = ((score - 1) / 4) * 100;
       const info = TRAIT_INFO[trait];
 
@@ -2899,13 +3018,14 @@ const app = {
         <div class="big-five-item">
           <div class="big-five-header">
             <div class="big-five-name">${info.name}</div>
-            <div class="big-five-level" style="color: ${levelColor}">${level} (${score.toFixed(1)})</div>
+            <div class="big-five-level" style="color: ${levelColor}">${level}</div>
           </div>
           <div class="big-five-desc">${info.desc}</div>
+          <div class="big-five-bar-anchors"><span>Low</span><span>High</span></div>
           <div class="big-five-bar-track">
             <div class="big-five-bar-fill" style="width: ${pct}%; background: ${levelColor}"></div>
           </div>
-          <div style="font-family: var(--font-sans); font-size: 11px; color: var(--light-gray); margin-top: 6px; font-style: italic;">${interpretation}</div>
+          <div class="big-five-interpretation">${interpretation}</div>
         </div>
       `;
     }).join('');
@@ -2930,7 +3050,7 @@ const app = {
         <div class="ability-row">
           <div class="ability-row-name">${escapeHtml(ab.name)}</div>
           <div class="ability-row-score" style="color: ${info.color}">${ab.score}</div>
-          <div class="ability-row-linked">${linked}</div>
+          <div class="ability-row-linked">${escapeHtml(linked)}</div>
           <div class="ability-row-status ${ab.status}">${ab.status === 'active' ? 'Active' : 'Dormant'}</div>
         </div>
       `;
