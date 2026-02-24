@@ -14,3 +14,7 @@ Open `index.html` in any modern browser. No server, no build step, no dependenci
 - AI prompt generator for deeper self-reflection
 - Export/import your data as JSON
 - Print-friendly layout
+
+## Data & Privacy
+
+All data stays in your browser's local storage. Nothing is sent to a server. You can export your data as a JSON file for backup or transfer between devices.
