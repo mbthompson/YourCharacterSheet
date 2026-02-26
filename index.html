@@ -1519,70 +1519,52 @@
     font-style: italic;
   }
 
-  .big-five-item {
-    background: var(--white);
-    border-radius: 6px;
-    border-left: 4px solid var(--border-gray);
-    padding: 16px 20px 16px 17px;
-    margin-bottom: 8px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.05);
+  /* BFI trait cards reuse .score-item / .score-item-pair */
+  .bfi-pair {
+    margin-bottom: 14px;
   }
 
-  .big-five-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 4px;
-  }
-
-  .big-five-name {
+  .bfi-level {
     font-family: var(--font-sans);
-    font-size: 13px;
+    font-size: 10px;
     font-weight: 700;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: var(--deep-slate);
-  }
-
-  .big-five-level {
-    font-family: var(--font-sans);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--warm-brown);
+    flex-shrink: 0;
+    text-align: right;
   }
 
-  .big-five-desc {
-    font-size: 13px;
-    color: var(--light-gray);
-    margin-bottom: 12px;
-    line-height: 1.5;
-  }
-
-  .big-five-bar-area {
-    margin-bottom: 10px;
+  .bfi-bar-collapsed {
+    padding: 6px 16px 0;
   }
 
   .big-five-bar-track {
-    height: 5px;
-    border-radius: 3px;
+    height: 7px;
+    border-radius: 4px;
     background: var(--border-gray);
     position: relative;
     overflow: visible;
-    margin-bottom: 8px;
   }
 
   .big-five-bar-marker {
     position: absolute;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: 13px;
-    height: 13px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
     background: var(--warm-brown);
     border: 2.5px solid var(--white);
     box-shadow: 0 1px 5px rgba(0,0,0,0.35);
+  }
+
+  .big-five-bar-area {
+    margin-bottom: 14px;
+  }
+
+  .big-five-bar-area .big-five-bar-track {
+    margin-bottom: 8px;
   }
 
   .big-five-bar-labels {
@@ -1607,13 +1589,14 @@
 
   .big-five-interpretation {
     font-family: var(--font-sans);
-    font-size: 12px;
-    color: var(--medium-gray);
+    font-size: 13px;
+    color: var(--deep-slate);
+    line-height: 1.6;
+    background: var(--warm-brown-pale);
+    border-left: 3px solid var(--warm-brown);
+    padding: 10px 14px;
+    border-radius: 0 4px 4px 0;
     font-style: italic;
-    line-height: 1.5;
-    border-top: 1px solid var(--border-gray);
-    padding-top: 10px;
-    margin-top: 2px;
   }
 
   /* Abilities on Sheet */
@@ -3959,7 +3942,12 @@ const app = {
 
   renderSheetPersonality() {
     const scores = this.calculateBFIScores();
-    const traits = ['openness', 'conscientiousness', 'extraversion', 'agreeableness', 'neuroticism'];
+
+    const PAIRS = [
+      ['openness', 'conscientiousness'],
+      ['extraversion', 'agreeableness'],
+      ['neuroticism'],
+    ];
 
     let html = `
       <div class="sheet-section-rule"><span class="sheet-section-rule-text">Personality</span></div>
@@ -3982,7 +3970,7 @@ const app = {
       neuroticism:       { low: 'Emotionally steady',       high: 'Feels things deeply' },
     };
 
-    html += traits.map(trait => {
+    const buildCard = (trait) => {
       const score = scores[trait];
       const pct = ((score - 1) / 4) * 100;
       const info = TRAIT_INFO[trait];
@@ -3997,25 +3985,45 @@ const app = {
       const interpretation = score <= 2.5 ? info.low : score >= 3.5 ? info.high : 'Your tendencies fall somewhere between both ends of this dimension.';
 
       return `
-        <div class="big-five-item" style="border-left-color: ${borderColor}">
-          <div class="big-five-header">
-            <div class="big-five-name">${info.name}</div>
-            <div class="big-five-level">${level}</div>
+        <div class="score-item" style="border-left-color: ${borderColor}" onclick="app.toggleScorePair(this)">
+          <div class="score-item-summary">
+            <div class="score-item-left">
+              <div class="score-item-name">${info.name}</div>
+            </div>
+            <div class="bfi-level">${level}</div>
           </div>
-          <div class="big-five-desc">${info.desc}</div>
-          <div class="big-five-bar-area">
+          <div class="bfi-bar-collapsed">
             <div class="big-five-bar-track">
               <div class="big-five-bar-marker" style="left: ${pct}%"></div>
             </div>
-            <div class="big-five-bar-labels">
-              <span class="big-five-bar-label-low">${phrases.low}</span>
-              <span class="big-five-bar-label-high">${phrases.high}</span>
+          </div>
+          <div class="score-item-chevron">Details <span class="chevron-arrow">▾</span></div>
+          <div class="score-item-detail">
+            <div class="score-item-detail-inner">
+              <p class="score-item-detail-desc">${info.desc}</p>
+              <div class="big-five-bar-area">
+                <div class="big-five-bar-track">
+                  <div class="big-five-bar-marker" style="left: ${pct}%"></div>
+                </div>
+                <div class="big-five-bar-labels">
+                  <span class="big-five-bar-label-low">${phrases.low}</span>
+                  <span class="big-five-bar-label-high">${phrases.high}</span>
+                </div>
+              </div>
+              <div class="big-five-interpretation">${interpretation}</div>
             </div>
           </div>
-          <div class="big-five-interpretation">${interpretation}</div>
         </div>
       `;
-    }).join('');
+    };
+
+    PAIRS.forEach(pair => {
+      if (pair.length === 2) {
+        html += `<div class="score-item-pair bfi-pair">${pair.map(buildCard).join('')}</div>`;
+      } else {
+        html += `<div class="bfi-pair">${buildCard(pair[0])}</div>`;
+      }
+    });
 
     document.getElementById('personality-section-container').innerHTML = html;
   },
