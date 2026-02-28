@@ -1776,7 +1776,7 @@
     padding: 28px 0 8px;
     font-family: var(--font-serif);
     font-size: 13px;
-    color: var(--border-gray);
+    color: var(--medium-gray);
     font-style: italic;
     letter-spacing: 0.02em;
   }
@@ -2421,6 +2421,7 @@
               </div>
             </div>
             <div class="sheet-footer-close">Come back when enough has changed to be worth noticing.</div>
+            <div style="text-align: center; padding: 12px 0 4px; font-family: var(--font-sans); font-size: 11px; color: var(--light-gray);">Your data is saved in your browser only — nothing is sent anywhere.</div>
           </div>
         </div>
 
@@ -2759,6 +2760,7 @@ const app = {
           <p style="margin-top: 32px; font-size: 18px;">Take your time. Be honest. There are no right answers and no one is grading you.</p>
           <p style="font-size: 17px;">This sheet is for you alone — unless you choose to share it.</p>
           <p style="margin-top: 24px; color: var(--medium-gray);">You'll start by entering a few details about yourself, then move through each section at your own pace. You can return and edit anything at any time.</p>
+          <p style="margin-top: 16px; font-size: 13px; color: var(--light-gray);">Everything stays on your device. Your data is saved in your browser's local storage and never sent anywhere.</p>
           <div class="tutorial-actions">
             <button class="btn btn-secondary" onclick="app.scrollToPage(3)">Back</button>
             <button class="btn btn-primary" onclick="app.completeTutorial()">Create My Sheet</button>
