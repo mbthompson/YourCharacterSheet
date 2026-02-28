@@ -3322,9 +3322,14 @@ const app = {
       // Profile section — just scroll to it
       this._scrollToSection();
     } else if (index === 0) {
-      // Personality section: reset to BFI intro
-      currentBFIStep = -1;
-      this.showBFIStep(-1);
+      if (editMode === 'quick') {
+        // Quick mode: all items already rendered, just scroll
+        this._scrollToSection();
+      } else {
+        // Guided mode: reset to BFI intro
+        currentBFIStep = -1;
+        this.showBFIStep(-1);
+      }
     } else if (index >= 1 && index <= ATTRIBUTES.length) {
       // Attribute section: render the intro step into the content slot
       this.showSubStep(0);
