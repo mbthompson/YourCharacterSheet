@@ -1539,6 +1539,8 @@
     padding: 6px 16px 0;
   }
 
+  .score-item.expanded .bfi-bar-collapsed { display: none; }
+
   .big-five-bar-track {
     height: 7px;
     border-radius: 4px;
@@ -1889,8 +1891,11 @@
   @media print {
     @page { margin: 14mm 16mm; }
 
-    /* Ensure colors print accurately */
-    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      color-adjust: exact !important;
+    }
 
     body { background: white !important; font-size: 10pt; }
 
@@ -1898,19 +1903,21 @@
     #edit-view, #tutorial-view, #calculating-view, #prompt-modal,
     #radar-section,
     .edit-header, .sheet-actions, .btn, .tutorial-skip-link,
-    .score-item-chevron, .sheet-footer-actions, .sheet-footer-close { display: none !important; }
+    .score-item-chevron,
+    .sheet-footer-actions,
+    .sheet-footer-close { display: none !important; }
 
     /* Remove chrome */
     #sheet-view { padding: 0; animation: none; }
     .container, #sheet-view .container { max-width: 100%; padding: 0; }
     .sheet-container { box-shadow: none; border: none; border-radius: 0; }
 
-    /* Undo sidebar flex layout for print — linear top-to-bottom */
+    /* Undo sidebar flex layout — linear top-to-bottom */
     .sheet-parchment { display: block; background: white !important; overflow: visible; border-radius: 0; }
     .sheet-sidebar { width: 100%; border-right: none; border-bottom: 1px solid #ddd; padding: 0 0 14pt; background: none; }
     .sheet-main { padding: 0; }
 
-    /* Profile header — compact for print */
+    /* Profile header — compact */
     .sheet-header { padding-bottom: 14pt; margin-bottom: 14pt; }
     .sheet-photo { width: 72pt; height: 72pt; box-shadow: none; border: 1pt solid #ddd; }
     .sheet-header h1 { font-size: 22pt; }
@@ -1918,13 +1925,13 @@
     .sheet-meta { font-size: 9pt; }
     .sheet-meta-date { font-size: 8pt; margin-top: 4pt; }
 
-    /* Attributes section starts on page 2 */
+    /* Attributes start on page 2 */
     #scores-rule { break-before: page; margin-bottom: 8pt; }
 
-    /* Score cards — 2-column pairs, all expanded, page-filling */
+    /* Score cards — 2-column, all expanded via printSheet() */
     .scores-grid { display: grid; gap: 5pt; margin-bottom: 0; }
     .score-item-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 5pt; }
-    .score-item { break-inside: avoid; box-shadow: none; border-left-width: 3pt; }
+    .score-item { break-inside: avoid; box-shadow: none; border-left-width: 3pt; cursor: default; }
     .score-item-summary { padding: 6pt 10pt 3pt 10pt; }
     .score-item-name { font-size: 8pt; }
     .score-item-tagline { font-size: 7.5pt; }
@@ -1933,15 +1940,12 @@
     .spectrum-bar { margin: 3pt 10pt 0; opacity: 0.55 !important; }
     .spectrum-marker { width: 7pt; height: 7pt; border-width: 1.5pt; }
 
-    /* Force all score card details open; hide prose, show sub-scores only */
-    .score-item-detail {
-      max-height: none !important;
-      overflow: visible !important;
-      border-top-color: #e0e0e0 !important;
-    }
+    /* printSheet() adds .expanded before printing — no max-height hacks needed */
     .score-item-detail-inner { padding: 5pt 10pt 7pt; }
-    .score-item-detail-desc { display: none; }
-    .score-item-detail-prompt { display: none; }
+
+    /* Attribute cards: hide prose, show sub-scores only */
+    .scores-grid .score-item-detail-desc { display: none; }
+    .scores-grid .score-item-detail-prompt { display: none; }
     .sub-score-bar-item { grid-template-columns: 74pt 24pt 1fr; gap: 5pt; margin-bottom: 4pt; }
     .sub-score-bar-name { font-size: 7.5pt; }
     .sub-score-bar-value { font-size: 8.5pt; }
@@ -1951,22 +1955,30 @@
     .sheet-section-rule { margin-bottom: 8pt; }
     .sheet-section-rule-text { font-size: 7pt; }
 
-    /* Personality */
-    .personality-section { margin-bottom: 20pt; }
-    .personality-section-subtitle { font-size: 9pt; margin-bottom: 10pt; }
-    .big-five-item { padding: 8pt 12pt; margin-bottom: 4pt; box-shadow: none; break-inside: avoid; }
-    .big-five-name { font-size: 8pt; }
-    .big-five-desc { font-size: 8pt; margin-bottom: 5pt; }
-    .big-five-anchors { font-size: 7pt; }
+    /* Personality — flows naturally after attributes onto page 3 */
+    .personality-section { margin-top: 14pt; margin-bottom: 20pt; }
+    .personality-section-subtitle { font-size: 9pt; margin-bottom: 8pt; }
+    .bfi-bar-collapsed { display: none; } /* detail section has the labeled bar */
+    .bfi-level { font-size: 7.5pt; }
+    /* Show short personality descriptions (unlike long attribute prose) */
+    .personality-section .score-item-detail-desc { display: block; font-size: 8pt; margin-bottom: 6pt; color: #555; }
     .big-five-bar-track { height: 3pt; }
-    .big-five-interpretation { font-size: 8pt; margin-top: 4pt; }
+    .big-five-bar-marker { width: 7pt; height: 7pt; border-width: 1.5pt; }
+    .big-five-bar-area { margin-bottom: 6pt; }
+    .big-five-bar-labels { margin-top: 3pt; }
+    .big-five-bar-label-low, .big-five-bar-label-high { font-size: 7pt; }
+    .big-five-interpretation { font-size: 8pt; padding: 5pt 8pt; border-left-width: 2pt; }
 
     /* Abilities */
-    .sheet-abilities { margin-bottom: 20pt; }
-    .ability-card-sheet { padding: 5pt 8pt; box-shadow: none; break-inside: avoid; }
+    .sheet-abilities { margin-bottom: 16pt; }
+    .ability-group-label { font-size: 7.5pt; margin: 6pt 0 3pt; }
+    .ability-card-sheet { padding: 5pt 8pt; box-shadow: none; border-left-width: 2pt; break-inside: avoid; gap: 10pt; }
     .ability-card-sheet-name { font-size: 9pt; }
+    .ability-card-sheet-linked { font-size: 7pt; }
+    .ability-card-sheet-spectrum { width: 60pt; height: 3pt; }
+    .ability-card-sheet-dot { width: 6pt; height: 6pt; border-width: 1pt; }
     .ability-card-sheet-score { font-size: 11pt; }
-    .ability-card-sheet-spectrum { width: 80pt; }
+    .ability-card-sheet-score-label { font-size: 7pt; }
 
     /* Footer — reflection text only */
     .sheet-footer { padding-top: 16pt; }
@@ -2369,7 +2381,7 @@
             <button class="btn btn-ghost btn-small" onclick="app.exportData()">Export</button>
             <button class="btn btn-ghost btn-small" onclick="app.importData()">Import</button>
             <button class="btn btn-ghost btn-small" onclick="app.showTutorial()">Guide</button>
-            <button class="btn btn-ghost btn-small btn-print-hide" onclick="window.print()">Print</button>
+            <button class="btn btn-ghost btn-small btn-print-hide" onclick="app.printSheet()">Print</button>
             <button class="btn btn-ghost btn-small" onclick="app.showPromptModal()">AI Prompt</button>
           </div>
         </div>
@@ -2818,6 +2830,15 @@ const app = {
   editSheet() {
     this.showEdit();
     this.buildEditView();
+  },
+
+  printSheet() {
+    // Expand all score items so @media print sees the .expanded class
+    document.querySelectorAll('#sheet-view .score-item').forEach(function(item) {
+      item.classList.add('expanded');
+      item.dataset.printExpanded = '1';
+    });
+    window.print();
   },
 
   viewSheet() {
@@ -3301,9 +3322,14 @@ const app = {
       // Profile section — just scroll to it
       this._scrollToSection();
     } else if (index === 0) {
-      // Personality section: reset to BFI intro
-      currentBFIStep = -1;
-      this.showBFIStep(-1);
+      if (editMode === 'quick') {
+        // Quick mode: all items already rendered, just scroll
+        this._scrollToSection();
+      } else {
+        // Guided mode: reset to BFI intro
+        currentBFIStep = -1;
+        this.showBFIStep(-1);
+      }
     } else if (index >= 1 && index <= ATTRIBUTES.length) {
       // Attribute section: render the intro step into the content slot
       this.showSubStep(0);
@@ -4384,6 +4410,14 @@ End with something true: Close with an observation that feels like it captures s
 
 // Initialize
 window.addEventListener('load', () => app.init());
+
+// Restore card state after printing
+window.addEventListener('afterprint', function() {
+  document.querySelectorAll('#sheet-view .score-item[data-print-expanded]').forEach(function(item) {
+    item.classList.remove('expanded');
+    delete item.dataset.printExpanded;
+  });
+});
 </script>
 
 </body>
