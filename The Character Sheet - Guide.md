@@ -76,6 +76,10 @@ A few principles to keep in mind:
 
 **These scores move.** Unlike a tabletop RPG, your attributes aren't fixed. They change with your circumstances, your effort, your age, and plain luck. The Character Sheet is designed to be revisited — weekly, monthly, whenever you feel a shift. Tracking change over time is where the real insight lives.
 
+### Your Data
+
+Everything is stored in your browser's local storage. Nothing is sent to any server. No one can see your sheet but you — unless you choose to export and share it. You can export your data as a file at any time, and import it again on any device. If you clear your browser data, your sheet will be lost; exporting regularly is good practice.
+
 ---
 
 ## The Eight Core Attributes
