@@ -147,10 +147,19 @@ async function shots(prefix) {
 
 async function print(prefix) {
   await viewport(1280, 900);
-  await load(); await seed({ overrides: { mind: true }, scores: { mind: 15 } }); await load();
-  const { data } = await send('Page.printToPDF', { printBackground: true, paperWidth: 8.27, paperHeight: 11.69, preferCSSPageSize: true });
-  writeFileSync(`${outDir}/${prefix}print.pdf`, Buffer.from(data, 'base64'));
-  console.log('  saved', prefix + 'print.pdf');
+  const cases = {
+    'full': { ...SEED, overrides: { mind: true }, scores: { mind: 15 } },
+    'sparse': { version: 1, profile: { name: '', age: '', gender: '', occupation: '', location: '', relationship: '', photo: null }, scores: {}, subScores: { health: 16, strength: 18 }, overrides: {}, bfiResponses: { 0: 1, 5: 5 }, abilities: [], revealed: true },
+    'many': { ...SEED, abilities: [...SEED.abilities, { name: 'Cooking', score: 13, linked: 'joy', status: 'active' }, { name: 'Public speaking', score: 15, linked: 'standing', status: 'active' }, { name: 'French', score: 7, linked: 'mind', status: 'dormant' }, { name: 'Swimming', score: 12, linked: 'body', status: 'active' }, { name: 'Guitar', score: 8, linked: 'joy', status: 'dormant' }, { name: 'Woodwork', score: 11, linked: 'body', status: 'active' }, { name: 'Chess', score: 14, linked: 'mind', status: 'active' }, { name: 'Baking', score: 12, linked: 'joy', status: 'active' }, { name: 'Running a meeting', score: 15, linked: 'standing', status: 'active' }, { name: 'Gardening', score: 10, linked: 'body', status: 'dormant' }] },
+  };
+  for (const [name, data] of Object.entries(cases)) {
+    await load(); await evaluate(`localStorage.setItem('charactersheet-data', ${JSON.stringify(JSON.stringify(data))}); true`); await load();
+    for (const [paper, w, h] of [['a4', 8.27, 11.69], ['letter', 8.5, 11]]) {
+      const { data: pdf } = await send('Page.printToPDF', { printBackground: true, paperWidth: w, paperHeight: h, preferCSSPageSize: false, marginTop: 0, marginBottom: 0, marginLeft: 0, marginRight: 0 });
+      writeFileSync(`${outDir}/${prefix}print-${name}-${paper}.pdf`, Buffer.from(pdf, 'base64'));
+      console.log('  saved', `${prefix}print-${name}-${paper}.pdf`);
+    }
+  }
 }
 
 async function tests() {
@@ -488,6 +497,21 @@ try {
   if (scenario === 'shots') await shots(prefix);
   if (scenario === 'print') await print(prefix);
   if (scenario === 'tests') await tests();
+  if (scenario === 'scroll') {
+    const seedIt = () => evaluate(`localStorage.setItem('charactersheet-data', ${JSON.stringify(JSON.stringify(SEED))}); true`);
+    for (const [name, w, h, mobile] of [['phone', 375, 812, true], ['small', 320, 568, true], ['desktop', 1280, 700, false]]) {
+      await viewport(w, h, mobile); await load(); await seedIt(); await load();
+      await evaluate(`app.showShareModal(); true`);
+      const r = await evaluate(`(() => { const body = document.querySelector('#share-modal .prompt-modal-body'); const overlay = document.getElementById('share-modal');
+        const closeBtn = [...document.querySelectorAll('#share-modal .prompt-modal-footer .btn')].pop(); const rect = closeBtn.getBoundingClientRect();
+        const scroller = body.scrollHeight > body.clientHeight ? 'body' : overlay.scrollHeight > overlay.clientHeight ? 'overlay' : 'none';
+        (scroller === 'body' ? body : overlay).scrollTop = 99999;
+        const last = document.querySelector('#share-modal .share-row:last-child').getBoundingClientRect();
+        return { scroller, closeVisible: rect.top >= 0 && rect.bottom <= innerHeight, lastRowVisible: last.top >= 0 && last.bottom <= innerHeight, overlayScrolled: overlay.scrollTop }; })()`);
+      console.log(name, JSON.stringify(r));
+      await shot(`scroll-${name}-share-dialog-bottom`);
+    }
+  }
   if (scenario === 'shots2') {
     const seedIt = () => evaluate(`localStorage.setItem('charactersheet-data', ${JSON.stringify(JSON.stringify(SEED))}); true`);
     await viewport(1280, 900); await load(); await seedIt(); await load();
