@@ -16,13 +16,14 @@ A first pass takes about twenty minutes. Guided mode walks you through one quest
 - Big Five personality snapshot (BFI-10)
 - Your own list of abilities, active and dormant
 - A one-page sheet with a profile chart, expandable detail, and a print layout
+- Skip any question: blanks stay blank, and are never counted as an answer
+- Export and share: a backup file, an image of your sheet, a link that carries the sheet inside it, or plain text
 - AI prompt generator for a written character study
-- Export and import your sheet as a JSON file
 - Works on phones as well as desktops
 
 ## Data & Privacy
 
-Your sheet stays in your browser's local storage. Nothing is sent to a server. You can export it as a JSON file for backup or to move between devices, and delete it from the browser at any time. The AI prompt contains your scores and profile details, and is only shared if you paste it somewhere yourself.
+Your sheet stays in your browser's local storage. Nothing is sent to a server. You can export it as a JSON file for backup or to move between devices, and delete it from the browser at any time. Share links carry the sheet inside the link itself, so nothing is uploaded; anyone who has the link can read it. The AI prompt contains your scores and profile details, and is only shared if you paste it somewhere yourself.
 
 ## Guide
 

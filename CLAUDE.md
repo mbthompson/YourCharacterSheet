@@ -12,7 +12,7 @@ A web-based self-reflection tool styled as a life character sheet. It combines t
 ## Writing Rules (user-facing text)
 - **No em dashes** anywhere a user reads: the app, the guide, the README, the AI prompt. Rewrite the sentence with a colon, comma, full stop, or parentheses instead. En dashes are used only inside numeric ranges (1–20, 10–11).
 - British/Australian spelling: rigour, optimisation, savouring, humour, journalling, sceptical, moralise.
-- `The Character Sheet - Guide.md` is the anchor for wording. When copy changes, change the guide first, then bring the app into line. The `.docx` is generated from the guide (see Key Files).
+- `The Character Sheet - Guide.md` is the anchor for wording. When copy changes, change the guide first, then bring the app into line. The `.docx` is generated from the guide with `tools/build-guide-docx.js`.
 - Plain, direct sentences. Avoid filler intensifiers ("genuinely", "truly", "really").
 
 ## Architecture
@@ -20,7 +20,7 @@ A web-based self-reflection tool styled as a life character sheet. It combines t
 - Runs locally in Chrome (primary target) and mobile browsers. Deployed with GitHub Pages from `main` at https://mbthompson.github.io/YourCharacterSheet/
 - Data persistence: localStorage (primary, for seamless mobile use) + JSON file export/import (for backup, transfer, and versioning)
 - All CSS and JS are inline in the single HTML file
-- Approximately 4950 lines, ~180KB
+- Approximately 5400 lines, ~200KB
 
 ## Four Views
 
@@ -31,9 +31,13 @@ The app has four views, switched by `app._showView(id)`, which sets the `.active
    - **Guided mode**: one sub-scale at a time with attribute intros, descriptions, scale anchors, reflection prompts, Previous/Next navigation. After the last sub-score step, a score reveal step shows the auto-calculated main score and all sub-scores before advancing. BFI personality shows one item at a time.
    - **Quick mode**: all sub-scores for an attribute on one screen with sliders; all 10 BFI items on one screen; Previous/Next at the foot of every section; profile and abilities same as guided.
 3. **Calculating (`#calculating-view`)**: Full-screen fixed overlay with a spinner and four sequential text steps, then the "Take a breath" pre-reveal panel. This plays **once**, the first time a sheet is viewed (`state.revealed` is false). After that `viewSheet()` goes straight to the sheet.
-4. **Sheet (`#sheet-view`)**: The final character sheet. Sidebar (profile + actions, sticky on wide screens) + main content (radar chart, score cards, personality, abilities, footer). Action buttons: Edit, Export, Import, Guide, AI Prompt, Print (hidden on mobile). Footer has a "Delete this sheet" link (`resetSheet()`).
+4. **Sheet (`#sheet-view`)**: The final character sheet. Sidebar (profile + actions, sticky on wide screens) + main content (radar chart, score cards, personality, abilities, footer). Action buttons: Edit, Export & share (opens `#share-modal`), Import, Guide, AI Prompt, Print (hidden on mobile). Footer has a "Delete this sheet" link (`resetSheet()`). Under the "Eight Attributes" rule, `#scores-note` says how many sub-scores and statements are still unrated, with a "Finish rating" link.
+
+There are two modals, both `display: none` until `.active`: `#prompt-modal` (AI prompt) and `#share-modal` (Export and share: backup file, image, link, text, print, AI prompt). Escape closes either.
 
 ## Init Logic
+`init()` is async.
+- A `#share=` fragment in the URL (see Sharing) → `enterSharedView()`: the shared sheet is shown read-only, nothing is written to storage, and the person's own sheet is untouched. A fragment that cannot be read is dropped with a toast and init continues normally.
 - `loadFromStorage()` returns true if a valid sheet was loaded.
 - No sheet (or unreadable storage) → `showTutorial()`
 - Sheet with `revealed: true` → `showSheet()`
@@ -44,6 +48,13 @@ The app has four views, switched by `app._showView(id)`, which sets the `.active
 
 ### Profile
 - Name, age, gender, occupation, location, relationship status, profile picture (base64). All optional. An empty name is stored as `''` (older saves used the placeholder `'Character'`, which is converted on load).
+
+### Unanswered state (IMPORTANT)
+A new sheet starts blank. A sub-score or BFI response that has not been rated is stored as `null`, never as a default midpoint, so an untouched question cannot be mistaken for a deliberate "average". Rules:
+- `getMainScore()` averages only the rated sub-scores and returns `null` when none are rated. `calculateBFIScores()` does the same per trait. `getScoreInfo(null)` returns a neutral grey "Not rated" tier and `getTraitLevel(null)` returns "Not answered".
+- A slider is drawn hollow (`.unrated`) at 10 until it is touched; a click, tap or key press counts as a rating (`renderSlider()` wires `oninput`, `onclick` and `onkeyup` to `updateSubScore()`). The guided step's primary button reads "Skip for now" until then, and the step shows `.unrated-hint`.
+- Every place a score is displayed must handle `null`: cards show an en dash and no marker, the radar skips the vertex, the prompt and text summary say "not rated" / "not answered". `app.unanswered()` counts what is left and names the first section to return to.
+- Legacy saves without a key for some sub-score load as unrated for that sub-score. Manual overrides (`state.scores`) are always numbers.
 
 ### Eight Core Attributes (1-20 scale)
 Each has sub-scores that auto-average to produce the main score (user can manually override in Quick mode).
@@ -103,9 +114,9 @@ Defines all 8 attributes with: `key`, `name`, `tagline`, `description`, `prompt`
 state = {
   profile: { name, age, gender, occupation, location, relationship, photo },
   scores: { body: 10, mind: 10, ... },       // main attribute scores
-  subScores: { health: 10, strength: 10, ... }, // all sub-scores by key
+  subScores: { health: 10, strength: null, ... }, // all sub-scores by key; null = not yet rated
   overrides: { body: false, mind: false, ... }, // whether main score is manually set
-  bfiResponses: { 0: 3, 1: 3, ... },          // BFI-10 responses (1-5)
+  bfiResponses: { 0: 3, 1: null, ... },       // BFI-10 responses (1-5); null = not yet answered
   abilities: [{ name, score, linked, status }],
   updatedAt: '2026-10-05T03:00:00.000Z',      // last change to the sheet's content
   revealed: true                              // the finished sheet has been seen once
@@ -122,7 +133,7 @@ let saveTimeout = null;
 ```
 
 ### Data validation (IMPORTANT)
-`normaliseData(data)` is the single gate for everything read from localStorage or an imported file. It coerces and clamps every score, validates enums (gender, relationship, linked attribute, status), accepts a photo only if it is a base64 `data:image/...` URL, trims and caps strings, and returns `null` if the input does not look like a sheet. Because of this, render code can interpolate `state` numbers directly. **Free-text fields (profile text, ability names) must still go through `escapeHtml()`** when placed in HTML. If you add a field, add it to `normaliseData`, `_applyData`, and `_serialise`.
+`normaliseData(data)` is the single gate for everything read from localStorage, an imported file or a share link. It coerces and clamps every score, validates enums (gender, relationship, linked attribute, status), accepts a photo only if it is a base64 `data:image/...` URL, trims and caps strings, and returns `null` if the input does not look like a sheet. Because of this, render code can interpolate `state` numbers directly. **Free-text fields (profile text, ability names) must still go through `escapeHtml()`** when placed in HTML. If you add a field, add it to `normaliseData`, `_applyData`, and `_serialise`.
 
 ### Edit Mode (Guided vs Quick)
 Toggled by `setEditMode('guided'|'quick')` which calls `renderSections()` to rebuild. Mode saved to localStorage as `editMode` in the character data.
@@ -183,6 +194,14 @@ Key: `charactersheet-data` (`STORAGE_KEY`).
 ```
 Exported files contain everything up to and including `updatedAt` (no `editMode`, `revealed`, `lastSection`). Missing fields are back-filled by `normaliseData()`; saves from before `revealed` existed are treated as revealed. Importing over an existing sheet asks for confirmation first.
 
+### Sharing (`#share-modal`)
+- **Backup file**: `exportData()`, a `.json` download via `_downloadBlob()`; the only export that includes the photo.
+- **Image**: `renderSheetImage()` draws the whole sheet (header, radar via `drawRadar()`, attribute cards with sub-scores, personality, abilities) on a 1080px-wide canvas at 2x and crops to the height used. `downloadSheetImage()` saves it; `shareSheetImage()` uses the Web Share API with a File when `navigator.canShare` allows it, else downloads. Buttons marked `.share-only` appear only when `navigator.share` exists (`body.can-share`).
+- **Link**: `buildShareLink()` serialises the sheet without the photo, deflates it with `CompressionStream('deflate-raw')` (prefix `z.`; `j.` is plain JSON for browsers without it), base64url-encodes it and appends it as `#share=...`. Nothing is uploaded: the sheet travels inside the URL (about 1KB). `readSharedSheet()` decodes it on load and runs it through `normaliseData()`. A `hashchange` to a share fragment reloads the page so a pasted link opens properly.
+- **Shared view**: `enterSharedView()` sets `app.viewingShared`, adds `body.shared-view` (which hides every `.shared-hide` control: Edit, Import, Delete, Finish rating, Add Abilities, the footer action guide) and shows `#shared-banner`. `save()` is a no-op while viewing a shared sheet. "Keep a copy here" (`keepSharedSheet()`) asks before replacing a saved sheet, then saves and strips the fragment; "Back to my sheet" reloads without it.
+- **Text**: `sheetAsText()` is a plain-text summary; `_copyText()` wraps the clipboard API with the execCommand fallback and is shared with `copyPrompt()`.
+- `_shareConfirm()` shows a status line inside the dialog; `_fileName(ext)` names downloads `character-sheet-{name}-{date}.{ext}`.
+
 ### AI Prompt Modal (`#prompt-modal`)
 `display: none` base, `display: flex` only on `.active`. Key methods:
 - `generatePromptText()`: plain string with profile, all 8 attributes + sub-scores, Big Five, abilities, narrative instructions.
@@ -205,6 +224,8 @@ Exported files contain everything up to and including `updatedAt` (no `editMode`
 - `README.md`: short public description
 - `radar-demos.html`: three standalone radar chart designs from when the chart was chosen (Option B, Score-Coloured Fill, is the one now in `index.html`). Not linked from index.html.
 - `personality-mockup-a/b/c.html`: mockups from when the personality layout was chosen (Option B is the one in use). Not linked from index.html.
+- `tools/build-guide-docx.js`: regenerates the `.docx` from the guide (see `tools/README.md`)
+- `tools/test-harness.mjs`: headless-Chrome end-to-end checks and screenshot capture (see `tools/README.md`)
 - `CLAUDE.md`: this file (project context for AI assistants)
 
 ## Development Notes
@@ -220,11 +241,11 @@ Exported files contain everything up to and including `updatedAt` (no `editMode`
 - **Per-attribute colour variables**: `--attr-{key}` (saturated) and `--attr-{key}-pale` (pale tint) exist in `:root` for all 8 attribute keys. Edit sections set `--section-accent` / `--section-accent-pale` and sheet cards set `--item-accent` / `--item-accent-pale` from them; primary buttons, slider thumbs and reflect boxes inside pick those up automatically.
 - **Print layout**: every card prints open regardless of its on-screen state (the print stylesheet forces `.score-item-detail` visible, so Cmd+P works as well as the Print button). `#scores-rule { break-before: page }` puts attributes on page 2 and `.personality-section { break-before: page }` puts personality and abilities on page 3. Attribute prose is hidden in print; the radar chart is not printed.
 - `prefers-reduced-motion` is respected: animations and smooth scrolling are switched off.
+- **Testing**: `tools/test-harness.mjs` (see `tools/README.md`) drives the installed Chrome headless over the DevTools protocol from a dependency-free Node script (`--remote-debugging-port`, `Runtime.evaluate`, `Emulation.setDeviceMetricsOverride`, `Page.captureScreenshot`, `Page.printToPDF`) against the preview server, seeding `localStorage` with a test sheet. Check at least: import validation, scoring, the full guided path forward and back, the accordion in one and two columns, no sideways scrolling at 320 to 1024px, share link round trip, and that no screen contains an em dash.
 
 ## Future Directions (not yet implemented)
 - Validated scales for core attributes (PHQ-9, GAD-7, BRS, etc.), replacing self-assessment with psychometric instruments
 - Historical tracking: comparing multiple saves over time, showing trajectory
 - Anxiety and Luck as optional "conditions" or modifiers
 - Benchmark tests for physical attributes (push-ups, mile time)
-- Unanswered state for BFI items and sub-scores (they currently start at the neutral midpoint, so an untouched item is indistinguishable from a deliberate "average")
 - Dark mode
