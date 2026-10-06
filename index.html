@@ -1255,12 +1255,23 @@
     background: var(--white);
   }
 
-  /* Main content */
+  /* Main content. The markup is in print order (chart, personality, abilities,
+     attributes); on screen the attributes come before personality. */
   .sheet-main {
     flex: 1;
     padding: 40px 48px 48px 40px;
     min-width: 0;
+    display: flex;
+    flex-direction: column;
   }
+
+  .sheet-main > #radar-section { order: 1; }
+  .sheet-main > #scores-rule { order: 2; }
+  .sheet-main > .scores-toolbar { order: 3; }
+  .sheet-main > #scores-grid { order: 4; }
+  .sheet-main > .personality-section { order: 5; }
+  .sheet-main > .sheet-abilities { order: 6; }
+  .sheet-main > .sheet-footer { order: 7; }
 
   .sheet-header {
     text-align: center;
@@ -2539,8 +2550,10 @@
   }
 
   /* ==================== PRINT ==================== */
+  /* Two pages. Page 1: who, the chart, personality, abilities. Page 2: the
+     eight attributes with their sub-scores. Prose is left out. */
   @media print {
-    @page { margin: 14mm 16mm; }
+    @page { size: auto; margin: 10mm 13mm; }
 
     * {
       -webkit-print-color-adjust: exact !important;
@@ -2548,97 +2561,98 @@
       color-adjust: exact !important;
     }
 
-    body { background: white !important; font-size: 10pt; }
+    html, body { background: white !important; }
+    body { font-size: 10pt; }
 
     /* Hide all non-content UI */
-    #edit-view, #tutorial-view, #calculating-view, #prompt-modal,
-    #radar-section,
-    .sheet-actions, .btn, .btn-text, .tutorial-skip-link, .toast, .shared-banner, #share-modal,
+    #edit-view, #tutorial-view, #calculating-view, #prompt-modal, #share-modal,
+    .sheet-actions, .btn, .btn-text, .tutorial-skip-link, .toast, .shared-banner,
     .score-item-chevron, .scores-toolbar, .abilities-empty,
-    .sheet-footer-actions,
-    .sheet-footer-close,
-    .sheet-footer-privacy { display: none !important; }
+    .sheet-abilities.is-empty,
+    .sheet-footer-actions, .sheet-footer-close, .sheet-footer-privacy,
+    .sheet-footer-reflection-body { display: none !important; }
 
     /* Remove chrome */
     #sheet-view { padding: 0; animation: none; }
     .container, #sheet-view .container { max-width: 100%; padding: 0; }
     .sheet-container { box-shadow: none; border: none; border-radius: 0; }
-
-    /* Undo sidebar flex layout: linear top-to-bottom */
     .sheet-parchment { display: block; background: white !important; overflow: visible; border-radius: 0; }
-    .sheet-sidebar { width: 100%; border-right: none; border-bottom: 1px solid #ddd; padding: 0 0 14pt; background: none; }
+    .sheet-sidebar { width: 100%; border-right: none; border-bottom: 1px solid #ddd; padding: 0 0 8pt; margin-bottom: 8pt; background: none; }
     .sheet-sidebar-inner { position: static; }
-    .sheet-main { padding: 0; }
+    .sheet-main { display: block; padding: 0; }
 
-    /* Profile header: compact */
-    .sheet-header { padding-bottom: 14pt; margin-bottom: 14pt; }
-    .sheet-photo { width: 72pt; height: 72pt; box-shadow: none; border: 1pt solid #ddd; }
-    .sheet-header h1 { font-size: 22pt; }
-    .sheet-occupation { font-size: 11pt; margin-bottom: 4pt; }
-    .sheet-meta { font-size: 9pt; }
-    .sheet-meta .sheet-meta-date { font-size: 8pt; margin-top: 4pt; }
+    /* Page 1: identity in one row */
+    .sheet-header { text-align: left; margin: 0; }
+    .sheet-profile { flex-direction: row; align-items: center; gap: 14pt; }
+    .sheet-photo { width: 54pt; height: 54pt; margin: 0; box-shadow: none; border: 1pt solid #ddd; flex-shrink: 0; }
+    .sheet-photo-placeholder { font-size: 18pt; }
+    .sheet-header h1 { font-size: 20pt; margin-bottom: 2pt; flex-shrink: 0; max-width: 45%; }
+    .sheet-occupation { font-size: 10pt; margin-bottom: 2pt; }
+    .sheet-meta { font-size: 8.5pt; line-height: 1.5; }
+    .sheet-meta span:first-child { margin-left: 0; }
+    .sheet-meta .sheet-meta-date { font-size: 8pt; margin-top: 1pt; }
 
-    /* Attributes start on page 2 */
-    #scores-rule { break-before: page; margin-bottom: 8pt; }
-
-    /* Score cards: 2-column, every card open whatever its on-screen state */
-    .scores-grid { display: grid; gap: 5pt; margin-bottom: 0; }
-    .score-item-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 5pt; }
-    .score-item { break-inside: avoid; box-shadow: none; border-left-width: 3pt; }
-    .score-item-detail { display: block !important; visibility: visible !important; }
-    .score-item-detail-clip { overflow: visible; }
-    .score-item-summary { padding: 6pt 10pt 3pt 10pt; }
-    .score-item-name { font-size: 9pt; }
-    .score-item-value { font-size: 16pt; }
-    .score-item-label { font-size: 6.5pt; }
-    .spectrum-bar { margin: 3pt 10pt 6pt; height: 4pt; }
-    .spectrum-bar::before { opacity: 0.55; }
-    .spectrum-marker { width: 7pt; height: 7pt; border-width: 1.5pt; }
-    .score-item-detail-inner { padding: 5pt 10pt 7pt; }
-
-    /* Attribute cards: hide prose, show sub-scores only */
-    .scores-grid .score-item-detail-desc { display: none; }
-    .scores-grid .score-item-detail-prompt { display: none; }
-    .sub-score-bars { grid-template-columns: fit-content(80pt) 1.8em 1fr; gap: 4pt 5pt; }
-    .sub-score-bar-name { font-size: 7.5pt; }
-    .sub-score-bar-value { font-size: 8.5pt; }
-    .sub-bar-track { height: 3.5pt; }
-    .score-item-detail-note { font-size: 7pt; margin-top: 4pt; }
+    /* The chart, smaller */
+    #radar-section { margin: 0 0 6pt; }
+    #radar-canvas { width: 290px !important; height: auto !important; margin: 0 auto; }
 
     /* Section rules */
-    .sheet-section-rule { margin-bottom: 8pt; }
+    .sheet-section-rule { margin-bottom: 7pt; }
     .sheet-section-rule-text { font-size: 7pt; }
 
-    /* Personality starts page 3, so its heading is never stranded at the foot of page 2 */
-    .personality-section { break-before: page; margin-bottom: 20pt; }
-    .personality-section-subtitle { font-size: 9pt; margin-bottom: 8pt; }
-    .bfi-bar-collapsed { display: none !important; } /* detail section has the labelled bar */
-    .bfi-level { font-size: 7.5pt; }
-    /* Show short personality descriptions (unlike long attribute prose) */
-    .personality-section .score-item-detail-desc { display: block; font-size: 8pt; margin-bottom: 6pt; color: #555; }
+    /* Personality, compact, still on page 1 */
+    .personality-section { margin-bottom: 0; }
+    .personality-section-subtitle { font-size: 8.5pt; margin-bottom: 6pt; }
+    .bfi-pair { margin-bottom: 5pt; }
+    .score-item-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 5pt; }
+    .score-item { break-inside: avoid; page-break-inside: avoid; box-shadow: none; border-left-width: 3pt; }
+    .score-item-summary { padding: 5pt 9pt 2pt; }
+    .score-item-name { font-size: 9.5pt; }
+    .bfi-level { font-size: 7pt; }
+    .bfi-bar-collapsed { display: none !important; } /* the open card has the labelled bar */
+    .score-item-detail { display: block !important; visibility: visible !important; }
+    .score-item-detail-clip { overflow: visible; }
+    .score-item-detail-inner { padding: 4pt 9pt 6pt; }
+    .personality-section .score-item-detail-desc { display: none; } /* the bar labels say enough on paper */
     .big-five-bar-track { height: 3pt; }
-    .big-five-bar-marker { width: 7pt; height: 7pt; border-width: 1.5pt; }
-    .big-five-bar-area { margin-bottom: 6pt; }
-    .big-five-bar-labels { margin-top: 3pt; }
-    .big-five-bar-label-low, .big-five-bar-label-high { font-size: 7pt; }
-    .big-five-interpretation { font-size: 8pt; padding: 5pt 8pt; border-left-width: 2pt; }
+    .big-five-bar-marker { width: 6pt; height: 6pt; border-width: 1pt; }
+    .big-five-bar-area { margin: 0 2pt 4pt; }
+    .big-five-bar-area .big-five-bar-track { margin-bottom: 3pt; }
+    .big-five-bar-label-low, .big-five-bar-label-high { font-size: 6.5pt; }
+    .big-five-interpretation { font-size: 7.5pt; line-height: 1.35; padding: 2pt 6pt; border-left-width: 2pt; }
 
-    /* Abilities */
-    .sheet-abilities { margin-bottom: 16pt; }
-    .ability-group-label { font-size: 7.5pt; margin: 6pt 0 3pt; }
-    .ability-card-sheet { padding: 5pt 8pt; box-shadow: none; border-left-width: 2pt; break-inside: avoid; gap: 10pt; }
-    .ability-card-sheet-name { font-size: 9pt; }
-    .ability-card-sheet-linked { font-size: 7pt; }
-    .ability-card-sheet-spectrum { width: 60pt; height: 3pt; }
-    .ability-card-sheet-dot { width: 6pt; height: 6pt; border-width: 1pt; }
-    .ability-card-sheet-score { font-size: 11pt; }
-    .ability-card-sheet-score-label { font-size: 7pt; }
+    /* Page 2: the eight attributes */
+    #scores-rule { break-before: page; page-break-before: always; margin-top: 0; }
+    .scores-grid { display: grid; gap: 5pt; margin-bottom: 0; }
+    .score-item-value { font-size: 14pt; }
+    .score-item-label { font-size: 6pt; margin-top: 2pt; }
+    .spectrum-bar { margin: 2pt 9pt 5pt; height: 4pt; }
+    .spectrum-bar::before { opacity: 0.55; }
+    .spectrum-marker { width: 6pt; height: 6pt; border-width: 1.2pt; }
+    .scores-grid .score-item-detail-desc,
+    .scores-grid .score-item-detail-prompt { display: none; }
+    .sub-score-bars { grid-template-columns: fit-content(78pt) 1.6em 1fr; gap: 2.5pt 4pt; }
+    .sub-score-bar-name { font-size: 7pt; line-height: 1.25; }
+    .sub-score-bar-value { font-size: 7.5pt; }
+    .sub-bar-track { height: 3pt; }
+    .score-item-detail-note { font-size: 6.5pt; line-height: 1.3; margin-top: 3pt; }
 
-    /* Footer: reflection text only */
-    .sheet-footer { padding-top: 16pt; }
+    /* Abilities sit under personality on page 1, in two columns */
+    .sheet-abilities { margin: 10pt 0 0; }
+    .sheet-abilities .abilities-list { grid-template-columns: 1fr 1fr; gap: 3pt 6pt; }
+    .ability-group-label { grid-column: 1 / -1; font-size: 6.5pt; margin: 3pt 0 1pt; }
+    .ability-card-sheet { padding: 2pt 7pt; box-shadow: none; border-left-width: 2pt; break-inside: avoid; page-break-inside: avoid; gap: 6pt; }
+    .ability-card-sheet-name { font-size: 8.5pt; margin: 0; }
+    .ability-card-sheet-linked { font-size: 6pt; }
+    .ability-card-sheet-spectrum { width: 54pt; height: 3pt; margin-bottom: 3pt; }
+    .ability-card-sheet-dot { width: 5pt; height: 5pt; border-width: 1pt; }
+    .ability-card-sheet-score { font-size: 9.5pt; }
+    .ability-card-sheet-score-label { font-size: 6pt; }
+
+    /* Footer: one line */
+    .sheet-footer { padding-top: 8pt; margin-top: 8pt; border-top: 1px solid #ddd; break-inside: avoid; page-break-inside: avoid; }
     .sheet-footer-reflection { margin-bottom: 0; }
-    .sheet-footer-reflection-lead { font-size: 11pt; margin-bottom: 6pt; }
-    .sheet-footer-reflection-body { font-size: 9pt; max-width: 100%; }
+    .sheet-footer-reflection-lead { font-size: 9pt; margin-bottom: 0; }
   }
 </style>
 </head>
@@ -2824,19 +2838,19 @@
           <div id="radar-section">
             <canvas id="radar-canvas" width="560" height="440" role="img" aria-label="Chart of your eight attribute scores"></canvas>
           </div>
-          <div class="sheet-section-rule" id="scores-rule"><h2 class="sheet-section-rule-text">Eight Attributes</h2></div>
-          <div class="scores-toolbar">
-            <span class="scores-note" id="scores-note"></span>
-            <button type="button" class="btn-text" id="scores-expand-all" aria-pressed="false" onclick="app.toggleAllScores()">Show all sub-scores</button>
-          </div>
-          <div class="scores-grid" id="scores-grid"></div>
-
           <div class="personality-section" id="personality-section-container"></div>
 
           <div class="sheet-abilities" id="sheet-abilities-container">
             <div class="sheet-section-rule"><h2 class="sheet-section-rule-text">Abilities</h2></div>
             <div class="abilities-list" id="sheet-abilities"></div>
           </div>
+
+          <div class="sheet-section-rule" id="scores-rule"><h2 class="sheet-section-rule-text">Eight Attributes</h2></div>
+          <div class="scores-toolbar">
+            <span class="scores-note" id="scores-note"></span>
+            <button type="button" class="btn-text" id="scores-expand-all" aria-pressed="false" onclick="app.toggleAllScores()">Show all sub-scores</button>
+          </div>
+          <div class="scores-grid" id="scores-grid"></div>
 
           <div class="sheet-footer">
             <div class="sheet-footer-reflection">
@@ -4893,6 +4907,7 @@ const app = {
     const valid = state.abilities.filter(a => a.name.trim());
     const list = document.getElementById('sheet-abilities');
 
+    document.getElementById('sheet-abilities-container').classList.toggle('is-empty', valid.length === 0);
     if (valid.length === 0) {
       list.innerHTML = `
         <div class="abilities-empty">
