@@ -20,4 +20,4 @@ Drives the installed Google Chrome headless over the DevTools protocol (no depen
 node tools/test-harness.mjs http://localhost:3000/ /tmp/sheet-tests tests
 ```
 
-`tests` runs the end-to-end checks (import validation, scoring, the guided path forward and back, saving, accordions, sharing, blanks, no em dashes, no sideways scrolling at 320 to 1024px). `shots` captures desktop, tablet and phone screenshots into the output folder, `shots2` captures the share dialog and blank states, and `print` writes `print.pdf`.
+`tests` runs the end-to-end checks (import validation, scoring, the guided path forward and back, saving, accordions, sharing, blanks, no em dashes, no sideways scrolling at 320 to 1024px). `shots` captures desktop, tablet and phone screenshots into the output folder, `shots2` captures the share dialog and blank states, `scroll` checks the share dialog scrolls to its Close button, and `print` writes A4 and Letter PDFs for three sample sheets.
