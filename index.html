@@ -1342,7 +1342,9 @@
   /* ==================== SCORE ITEMS (Sheet) ==================== */
   .scores-toolbar {
     display: flex;
+    align-items: baseline;
     justify-content: flex-end;
+    gap: 16px;
     margin: -12px 0 10px;
     font-size: 12px;
   }
@@ -2158,11 +2160,11 @@
     text-transform: uppercase;
   }
 
-  /* ==================== PROMPT MODAL ==================== */
-  /* Stays display: none until .active is added. Do not give the base rule a display. */
-  #prompt-modal { display: none; }
+  /* ==================== PROMPT AND SHARE MODALS ==================== */
+  /* Stay display: none until .active is added. Do not give the base rules a display. */
+  #prompt-modal, #share-modal { display: none; }
 
-  #prompt-modal.active {
+  #prompt-modal.active, #share-modal.active {
     position: fixed; top: 0; left: 0;
     width: 100%; height: 100%;
     background: rgba(45, 45, 45, 0.7);
@@ -2321,8 +2323,103 @@
     .section-nav button { flex: 0 0 auto; min-height: 40px; }
   }
 
+  /* Export and share dialog */
+  .share-rows { display: grid; gap: 6px; }
+
+  .share-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border-gray);
+  }
+
+  .share-row:last-child { border-bottom: none; }
+
+  .share-row h3 {
+    font-family: var(--font-serif);
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--charcoal);
+    margin-bottom: 3px;
+  }
+
+  .share-row p {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--medium-gray);
+    max-width: 44ch;
+  }
+
+  .share-row-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .share-only { display: none; }
+  .can-share .share-only { display: inline-flex; }
+
+  /* A sheet opened from a link */
+  .shared-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px 20px;
+    margin-bottom: 16px;
+    padding: 14px 20px;
+    background: var(--warm-brown-pale);
+    border: 1px solid #E6DCCB;
+    border-radius: 8px;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--medium-gray);
+  }
+
+  .shared-banner strong { color: var(--charcoal); }
+
+  .shared-banner-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .shared-view .shared-hide { display: none !important; }
+
+  /* Sub-scores and statements that have not been rated yet */
+  .unrated input[type="range"]::-webkit-slider-thumb { background: var(--white); border-color: var(--track-gray); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); }
+  .unrated input[type="range"]::-moz-range-thumb { background: var(--white); border-color: var(--track-gray); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); }
+
+  .unrated-hint {
+    display: none;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--light-gray);
+    margin-top: 10px;
+  }
+
+  .unrated .unrated-hint { display: block; }
+
+  .scores-note {
+    font-family: var(--font-sans);
+    color: var(--light-gray);
+    margin-right: auto;
+    line-height: 1.5;
+  }
+
+  .scores-note .btn-text { padding: 0 2px; }
+
+  .bfi-level-none { color: var(--light-gray); }
+
   @media (max-width: 640px) {
     :root { --gutter: 16px; }
+
+    .share-row { flex-direction: column; align-items: stretch; gap: 10px; }
+    .share-row-actions .btn { flex: 1; }
+    .share-row-print { display: none; } /* printing from a phone is rarely useful */
+    .shared-banner { padding: 12px 14px; }
+    .shared-banner-actions { width: 100%; }
+    .shared-banner-actions .btn { flex: 1; }
 
     /* Buttons: comfortable touch targets */
     .btn-small { min-height: 42px; font-size: 14px; }
@@ -2395,7 +2492,7 @@
     .score-item-chevron { padding: 12px 16px; font-size: 11px; }
     .score-item-detail-inner { padding: 18px 16px 20px; }
     .sub-score-bars { grid-template-columns: fit-content(112px) 1.8em 1fr; }
-    .scores-toolbar { font-size: 13px; margin-top: -8px; }
+    .scores-toolbar { font-size: 13px; margin-top: -8px; flex-wrap: wrap; gap: 4px 12px; }
 
     /* Abilities on sheet */
     .ability-card-sheet { gap: 12px; padding: 12px 14px; }
@@ -2453,7 +2550,7 @@
     /* Hide all non-content UI */
     #edit-view, #tutorial-view, #calculating-view, #prompt-modal,
     #radar-section,
-    .sheet-actions, .btn, .btn-text, .tutorial-skip-link, .toast,
+    .sheet-actions, .btn, .btn-text, .tutorial-skip-link, .toast, .shared-banner, #share-modal,
     .score-item-chevron, .scores-toolbar, .abilities-empty,
     .sheet-footer-actions,
     .sheet-footer-close,
@@ -2574,6 +2671,55 @@
   </div>
 </div>
 
+<!-- SHARE MODAL -->
+<div id="share-modal" onclick="app.handleShareBackdropClick(event)">
+  <div class="prompt-modal-box" role="dialog" aria-modal="true" aria-labelledby="share-modal-title">
+    <div class="prompt-modal-header">
+      <div>
+        <h2 id="share-modal-title">Export and share</h2>
+        <div class="prompt-modal-subtitle">Everything stays on your device until you send it somewhere</div>
+      </div>
+      <button type="button" class="prompt-modal-close" onclick="app.hideShareModal()" aria-label="Close">&times;</button>
+    </div>
+    <div class="prompt-modal-body share-rows">
+      <div class="share-row">
+        <div class="share-row-text"><h3>Backup file</h3><p>The whole sheet, including your photo, as a .json file. Import it on another device, or after clearing your browser.</p></div>
+        <div class="share-row-actions"><button type="button" class="btn btn-secondary btn-small" onclick="app.exportData()">Save file</button></div>
+      </div>
+      <div class="share-row">
+        <div class="share-row-text"><h3>Image</h3><p>A picture of your sheet: the chart, every score, your personality profile and your abilities.</p></div>
+        <div class="share-row-actions">
+          <button type="button" class="btn btn-secondary btn-small" onclick="app.downloadSheetImage()">Download</button>
+          <button type="button" class="btn btn-ghost btn-small share-only" onclick="app.shareSheetImage()">Share&hellip;</button>
+        </div>
+      </div>
+      <div class="share-row">
+        <div class="share-row-text"><h3>Link</h3><p>A link that carries your sheet inside it. Nothing is uploaded. Whoever opens it sees a read-only copy, without your photo. Anyone who has the link can read it.</p></div>
+        <div class="share-row-actions">
+          <button type="button" class="btn btn-secondary btn-small" onclick="app.copyShareLink()">Copy link</button>
+          <button type="button" class="btn btn-ghost btn-small share-only" onclick="app.shareSheetLink()">Share&hellip;</button>
+        </div>
+      </div>
+      <div class="share-row">
+        <div class="share-row-text"><h3>Text</h3><p>A plain-text summary for a message, a journal, or a note.</p></div>
+        <div class="share-row-actions"><button type="button" class="btn btn-secondary btn-small" onclick="app.copySheetText()">Copy text</button></div>
+      </div>
+      <div class="share-row share-row-print">
+        <div class="share-row-text"><h3>Print</h3><p>A clean layout for paper, or to save as a PDF.</p></div>
+        <div class="share-row-actions"><button type="button" class="btn btn-secondary btn-small" onclick="app.hideShareModal(); app.printSheet()">Print</button></div>
+      </div>
+      <div class="share-row">
+        <div class="share-row-text"><h3>AI prompt</h3><p>Ask an AI assistant for a written character study, based on your sheet.</p></div>
+        <div class="share-row-actions"><button type="button" class="btn btn-secondary btn-small" onclick="app.hideShareModal(); app.showPromptModal()">Open</button></div>
+      </div>
+    </div>
+    <div class="prompt-modal-footer">
+      <span class="prompt-copy-confirm" id="share-confirm" role="status"></span>
+      <button type="button" class="btn btn-ghost btn-small" onclick="app.hideShareModal()">Close</button>
+    </div>
+  </div>
+</div>
+
 <!-- PROMPT MODAL -->
 <div id="prompt-modal" onclick="app.handlePromptBackdropClick(event)">
   <div class="prompt-modal-box" role="dialog" aria-modal="true" aria-labelledby="prompt-modal-title">
@@ -2613,7 +2759,7 @@
           <div class="more-menu" id="edit-more-menu">
             <button type="button" class="btn btn-ghost btn-small more-menu-toggle" aria-haspopup="true" aria-expanded="false" aria-controls="edit-more-items" onclick="app.toggleMoreMenu(event)">More</button>
             <div class="more-menu-items" id="edit-more-items">
-              <button type="button" class="btn btn-ghost btn-small" onclick="app.closeMoreMenu(); app.exportData()">Export</button>
+              <button type="button" class="btn btn-ghost btn-small" onclick="app.closeMoreMenu(); app.showShareModal()">Export &amp; share</button>
               <button type="button" class="btn btn-ghost btn-small" onclick="app.closeMoreMenu(); app.importData()">Import</button>
               <button type="button" class="btn btn-ghost btn-small" onclick="app.closeMoreMenu(); app.showTutorial('edit')">Guide</button>
               <button type="button" class="btn btn-ghost btn-small" onclick="app.closeMoreMenu(); app.showPromptModal()">AI Prompt</button>
@@ -2634,6 +2780,13 @@
 <!-- SHEET VIEW -->
 <div id="sheet-view">
   <div class="container">
+    <div class="shared-banner" id="shared-banner" hidden>
+      <div class="shared-banner-text"><strong id="shared-banner-name">A shared sheet</strong>, opened from a link. It is not saved on this device, and your own sheet is untouched.</div>
+      <div class="shared-banner-actions">
+        <button type="button" class="btn btn-secondary btn-small" onclick="app.keepSharedSheet()">Keep a copy here</button>
+        <button type="button" class="btn btn-ghost btn-small" id="shared-banner-exit" onclick="app.leaveSharedSheet()">Back to my sheet</button>
+      </div>
+    </div>
     <div class="sheet-container">
       <div class="sheet-parchment">
 
@@ -2653,9 +2806,9 @@
             </div>
 
             <div class="sheet-actions">
-              <button type="button" class="btn btn-secondary btn-small sheet-action-wide" onclick="app.editSheet()">Edit</button>
-              <button type="button" class="btn btn-ghost btn-small" onclick="app.exportData()">Export</button>
-              <button type="button" class="btn btn-ghost btn-small" onclick="app.importData()">Import</button>
+              <button type="button" class="btn btn-secondary btn-small sheet-action-wide shared-hide" onclick="app.editSheet()">Edit</button>
+              <button type="button" class="btn btn-ghost btn-small sheet-action-wide" onclick="app.showShareModal()">Export &amp; share</button>
+              <button type="button" class="btn btn-ghost btn-small shared-hide" onclick="app.importData()">Import</button>
               <button type="button" class="btn btn-ghost btn-small" onclick="app.showTutorial('sheet')">Guide</button>
               <button type="button" class="btn btn-ghost btn-small" onclick="app.showPromptModal()">AI Prompt</button>
               <button type="button" class="btn btn-ghost btn-small btn-print-hide sheet-action-wide" onclick="app.printSheet()">Print</button>
@@ -2670,6 +2823,7 @@
           </div>
           <div class="sheet-section-rule" id="scores-rule"><h2 class="sheet-section-rule-text">Eight Attributes</h2></div>
           <div class="scores-toolbar">
+            <span class="scores-note" id="scores-note"></span>
             <button type="button" class="btn-text" id="scores-expand-all" aria-pressed="false" onclick="app.toggleAllScores()">Show all sub-scores</button>
           </div>
           <div class="scores-grid" id="scores-grid"></div>
@@ -2686,10 +2840,10 @@
               <div class="sheet-footer-reflection-lead">Your scores are a moment, not a fixed truth.</div>
               <div class="sheet-footer-reflection-body">Life shifts, sometimes slowly and sometimes all at once. Consider coming back to this sheet in a few months, or after something significant has changed. The value of honest self-reflection is not in any single reading. It is in watching what moves, and understanding why.</div>
             </div>
-            <div class="sheet-footer-actions">
+            <div class="sheet-footer-actions shared-hide">
               <div class="sheet-footer-action">
-                <div class="sheet-footer-action-label">Export</div>
-                <div class="sheet-footer-action-desc">Save your sheet as a file. Use it to move to another device, or keep it as a record of where you are right now.</div>
+                <div class="sheet-footer-action-label">Export and share</div>
+                <div class="sheet-footer-action-desc">Keep a backup file, save your sheet as an image, or share it as a link or text. Nothing leaves your device until you send it.</div>
               </div>
               <div class="sheet-footer-action">
                 <div class="sheet-footer-action-label">Import</div>
@@ -2703,7 +2857,7 @@
             <div class="sheet-footer-close">Come back when enough has changed to be worth noticing.</div>
             <div class="sheet-footer-privacy">
               Your sheet is saved in this browser only. Nothing is sent anywhere.
-              <button type="button" class="btn-text" onclick="app.resetSheet()">Delete this sheet</button>
+              <button type="button" class="btn-text shared-hide" onclick="app.resetSheet()">Delete this sheet</button>
             </div>
           </div>
         </div>
@@ -2961,7 +3115,10 @@ const TRAIT_ORDER = ['openness', 'conscientiousness', 'extraversion', 'agreeable
 
 // BFI-10 trait scores run from 1 to 5 in half-point steps.
 // Low = 1–2, Moderate = 2.5–3.5, High = 4–5.
+// BFI-10 trait scores run from 1 to 5 in half-point steps.
+// Low = 1–2, Moderate = 2.5–3.5, High = 4–5. null = no statement answered yet.
 function getTraitLevel(score) {
+  if (score === null) return 'Not answered';
   if (score <= 2) return 'Low';
   if (score >= 4) return 'High';
   return 'Moderate';
@@ -2980,7 +3137,13 @@ const SCORE_LABELS = [
 
 // Returns the tier for a score. `color` is the tier colour for bars and dots;
 // `text` is a darker shade of the same hue that stays legible as small text.
+// Returns the tier for a score. `color` is the tier colour for bars and dots;
+// `text` is a darker shade of the same hue that stays legible as small text.
+// A score of null (not yet rated) gets a neutral grey.
 function getScoreInfo(score) {
+  if (score === null || score === undefined) {
+    return { key: 'none', label: 'Not rated', color: 'var(--track-gray)', text: 'var(--light-gray)' };
+  }
   const s = Math.max(1, Math.min(20, Math.round(score)));
   const tier = SCORE_LABELS.find(sl => s >= sl.min && s <= sl.max) || SCORE_LABELS[3];
   return { key: tier.key, label: tier.label, color: `var(--color-${tier.key})`, text: `var(--color-${tier.key}-text)` };
@@ -3003,6 +3166,62 @@ function clampScore(value, fallback) {
   if (value === null || value === undefined || value === '') return fallback;
   const n = Math.round(Number(value));
   return Number.isFinite(n) ? Math.max(1, Math.min(20, n)) : fallback;
+}
+
+// A sub-score or statement that has not been rated is stored as null.
+function scoreOrNull(value) {
+  return clampScore(value, null);
+}
+
+// Share links carry the sheet in the URL fragment: nothing is sent to a server.
+const SHARE_PREFIX = '#share=';
+
+function bytesToBase64Url(bytes) {
+  let bin = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function base64UrlToBytes(str) {
+  const bin = atob(str.replace(/-/g, '+').replace(/_/g, '/'));
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+// "z." = deflated, "j." = plain JSON (for browsers without CompressionStream)
+async function encodeSharePayload(obj) {
+  const bytes = new TextEncoder().encode(JSON.stringify(obj));
+  if (typeof CompressionStream === 'function') {
+    const stream = new Blob([bytes]).stream().pipeThrough(new CompressionStream('deflate-raw'));
+    return 'z.' + bytesToBase64Url(new Uint8Array(await new Response(stream).arrayBuffer()));
+  }
+  return 'j.' + bytesToBase64Url(bytes);
+}
+
+async function decodeSharePayload(text) {
+  const kind = text.slice(0, 2);
+  let bytes = base64UrlToBytes(text.slice(2));
+  if (kind === 'z.') {
+    if (typeof DecompressionStream !== 'function') throw new Error('This browser cannot open compressed share links');
+    const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+    bytes = new Uint8Array(await new Response(stream).arrayBuffer());
+  } else if (kind !== 'j.') {
+    throw new Error('Not a share link');
+  }
+  return JSON.parse(new TextDecoder().decode(bytes));
+}
+
+// Returns the shared sheet in the page URL, { error: true } if there is one
+// that cannot be read, or null if the URL carries no sheet.
+async function readSharedSheet() {
+  if (!location.hash.startsWith(SHARE_PREFIX)) return null;
+  try {
+    const clean = normaliseData(await decodeSharePayload(decodeURIComponent(location.hash.slice(SHARE_PREFIX.length))));
+    return clean || { error: true };
+  } catch (e) {
+    return { error: true };
+  }
 }
 
 function formatDate(iso) {
@@ -3055,13 +3274,13 @@ function normaliseData(data) {
   ATTRIBUTES.forEach(attr => {
     clean.scores[attr.key] = clampScore(scores[attr.key], 10);
     clean.overrides[attr.key] = overrides[attr.key] === true;
-    attr.subScores.forEach(sub => { clean.subScores[sub.key] = clampScore(subScores[sub.key], 10); });
+    attr.subScores.forEach(sub => { clean.subScores[sub.key] = scoreOrNull(subScores[sub.key]); });
   });
 
   const bfi = isObj(data.bfiResponses) ? data.bfiResponses : {};
   BFI_ITEMS.forEach((item, i) => {
     const n = Math.round(Number(bfi[i]));
-    clean.bfiResponses[i] = n >= 1 && n <= 5 ? n : 3;
+    clean.bfiResponses[i] = n >= 1 && n <= 5 ? n : null;
   });
 
   const attrKeys = ATTRIBUTES.map(a => a.key);
@@ -3090,7 +3309,7 @@ const state = {
   scores: {},
   subScores: {},
   overrides: {},
-  bfiResponses: {},
+  bfiResponses: {},  // 1-5, or null while unanswered
   abilities: [],
   updatedAt: null,   // ISO timestamp of the last change to the sheet's content
   revealed: false    // true once the finished sheet has been seen at least once
@@ -3103,6 +3322,7 @@ let editMode = 'guided'; // 'guided' | 'quick'
 let saveTimeout = null;
 
 const LAST_SECTION = ATTRIBUTES.length + 1; // index of the Abilities section
+const RADAR_FONT = "-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif";
 const isAttributeSection = index => index >= 1 && index <= ATTRIBUTES.length;
 
 // What each tier means, in a few words. Shown in the tutorial's scale table
@@ -3126,9 +3346,22 @@ const app = {
   _tutorialReturn: null,  // 'sheet' | 'edit' when the Guide was opened from there
   _quotaWarned: false,
   _toastTimer: null,
+  _shareConfirmTimer: null,
   _modalReturnFocus: null,
+  viewingShared: false,   // showing a sheet that arrived as a link, not the saved one
 
-  init() {
+  async init() {
+    if (navigator.share) document.body.classList.add('can-share');
+
+    const shared = await readSharedSheet();
+    if (shared && shared.error) {
+      history.replaceState(null, '', location.pathname + location.search);
+      this.toast('That shared link could not be read. Ask for it to be sent again.', 6000);
+    } else if (shared) {
+      this.enterSharedView(shared);
+      return;
+    }
+
     if (!this.loadFromStorage()) {
       this.showTutorial();
     } else if (state.revealed) {
@@ -3146,12 +3379,12 @@ const app = {
       state.scores[attr.key] = 10;
       state.overrides[attr.key] = false;
       attr.subScores.forEach(sub => {
-        state.subScores[sub.key] = 10;
+        state.subScores[sub.key] = null; // not yet rated
       });
     });
 
     BFI_ITEMS.forEach((item, i) => {
-      state.bfiResponses[i] = 3;
+      state.bfiResponses[i] = null; // not yet answered
     });
 
     state.abilities = [];
@@ -3603,7 +3836,7 @@ const app = {
     return `
       <div class="sub-step-nav">
         <button type="button" class="btn btn-secondary" onclick="app.stepBack()">Previous</button>
-        <button type="button" class="btn btn-primary" onclick="app.stepForward()">${nextLabel || 'Next'}</button>
+        <button type="button" class="btn btn-primary" data-role="next" onclick="app.stepForward()">${nextLabel || 'Next'}</button>
       </div>`;
   },
 
@@ -3691,10 +3924,10 @@ const app = {
     const manual = state.overrides[attr.key];
     return `
       <div class="score-label">Your ${attr.name} Score</div>
-      <div class="score-display" style="color: ${info.text}">${mainScore}</div>
-      <div class="score-meaning" style="color: ${info.text}">${info.label}</div>
+      <div class="score-display" style="color: ${info.text}">${mainScore === null ? '&ndash;' : mainScore}</div>
+      <div class="score-meaning" style="color: ${info.text}">${mainScore === null ? 'Not yet rated' : info.label}</div>
       <div class="override-area">
-        <span class="indicator">${manual ? 'Set manually' : 'Average of your sub-scores'}</span>
+        <span class="indicator">${this.mainScoreNote(attr)}</span>
         ${manual ? `
           <input type="number" inputmode="numeric" min="1" max="20" value="${mainScore}"
             class="main-score-input" aria-label="${attr.name} score"
@@ -3707,23 +3940,34 @@ const app = {
     `;
   },
 
+  // One slider, in either mode. An unrated slider sits at 10 but is drawn hollow
+  // until it is touched; a click or key press counts as a rating, not only a drag.
+  renderSlider(sub, val) {
+    const rated = val !== null;
+    const info = getScoreInfo(val);
+    return `<input type="range" min="1" max="20" step="1" value="${rated ? val : 10}" id="slider-${sub.key}"
+      data-subkey="${sub.key}" aria-valuetext="${rated ? `${val}, ${info.label}` : 'Not yet rated'}"
+      oninput="app.updateSubScore('${sub.key}', this.value)"
+      onclick="app.updateSubScore('${sub.key}', this.value)"
+      onkeyup="app.updateSubScore('${sub.key}', this.value)">`;
+  },
+
   renderQuickAttributeSection(attr, index) {
     const subItems = attr.subScores.map(sub => {
       const val = state.subScores[sub.key];
+      const rated = val !== null;
       const info = getScoreInfo(val);
       return `
-        <div class="quick-subscore-item">
+        <div class="quick-subscore-item${rated ? '' : ' unrated'}" data-subitem="${sub.key}">
           <div class="quick-subscore-head">
             <label class="quick-subscore-name" for="slider-${sub.key}">${sub.name}</label>
             <span class="quick-subscore-reading">
-              <span class="sub-score-value" data-subkey-value="${sub.key}" style="color: ${info.text}">${val}</span>
+              <span class="sub-score-value" data-subkey-value="${sub.key}" style="color: ${info.text}">${rated ? val : '&ndash;'}</span>
               <span class="sub-score-label" data-subkey-label="${sub.key}" style="color: ${info.text}">${info.label}</span>
             </span>
           </div>
           <div class="quick-subscore-desc">${sub.desc}</div>
-          <input type="range" min="1" max="20" step="1" value="${val}" id="slider-${sub.key}"
-            data-subkey="${sub.key}" aria-valuetext="${val}, ${info.label}"
-            oninput="app.updateSubScore('${sub.key}', this.value)">
+          ${this.renderSlider(sub, val)}
         </div>
       `;
     }).join('');
@@ -3757,7 +4001,7 @@ const app = {
         <div class="quick-bfi-buttons" role="group" aria-labelledby="bfi-question-${i}">${this.renderBFIButtons(i)}</div>
         <div class="quick-bfi-ends" aria-hidden="true">
           <span>${BFI_LABELS[0]}</span>
-          <span class="quick-bfi-current" data-bfi-caption="${i}">${BFI_LABELS[state.bfiResponses[i] - 1]}</span>
+          <span class="quick-bfi-current" data-bfi-caption="${i}">${this.bfiCaption(i)}</span>
           <span>${BFI_LABELS[4]}</span>
         </div>
       </div>
@@ -3811,14 +4055,20 @@ const app = {
 
   renderBFIItem(index) {
     const item = BFI_ITEMS[index];
+    const answered = state.bfiResponses[index] !== null;
     return `
       <div class="sub-step-body">
         <p class="bfi-lead" id="bfi-lead">How well does this statement describe your personality?</p>
         <h3 class="sub-step-question-name bfi-question">${item.text}</h3>
         <div class="bfi-buttons" role="group" aria-labelledby="bfi-lead">${this.renderBFIButtons(index)}</div>
-        ${this.renderSectionNavButtons()}
+        ${this.renderSectionNavButtons(answered ? 'Next' : 'Skip for now')}
       </div>
     `;
+  },
+
+  bfiCaption(index) {
+    const value = state.bfiResponses[index];
+    return value === null ? 'Not answered' : BFI_LABELS[value - 1];
   },
 
   // Swaps the content of a guided step, restarting its fade-in. Keyboard focus
@@ -3943,6 +4193,7 @@ const app = {
 
   renderSubScoreStep(sub) {
     const val = state.subScores[sub.key];
+    const rated = val !== null;
     const info = getScoreInfo(val);
     const anchors = sub.anchors.map((textFor, i) => `
       <div>
@@ -3951,21 +4202,20 @@ const app = {
       </div>
     `).join('');
     return `
-      <div class="sub-step-body">
+      <div class="sub-step-body${rated ? '' : ' unrated'}" data-subitem="${sub.key}">
         <h3 class="sub-step-question-name"><label for="slider-${sub.key}">${sub.name}</label></h3>
         <p class="sub-score-desc">${sub.desc}</p>
         <dl class="scale-anchors">${anchors}</dl>
         <div class="sub-step-slider-area">
-          <input type="range" min="1" max="20" step="1" value="${val}" id="slider-${sub.key}"
-            data-subkey="${sub.key}" aria-valuetext="${val}, ${info.label}"
-            oninput="app.updateSubScore('${sub.key}', this.value)">
+          ${this.renderSlider(sub, val)}
           <div class="slider-scale" aria-hidden="true"><span>1</span><span>10</span><span>20</span></div>
           <div class="sub-step-value-row">
-            <span class="sub-score-value" data-subkey-value="${sub.key}" style="color: ${info.text}">${val}</span>
-            <span class="sub-score-label" data-subkey-label="${sub.key}" style="color: ${info.text}">${info.label}</span>
+            <span class="sub-score-value" data-subkey-value="${sub.key}" style="color: ${info.text}">${rated ? val : '&ndash;'}</span>
+            <span class="sub-score-label" data-subkey-label="${sub.key}" style="color: ${info.text}">${rated ? info.label : 'Not yet rated'}</span>
           </div>
+          <p class="unrated-hint">Move or tap the slider to rate this. Or skip it, and come back when you are ready.</p>
         </div>
-        ${this.renderSectionNavButtons()}
+        ${this.renderSectionNavButtons(rated ? 'Next' : 'Skip for now')}
       </div>
     `;
   },
@@ -3981,7 +4231,7 @@ const app = {
         <div class="score-reveal-sub-item">
           <div class="score-reveal-sub-name">${sub.name}</div>
           <div class="score-reveal-sub-right">
-            <span class="score-reveal-sub-value" style="color: ${info.text}">${val}</span>
+            <span class="score-reveal-sub-value" style="color: ${info.text}">${val === null ? '&ndash;' : val}</span>
             <span class="score-reveal-sub-label" style="color: ${info.text}">${info.label}</span>
           </div>
         </div>
@@ -3992,9 +4242,9 @@ const app = {
       <div class="score-reveal-step">
         <div class="score-reveal-main">
           <div class="score-reveal-label">Your ${attr.name} Score</div>
-          <div class="score-reveal-number" style="color: ${mainInfo.text}">${mainScore}</div>
-          <div class="score-reveal-tier" style="color: ${mainInfo.text}">${mainInfo.label}</div>
-          <div class="score-reveal-note">${state.overrides[attr.key] ? 'Set manually' : 'The average of your sub-scores'}</div>
+          <div class="score-reveal-number" style="color: ${mainInfo.text}">${mainScore === null ? '&ndash;' : mainScore}</div>
+          <div class="score-reveal-tier" style="color: ${mainInfo.text}">${mainScore === null ? 'Not yet rated' : mainInfo.label}</div>
+          <div class="score-reveal-note">${this.mainScoreNote(attr)}</div>
         </div>
         <div class="score-reveal-subscores">${subItems}</div>
         ${this.renderSectionNavButtons('Continue')}
@@ -4056,21 +4306,51 @@ const app = {
 
   // ==================== SCORE LOGIC ====================
 
+  // The rounded mean of the sub-scores that have been rated, the manual score
+  // if one is set, or null while nothing has been rated.
   getMainScore(attrKey) {
     if (state.overrides[attrKey]) return state.scores[attrKey];
 
     const attr = ATTRIBUTES.find(a => a.key === attrKey);
-    if (!attr) return 10;
+    if (!attr) return null;
 
-    const values = attr.subScores.map(sub => state.subScores[sub.key]);
+    const values = attr.subScores.map(sub => state.subScores[sub.key]).filter(v => v !== null);
+    if (values.length === 0) return null;
     return Math.round(values.reduce((a, b) => a + b, 0) / values.length);
+  },
+
+  ratedCount(attr) {
+    const rated = attr.subScores.filter(sub => state.subScores[sub.key] !== null).length;
+    return { rated, total: attr.subScores.length };
+  },
+
+  // Where a main score comes from, in words
+  mainScoreNote(attr) {
+    if (state.overrides[attr.key]) return 'Set manually';
+    const { rated, total } = this.ratedCount(attr);
+    if (rated === 0) return 'Rate a sub-score to get a score';
+    if (rated < total) return `Average of ${rated} of ${total} sub-scores`;
+    return 'Average of your sub-scores';
+  },
+
+  // What is still blank across the whole sheet, and where to go to fill it in
+  unanswered() {
+    let subs = 0, firstSection = null;
+    ATTRIBUTES.forEach((attr, i) => {
+      const missing = attr.subScores.filter(sub => state.subScores[sub.key] === null).length;
+      subs += missing;
+      if (missing && firstSection === null) firstSection = i + 1;
+    });
+    const items = BFI_ITEMS.filter((_, i) => state.bfiResponses[i] === null).length;
+    if (items && firstSection === null) firstSection = 0;
+    return { subs, items, firstSection };
   },
 
   toggleOverride(attrKey) {
     // Start a manual score from the current average, and return to it when switching back.
     const manual = !state.overrides[attrKey];
     state.overrides[attrKey] = false;
-    state.scores[attrKey] = this.getMainScore(attrKey); // the average
+    state.scores[attrKey] = this.getMainScore(attrKey) || 10; // the average, or 10 if nothing is rated yet
     state.overrides[attrKey] = manual;
     this.refreshAttributeMainScore(attrKey);
     const area = document.getElementById(`main-score-${attrKey}`);
@@ -4093,6 +4373,7 @@ const app = {
 
   updateSubScore(subKey, value) {
     const score = clampScore(value, 10);
+    if (state.subScores[subKey] === score) return; // a click or key that changed nothing
     state.subScores[subKey] = score;
     const info = getScoreInfo(score);
 
@@ -4111,9 +4392,14 @@ const app = {
     const slider = document.querySelector(`input[data-subkey="${subKey}"]`);
     if (slider) slider.setAttribute('aria-valuetext', `${score}, ${info.label}`);
 
+    // First rating: the slider fills in and "Skip for now" becomes "Next"
+    document.querySelectorAll(`[data-subitem="${subKey}"]`).forEach(el => el.classList.remove('unrated'));
+    const next = document.querySelector(`[data-subitem="${subKey}"] [data-role="next"]`);
+    if (next) next.textContent = 'Next';
+
     const attr = ATTRIBUTES.find(a => a.subScores.some(s => s.key === subKey));
     if (attr && !state.overrides[attr.key]) {
-      state.scores[attr.key] = this.getMainScore(attr.key);
+      state.scores[attr.key] = this.getMainScore(attr.key) || 10;
       this.refreshAttributeMainScore(attr.key);
     }
 
@@ -4183,24 +4469,29 @@ const app = {
       btn.setAttribute('aria-pressed', selected);
     });
     const caption = document.querySelector(`[data-bfi-caption="${index}"]`);
-    if (caption) caption.textContent = BFI_LABELS[value - 1];
+    if (caption) caption.textContent = this.bfiCaption(index);
+    const next = document.querySelector('#section-0 [data-role="next"]');
+    if (next) next.textContent = 'Next';
     this.autoSave();
   },
 
+  // Mean of the answered items for each trait (1–5, half-point steps), or null
+  // for a trait with no answered items.
   calculateBFIScores() {
     const traits = {};
     TRAIT_ORDER.forEach(trait => { traits[trait] = []; });
 
     BFI_ITEMS.forEach((item, i) => {
-      let response = state.bfiResponses[i] || 3;
+      let response = state.bfiResponses[i];
+      if (response === null) return;
       if (item.reverse) response = 6 - response;
       traits[item.trait].push(response);
     });
 
     const scores = {};
     TRAIT_ORDER.forEach(trait => {
-      const mean = traits[trait].reduce((a, b) => a + b, 0) / traits[trait].length;
-      scores[trait] = Math.round(mean * 2) / 2;
+      const answers = traits[trait];
+      scores[trait] = answers.length ? Math.round(answers.reduce((a, b) => a + b, 0) / answers.length * 2) / 2 : null;
     });
 
     return scores;
@@ -4251,6 +4542,8 @@ const app = {
 
   // Draws at the canvas's real on-screen size and pixel density, so the chart
   // stays sharp and its labels stay readable on a phone.
+  // Draws at the canvas's real on-screen size and pixel density, so the chart
+  // stays sharp and its labels stay readable on a phone.
   renderRadarChart() {
     const canvas = document.getElementById('radar-canvas');
     if (!canvas || !canvas.getContext) return;
@@ -4258,20 +4551,18 @@ const app = {
     const available = canvas.parentElement.clientWidth || 560;
     const W = Math.max(260, Math.min(560, Math.floor(available)));
     const compact = W < 440;
-    const N = ATTRIBUTES.length;
-    const FONT = "-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif";
-    const NAME_SIZE = compact ? 11 : 12;
-    const SCORE_SIZE = compact ? 13 : 14;
-    const NODE_R = compact ? 5 : 6;
-    const GAP = compact ? 10 : 16; // clearance between the outer ring and the labels
+    const style = {
+      nameSize: compact ? 11 : 12,
+      scoreSize: compact ? 13 : 14,
+      nodeR: compact ? 5 : 6,
+      gap: compact ? 10 : 16 // clearance between the outer ring and the labels
+    };
 
     // The widest label has to fit beside the chart, which sets the radius.
-    ctx.font = `600 ${NAME_SIZE}px ${FONT}`;
+    ctx.font = `600 ${style.nameSize}px ${RADAR_FONT}`;
     const widest = Math.max(...ATTRIBUTES.map(a => ctx.measureText(a.name).width));
-    const maxR = Math.max(60, Math.min(148, Math.floor(W / 2 - widest - GAP - NODE_R - 6)));
-    const labelR = maxR + NODE_R + GAP;
-    const H = Math.round((labelR + NAME_SIZE + SCORE_SIZE + 10) * 2);
-    const cx = W / 2, cy = H / 2;
+    const maxR = Math.max(60, Math.min(148, Math.floor(W / 2 - widest - style.gap - style.nodeR - 6)));
+    const H = this.radarHeight(maxR, style);
 
     const dpr = Math.max(1, window.devicePixelRatio || 1);
     canvas.width = Math.round(W * dpr);
@@ -4280,6 +4571,26 @@ const app = {
     canvas.style.height = H + 'px';
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, W, H);
+
+    const scores = ATTRIBUTES.map(attr => this.getMainScore(attr.key));
+    canvas.setAttribute('aria-label',
+      'Chart of your eight attribute scores. ' + ATTRIBUTES.map((a, i) => `${a.name} ${scores[i] === null ? 'not rated' : scores[i]}`).join(', ') + '.');
+
+    this.drawRadar(ctx, W / 2, H / 2, maxR, style, scores);
+  },
+
+  radarHeight(maxR, style) {
+    return Math.round((maxR + style.nodeR + style.gap + style.nameSize + style.scoreSize + 10) * 2);
+  },
+
+  // The chart itself, drawn around (cx, cy). Unrated attributes get no vertex,
+  // no slice and a dash for a score.
+  drawRadar(ctx, cx, cy, maxR, style, scores) {
+    const N = ATTRIBUTES.length;
+    const labelR = maxR + style.nodeR + style.gap;
+    const tiers = scores.map(s => getScoreInfo(s).key);
+    const fills = tiers.map(key => cssVar(`--color-${key}`));
+    const inks = tiers.map(key => cssVar(`--color-${key}-text`));
 
     // Angle helpers: start from the top and go clockwise
     const angle = i => (Math.PI * 2 * i / N) - Math.PI / 2;
@@ -4292,14 +4603,6 @@ const app = {
       const b = parseInt(hex.slice(5, 7), 16);
       return `rgba(${r},${g},${b},${a})`;
     };
-
-    const scores = ATTRIBUTES.map(attr => this.getMainScore(attr.key));
-    const tiers = scores.map(s => getScoreInfo(s).key);
-    const fills = tiers.map(key => cssVar(`--color-${key}`));
-    const inks = tiers.map(key => cssVar(`--color-${key}-text`));
-
-    canvas.setAttribute('aria-label',
-      'Chart of your eight attribute scores. ' + ATTRIBUTES.map((a, i) => `${a.name} ${scores[i]}`).join(', ') + '.');
 
     // Octagonal grid rings, with the average ring (10) drawn stronger
     [5, 10, 15, 20].forEach(gs => {
@@ -4320,7 +4623,7 @@ const app = {
     const tickAngle = (angle(0) + angle(1)) / 2;
     const [tx, ty] = polar((10 / 20) * maxR * Math.cos(Math.PI / N) + 8, tickAngle);
     ctx.fillStyle = 'rgba(0,0,0,0.45)';
-    ctx.font = `10px ${FONT}`;
+    ctx.font = `${Math.round(style.nameSize * 0.85)}px ${RADAR_FONT}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('10', tx, ty);
@@ -4336,12 +4639,13 @@ const app = {
       ctx.stroke();
     }
 
-    // Data polygon points
-    const pts = scores.map((s, i) => polar((s / 20) * maxR, angle(i)));
+    // Data polygon points (null where nothing is rated yet)
+    const pts = scores.map((s, i) => s === null ? null : polar((s / 20) * maxR, angle(i)));
 
     // Per-slice fill: each slice takes the tier colour of its leading vertex
     for (let i = 0; i < N; i++) {
       const next = (i + 1) % N;
+      if (!pts[i] || !pts[next]) continue;
       ctx.beginPath();
       ctx.moveTo(cx, cy);
       ctx.lineTo(pts[i][0], pts[i][1]);
@@ -4354,19 +4658,23 @@ const app = {
       ctx.fill();
     }
 
-    // Polygon outline
-    ctx.beginPath();
-    ctx.moveTo(pts[0][0], pts[0][1]);
-    for (const [x, y] of pts) ctx.lineTo(x, y);
-    ctx.closePath();
+    // Polygon outline, broken where a vertex is missing
     ctx.strokeStyle = 'rgba(80,80,80,0.28)';
     ctx.lineWidth = 1.5;
-    ctx.stroke();
+    for (let i = 0; i < N; i++) {
+      const next = (i + 1) % N;
+      if (!pts[i] || !pts[next]) continue;
+      ctx.beginPath();
+      ctx.moveTo(pts[i][0], pts[i][1]);
+      ctx.lineTo(pts[next][0], pts[next][1]);
+      ctx.stroke();
+    }
 
     // Vertex dots
-    pts.forEach(([x, y], i) => {
+    pts.forEach((pt, i) => {
+      if (!pt) return;
       ctx.beginPath();
-      ctx.arc(x, y, NODE_R, 0, Math.PI * 2);
+      ctx.arc(pt[0], pt[1], style.nodeR, 0, Math.PI * 2);
       ctx.fillStyle = fills[i];
       ctx.fill();
       ctx.strokeStyle = '#fff';
@@ -4387,12 +4695,12 @@ const app = {
       else                  ctx.textAlign = 'center';
 
       ctx.fillStyle = '#4A5568'; // deep-slate
-      ctx.font = `600 ${NAME_SIZE}px ${FONT}`;
+      ctx.font = `600 ${style.nameSize}px ${RADAR_FONT}`;
       ctx.fillText(attr.name, lx, midY - 4);
 
       ctx.fillStyle = inks[i];
-      ctx.font = `700 ${SCORE_SIZE}px ${FONT}`;
-      ctx.fillText(scores[i], lx, midY + SCORE_SIZE - 2);
+      ctx.font = `700 ${style.scoreSize}px ${RADAR_FONT}`;
+      ctx.fillText(scores[i] === null ? '\u2013' : scores[i], lx, midY + style.scoreSize - 2);
     });
   },
 
@@ -4437,20 +4745,27 @@ const app = {
     const cards = ATTRIBUTES.map(attr => {
       const score = this.getMainScore(attr.key);
       const info = getScoreInfo(score);
-      const pct = ((score - 1) / 19) * 100;
+      const rated = score !== null;
+      const pct = rated ? ((score - 1) / 19) * 100 : 0;
+      const { rated: n, total } = this.ratedCount(attr);
 
       const subBars = attr.subScores.map(sub => {
         const subVal = state.subScores[sub.key];
         const subInfo = getScoreInfo(subVal);
-        const subPct = ((subVal - 1) / 19) * 100;
+        const subPct = subVal === null ? 0 : ((subVal - 1) / 19) * 100;
         return `
           <div class="sub-score-bar-name">${sub.name}</div>
-          <div class="sub-score-bar-value" style="color: ${subInfo.text}">${subVal}</div>
+          <div class="sub-score-bar-value" style="color: ${subInfo.text}">${subVal === null ? '&ndash;' : subVal}</div>
           <div class="sub-bar-track">
             <div class="sub-bar-fill" style="width: ${subPct}%; background: ${subInfo.color}"></div>
           </div>
         `;
       }).join('');
+
+      let note = '';
+      if (state.overrides[attr.key]) note = 'The main score was set manually, so it may differ from the average of these sub-scores.';
+      else if (n === 0) note = 'None of these sub-scores has been rated yet.';
+      else if (n < total) note = `${total - n} of ${total} sub-scores not yet rated. The main score is the average of the rest.`;
 
       return `
         <div class="score-item" style="--item-accent: var(--attr-${attr.key}); --item-accent-pale: var(--attr-${attr.key}-pale)">
@@ -4458,12 +4773,12 @@ const app = {
             <span class="score-item-summary">
               <span class="score-item-name">${attr.name}</span>
               <span class="score-item-right">
-                <span class="score-item-value" style="color: ${info.text}">${score}</span>
+                <span class="score-item-value" style="color: ${info.text}">${rated ? score : '&ndash;'}</span>
                 <span class="score-item-label" style="color: ${info.text}">${info.label}</span>
               </span>
             </span>
             <span class="spectrum-bar">
-              <span class="spectrum-marker" style="left: ${pct}%; background: ${info.color}"></span>
+              ${rated ? `<span class="spectrum-marker" style="left: ${pct}%; background: ${info.color}"></span>` : ''}
             </span>
             <span class="score-item-chevron">Sub-scores <span class="chevron-arrow"></span></span>
           </button>
@@ -4473,7 +4788,7 @@ const app = {
                 <p class="score-item-detail-desc">${attr.description}</p>
                 <p class="score-item-detail-prompt">${attr.prompt}</p>
                 <div class="sub-score-bars">${subBars}</div>
-                ${state.overrides[attr.key] ? `<p class="score-item-detail-note">The main score was set manually, so it may differ from the average of these sub-scores.</p>` : ''}
+                ${note ? `<p class="score-item-detail-note">${note}</p>` : ''}
               </div>
             </div>
           </div>
@@ -4489,6 +4804,15 @@ const app = {
 
     document.getElementById('scores-grid').innerHTML = pairs.join('');
     this._syncExpandAll();
+
+    // A quiet reminder of what is still blank, with a way back to it
+    const gaps = this.unanswered();
+    const parts = [];
+    if (gaps.subs) parts.push(`${gaps.subs} sub-score${gaps.subs === 1 ? '' : 's'}`);
+    if (gaps.items) parts.push(`${gaps.items} personality statement${gaps.items === 1 ? '' : 's'}`);
+    document.getElementById('scores-note').innerHTML = parts.length
+      ? `${parts.join(' and ')} not yet rated. <button type="button" class="btn-text shared-hide" onclick="app.editSheet(${gaps.firstSection})">Finish rating</button>`
+      : '';
   },
 
   renderSheetPersonality() {
@@ -4502,22 +4826,25 @@ const app = {
 
     const buildCard = (trait) => {
       const score = scores[trait];
-      const pct = ((score - 1) / 4) * 100;
+      const answered = score !== null;
+      const pct = answered ? ((score - 1) / 4) * 100 : 0;
       const info = TRAIT_INFO[trait];
       const level = getTraitLevel(score);
-      const interpretation = level === 'Low' ? info.low : level === 'High' ? info.high
+      const interpretation = !answered ? 'You have not answered the statements for this trait yet.'
+        : level === 'Low' ? info.low : level === 'High' ? info.high
         : 'You sit near the middle of this dimension, with something of both tendencies.';
+      const marker = answered ? `style="left: ${pct}%"` : 'hidden';
 
       return `
         <div class="score-item" style="--item-accent: ${info.border}">
           <button type="button" class="score-item-toggle" aria-expanded="false" aria-controls="trait-detail-${trait}" onclick="app.toggleScoreItem(this)">
             <span class="score-item-summary">
               <span class="score-item-name">${info.name}</span>
-              <span class="bfi-level">${level}</span>
+              <span class="bfi-level${answered ? '' : ' bfi-level-none'}">${level}</span>
             </span>
             <span class="bfi-bar-collapsed">
               <span class="big-five-bar-track">
-                <span class="big-five-bar-marker" style="left: ${pct}%"></span>
+                <span class="big-five-bar-marker" ${marker}></span>
               </span>
             </span>
             <span class="score-item-chevron">Details <span class="chevron-arrow"></span></span>
@@ -4528,7 +4855,7 @@ const app = {
                 <p class="score-item-detail-desc">${info.desc}</p>
                 <div class="big-five-bar-area">
                   <div class="big-five-bar-track">
-                    <div class="big-five-bar-marker" style="left: ${pct}%"></div>
+                    <div class="big-five-bar-marker" ${marker}></div>
                   </div>
                   <div class="big-five-bar-labels">
                     <span class="big-five-bar-label-low">${info.lowShort}</span>
@@ -4558,7 +4885,7 @@ const app = {
       list.innerHTML = `
         <div class="abilities-empty">
           <p>No abilities yet. These are the specific skills and pursuits that make you you.</p>
-          <button type="button" class="btn btn-secondary btn-small" onclick="app.editSheet(${LAST_SECTION})">Add Abilities</button>
+          <button type="button" class="btn btn-secondary btn-small shared-hide" onclick="app.editSheet(${LAST_SECTION})">Add Abilities</button>
         </div>`;
       return;
     }
@@ -4626,6 +4953,7 @@ const app = {
   save() {
     clearTimeout(saveTimeout);
     saveTimeout = null;
+    if (this.viewingShared) return; // someone else's sheet is never written over your own
     if (this._dirty || !state.updatedAt) state.updatedAt = new Date().toISOString();
     this._dirty = false;
 
@@ -4675,11 +5003,19 @@ const app = {
   exportData() {
     const data = this._serialise();
     data.abilities = state.abilities.filter(a => a.name.trim());
+    const filename = this._fileName('json');
+    this._downloadBlob(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }), filename);
+    this._shareConfirm(`Saved as ${filename}`);
+    this.toast(`Saved as ${filename}`);
+  },
 
+  _fileName(ext) {
     const safeName = state.profile.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-    const filename = `character-sheet-${safeName ? safeName + '-' : ''}${new Date().toISOString().split('T')[0]}.json`;
+    return `character-sheet-${safeName ? safeName + '-' : ''}${new Date().toISOString().split('T')[0]}.${ext}`;
+  },
 
-    const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
+  _downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = filename;
@@ -4688,7 +5024,340 @@ const app = {
     a.remove();
     // Some browsers start the download asynchronously, so do not revoke straight away.
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    this.toast(`Saved as ${filename}`);
+  },
+
+  // ---- Export and share dialog ----
+
+  showShareModal() {
+    const modal = document.getElementById('share-modal');
+    const confirmEl = document.getElementById('share-confirm');
+    confirmEl.textContent = '';
+    confirmEl.classList.remove('visible');
+    this._modalReturnFocus = document.activeElement;
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    modal.querySelector('.prompt-modal-close').focus();
+  },
+
+  hideShareModal() {
+    const modal = document.getElementById('share-modal');
+    if (!modal.classList.contains('active')) return;
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+    if (this._modalReturnFocus && document.contains(this._modalReturnFocus)) this._modalReturnFocus.focus();
+    this._modalReturnFocus = null;
+  },
+
+  handleShareBackdropClick(event) {
+    if (event.target === event.currentTarget) this.hideShareModal();
+  },
+
+  _shareConfirm(message) {
+    const el = document.getElementById('share-confirm');
+    el.textContent = message;
+    el.classList.add('visible');
+    clearTimeout(this._shareConfirmTimer);
+    this._shareConfirmTimer = setTimeout(() => el.classList.remove('visible'), 4000);
+  },
+
+  // Copies text, returning whether it worked
+  async _copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      try { await navigator.clipboard.writeText(text); return true; } catch (e) { /* fall through */ }
+    }
+    return this._copyFallback(text);
+  },
+
+  // The sheet as a link. The photo is left out to keep the link short.
+  async buildShareLink() {
+    const data = this._serialise();
+    data.profile = Object.assign({}, data.profile, { photo: null });
+    data.abilities = state.abilities.filter(a => a.name.trim());
+    const payload = await encodeSharePayload(data);
+    return location.href.split('#')[0] + SHARE_PREFIX + payload;
+  },
+
+  async copyShareLink() {
+    const link = await this.buildShareLink();
+    const ok = await this._copyText(link);
+    this._shareConfirm(ok ? 'Link copied. Anyone who has it can read your sheet.' : 'Could not copy automatically. Try Share instead.');
+  },
+
+  async shareSheetLink() {
+    const link = await this.buildShareLink();
+    try {
+      await navigator.share({ title: `${state.profile.name || 'My'} Character Sheet`, url: link });
+    } catch (e) { /* the person closed the share sheet */ }
+  },
+
+  async copySheetText() {
+    const ok = await this._copyText(this.sheetAsText());
+    this._shareConfirm(ok ? 'Text copied.' : 'Could not copy automatically.');
+  },
+
+  async downloadSheetImage() {
+    const blob = await this.buildSheetImageBlob();
+    const filename = this._fileName('png');
+    this._downloadBlob(blob, filename);
+    this._shareConfirm(`Saved as ${filename}`);
+  },
+
+  async shareSheetImage() {
+    const blob = await this.buildSheetImageBlob();
+    const file = new File([blob], this._fileName('png'), { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: 'My Character Sheet' }); } catch (e) { /* closed */ }
+    } else {
+      this._downloadBlob(blob, file.name);
+      this._shareConfirm('Sharing files is not available here, so the image was downloaded instead.');
+    }
+  },
+
+  // A plain-text summary of the sheet
+  sheetAsText() {
+    const p = state.profile;
+    const lines = ['THE CHARACTER SHEET'];
+    lines.push([p.name || 'Unnamed', p.occupation].filter(Boolean).join(' · '));
+    const meta = [p.age ? `Age ${p.age}` : '', GENDER_LABELS[p.gender] || '', p.location, RELATIONSHIP_LABELS[p.relationship] || ''].filter(Boolean);
+    if (meta.length) lines.push(meta.join(' · '));
+    lines.push(`Last updated ${formatDate(state.updatedAt)}`, '', 'EIGHT ATTRIBUTES (1–20, where 10 is average)');
+    ATTRIBUTES.forEach(attr => {
+      const main = this.getMainScore(attr.key);
+      lines.push(`${attr.name}: ${main === null ? 'not rated' : `${main} (${getScoreInfo(main).label})`}`);
+      lines.push('  ' + attr.subScores.map(sub => {
+        const v = state.subScores[sub.key];
+        return `${sub.name} ${v === null ? '\u2013' : v}`;
+      }).join(' · '));
+    });
+    const bfi = this.calculateBFIScores();
+    lines.push('', 'PERSONALITY (Big Five)');
+    lines.push(TRAIT_ORDER.map(t => `${TRAIT_INFO[t].name}: ${getTraitLevel(bfi[t]).toLowerCase()}`).join(' · '));
+    const valid = state.abilities.filter(a => a.name.trim());
+    if (valid.length) {
+      lines.push('', 'ABILITIES');
+      const fmt = ab => {
+        const linked = ATTRIBUTES.find(a => a.key === ab.linked);
+        return `${ab.name} ${ab.score}${linked ? ` (${linked.name})` : ''}`;
+      };
+      const active = valid.filter(a => a.status === 'active'), dormant = valid.filter(a => a.status === 'dormant');
+      if (active.length) lines.push(`Active: ${active.map(fmt).join(', ')}`);
+      if (dormant.length) lines.push(`Dormant: ${dormant.map(fmt).join(', ')}`);
+    }
+    lines.push('', 'Made with The Character Sheet: https://mbthompson.github.io/YourCharacterSheet/');
+    return lines.join('\n');
+  },
+
+  // Draws the whole sheet to a canvas and returns it as a PNG blob.
+  async buildSheetImageBlob() {
+    const canvas = await this.renderSheetImage();
+    return new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+  },
+
+  async renderSheetImage() {
+    const W = 1080, PAD = 64, SCALE = 2;
+    const SERIF = 'Georgia, "Times New Roman", serif';
+    const c = {
+      bg: cssVar('--very-light-gray'), card: '#FFFFFF', ink: cssVar('--charcoal'), slate: cssVar('--deep-slate'),
+      brown: cssVar('--warm-brown-dark'), muted: cssVar('--light-gray'), body: cssVar('--medium-gray'),
+      border: cssVar('--border-gray'), track: cssVar('--track-gray'), pale: cssVar('--warm-brown-pale')
+    };
+    const tierHex = key => cssVar(`--color-${key}`);
+    const tierInk = key => cssVar(`--color-${key}-text`);
+
+    // Draw on a tall canvas, then crop to the height used.
+    const work = document.createElement('canvas');
+    work.width = W * SCALE;
+    work.height = 6000 * SCALE;
+    const ctx = work.getContext('2d');
+    ctx.scale(SCALE, SCALE);
+    ctx.fillStyle = c.bg;
+    ctx.fillRect(0, 0, W, 6000);
+
+    const text = (str, x, y, font, color, align) => {
+      ctx.font = font; ctx.fillStyle = color; ctx.textAlign = align || 'left'; ctx.textBaseline = 'alphabetic';
+      ctx.fillText(String(str), x, y);
+    };
+    const rounded = (x, y, w, h, r, fill, stroke) => {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+      if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+      if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1; ctx.stroke(); }
+    };
+    const rule = (label, y) => {
+      ctx.font = `600 12px ${RADAR_FONT}`;
+      const w = ctx.measureText(label).width + 28;
+      ctx.strokeStyle = c.border; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(PAD, y); ctx.lineTo(W / 2 - w / 2, y); ctx.moveTo(W / 2 + w / 2, y); ctx.lineTo(W - PAD, y); ctx.stroke();
+      text(label, W / 2, y + 4, `600 12px ${RADAR_FONT}`, c.muted, 'center');
+    };
+    const spectrum = (x, y, w, h, score, info) => {
+      const stops = [['critical', 0, 15.8], ['struggling', 15.8, 31.6], ['below', 31.6, 42.1], ['average', 42.1, 52.6],
+        ['above', 52.6, 63.2], ['strong', 63.2, 73.7], ['excellent', 73.7, 84.2], ['exceptional', 84.2, 100]];
+      ctx.save(); ctx.globalAlpha = 0.45;
+      stops.forEach(([key, a, b]) => { ctx.fillStyle = tierHex(key); ctx.fillRect(x + w * a / 100, y, w * (b - a) / 100 + 0.5, h); });
+      ctx.restore();
+      if (score !== null) {
+        const mx = x + w * (score - 1) / 19;
+        ctx.beginPath(); ctx.arc(mx, y + h / 2, 7, 0, Math.PI * 2);
+        ctx.fillStyle = tierHex(info.key); ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.5; ctx.stroke();
+      }
+    };
+
+    const p = state.profile;
+    let y = PAD;
+
+    // Header
+    if (p.photo) {
+      const img = await new Promise(resolve => { const im = new Image(); im.onload = () => resolve(im); im.onerror = () => resolve(null); im.src = p.photo; });
+      if (img) {
+        ctx.save(); ctx.beginPath(); ctx.arc(W / 2, y + 52, 52, 0, Math.PI * 2); ctx.clip();
+        const s = Math.max(104 / img.width, 104 / img.height);
+        ctx.drawImage(img, W / 2 - img.width * s / 2, y + 52 - img.height * s / 2, img.width * s, img.height * s);
+        ctx.restore();
+        y += 124;
+      }
+    }
+    text(p.name || 'Character Sheet', W / 2, y + 34, `700 38px ${SERIF}`, c.ink, 'center');
+    y += 50;
+    if (p.occupation) { text(p.occupation, W / 2, y + 18, `500 18px ${RADAR_FONT}`, c.brown, 'center'); y += 30; }
+    const meta = [p.age ? `Age ${p.age}` : '', GENDER_LABELS[p.gender] || '', p.location, RELATIONSHIP_LABELS[p.relationship] || ''].filter(Boolean);
+    if (meta.length) { text(meta.join('   '), W / 2, y + 16, `15px ${RADAR_FONT}`, c.muted, 'center'); y += 26; }
+    text(`Last updated ${formatDate(state.updatedAt)}`, W / 2, y + 14, `13px ${RADAR_FONT}`, c.muted, 'center');
+    y += 44;
+
+    // Radar
+    const scores = ATTRIBUTES.map(attr => this.getMainScore(attr.key));
+    const style = { nameSize: 14, scoreSize: 17, nodeR: 7, gap: 20 };
+    const maxR = 165;
+    const radarH = this.radarHeight(maxR, style);
+    this.drawRadar(ctx, W / 2, y + radarH / 2, maxR, style, scores);
+    y += radarH + 20;
+
+    // Attribute cards, two columns
+    rule('EIGHT ATTRIBUTES', y); y += 32;
+    const colW = (W - PAD * 2 - 24) / 2;
+    for (let row = 0; row < ATTRIBUTES.length; row += 2) {
+      const pair = ATTRIBUTES.slice(row, row + 2);
+      const cardH = 92 + Math.max(...pair.map(a => a.subScores.length)) * 24 + 10;
+      pair.forEach((attr, col) => {
+        const x = PAD + col * (colW + 24);
+        rounded(x, y, colW, cardH, 8, c.card, c.border);
+        ctx.fillStyle = cssVar(`--attr-${attr.key}`); ctx.fillRect(x, y + 8, 4, cardH - 16);
+        const score = scores[row + col];
+        const info = getScoreInfo(score);
+        text(attr.name, x + 24, y + 36, `700 22px ${SERIF}`, c.ink);
+        text(score === null ? '\u2013' : score, x + colW - 22, y + 38, `700 34px ${SERIF}`, score === null ? c.muted : tierInk(info.key), 'right');
+        text(info.label.toUpperCase(), x + colW - 22, y + 56, `700 10px ${RADAR_FONT}`, score === null ? c.muted : tierInk(info.key), 'right');
+        spectrum(x + 24, y + 68, colW - 46, 7, score, info);
+        attr.subScores.forEach((sub, i) => {
+          const sy = y + 100 + i * 24;
+          const v = state.subScores[sub.key];
+          const si = getScoreInfo(v);
+          text(sub.name, x + 164, sy, `13px ${RADAR_FONT}`, c.slate, 'right');
+          text(v === null ? '\u2013' : v, x + 192, sy, `700 13px ${RADAR_FONT}`, v === null ? c.muted : tierInk(si.key), 'center');
+          const bx = x + 212, bw = colW - 212 - 22;
+          rounded(bx, sy - 7, bw, 5, 2.5, c.border);
+          if (v !== null) rounded(bx, sy - 7, bw * (v - 1) / 19, 5, 2.5, tierHex(si.key));
+        });
+      });
+      y += cardH + 16;
+    }
+
+    // Personality
+    y += 8; rule('PERSONALITY', y); y += 22;
+    text('How you tend to move through the world. Tendencies, not achievements.', W / 2, y + 12, `italic 14px ${SERIF}`, c.body, 'center');
+    y += 28;
+    const bfi = this.calculateBFIScores();
+    TRAIT_ORDER.forEach(trait => {
+      const info = TRAIT_INFO[trait];
+      const score = bfi[trait];
+      rounded(PAD, y, W - PAD * 2, 72, 8, c.card, c.border);
+      ctx.fillStyle = info.border; ctx.fillRect(PAD, y + 8, 4, 56);
+      text(info.name, PAD + 24, y + 30, `700 19px ${SERIF}`, c.ink);
+      text(getTraitLevel(score).toUpperCase(), W - PAD - 22, y + 30, `700 11px ${RADAR_FONT}`, score === null ? c.muted : c.brown, 'right');
+      const bx = PAD + 24, bw = W - PAD * 2 - 46;
+      rounded(bx, y + 44, bw, 6, 3, c.border);
+      if (score !== null) {
+        ctx.beginPath(); ctx.arc(bx + bw * (score - 1) / 4, y + 47, 7, 0, Math.PI * 2);
+        ctx.fillStyle = cssVar('--warm-brown'); ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.5; ctx.stroke();
+      }
+      text(info.lowShort, bx, y + 64, `11px ${RADAR_FONT}`, c.muted);
+      text(info.highShort, bx + bw, y + 64, `11px ${RADAR_FONT}`, c.muted, 'right');
+      y += 80;
+    });
+
+    // Abilities
+    const valid = state.abilities.filter(a => a.name.trim());
+    if (valid.length) {
+      y += 8; rule('ABILITIES', y); y += 30;
+      const active = valid.filter(a => a.status === 'active'), dormant = valid.filter(a => a.status === 'dormant');
+      const group = (label, list) => {
+        if (!list.length) return;
+        if (active.length && dormant.length) { text(label.toUpperCase(), PAD, y + 10, `600 11px ${RADAR_FONT}`, c.muted); y += 22; }
+        list.forEach(ab => {
+          const linked = ATTRIBUTES.find(a => a.key === ab.linked);
+          const info = getScoreInfo(ab.score);
+          rounded(PAD, y, W - PAD * 2, 54, 6, c.card, c.border);
+          ctx.fillStyle = linked ? cssVar(`--attr-${linked.key}`) : cssVar('--warm-brown'); ctx.fillRect(PAD, y + 8, 3, 38);
+          text(ab.name, PAD + 22, y + 25, `700 18px ${SERIF}`, c.ink);
+          if (linked) text(linked.name.toUpperCase(), PAD + 22, y + 43, `11px ${RADAR_FONT}`, c.muted);
+          spectrum(W - PAD - 150 - 22, y + 16, 150, 5, ab.score, info);
+          text(`${ab.score}  ${info.label.toUpperCase()}`, W - PAD - 22, y + 42, `700 13px ${RADAR_FONT}`, tierInk(info.key), 'right');
+          y += 62;
+        });
+      };
+      group('Active', active);
+      group('Dormant', dormant);
+    }
+
+    // Footer
+    y += 16;
+    ctx.strokeStyle = c.border; ctx.beginPath(); ctx.moveTo(PAD, y); ctx.lineTo(W - PAD, y); ctx.stroke();
+    text('Your scores are a moment, not a fixed truth.', W / 2, y + 36, `italic 16px ${SERIF}`, c.slate, 'center');
+    text('The Character Sheet  ·  mbthompson.github.io/YourCharacterSheet', W / 2, y + 60, `12px ${RADAR_FONT}`, c.muted, 'center');
+    y += 84;
+
+    const out = document.createElement('canvas');
+    out.width = W * SCALE;
+    out.height = Math.round(y * SCALE);
+    out.getContext('2d').drawImage(work, 0, 0, out.width, out.height, 0, 0, out.width, out.height);
+    return out;
+  },
+
+  // ---- Shared sheets (opened from a link) ----
+
+  enterSharedView(clean) {
+    this.viewingShared = true;
+    this._applyData(clean);
+    state.revealed = true;
+    document.body.classList.add('shared-view');
+    const banner = document.getElementById('shared-banner');
+    banner.hidden = false;
+    document.getElementById('shared-banner-name').textContent = clean.profile.name ? `${clean.profile.name}'s sheet` : 'A shared sheet';
+    document.getElementById('shared-banner-exit').textContent = localStorage.getItem(STORAGE_KEY) ? 'Back to my sheet' : 'Start my own';
+    this._showView('sheet-view');
+    this.renderSheet();
+    window.scrollTo(0, 0);
+  },
+
+  keepSharedSheet() {
+    if (localStorage.getItem(STORAGE_KEY) && !confirm('Keeping this sheet replaces the sheet currently saved in this browser. Continue?')) return;
+    this.viewingShared = false;
+    document.body.classList.remove('shared-view');
+    document.getElementById('shared-banner').hidden = true;
+    history.replaceState(null, '', location.pathname + location.search);
+    this._dirty = false;
+    editMode = 'quick';
+    currentSection = -1;
+    this.save();
+    this.renderSheet();
+    this.toast('Saved to this browser.');
+  },
+
+  leaveSharedSheet() {
+    history.replaceState(null, '', location.pathname + location.search);
+    location.reload();
   },
 
   importData() {
@@ -4762,15 +5431,20 @@ const app = {
       const mainScore = this.getMainScore(attr.key);
       const subLines = attr.subScores.map(sub => {
         const subVal = state.subScores[sub.key];
-        return `    ${sub.name}: ${subVal}/20 (${getScoreInfo(subVal).label})`;
+        return `    ${sub.name}: ${subVal === null ? 'not rated' : `${subVal}/20 (${getScoreInfo(subVal).label})`}`;
       }).join('\n');
-      const manual = state.overrides[attr.key] ? ' [set by the person directly, not averaged]' : '';
-      return `${attr.name}: ${mainScore}/20 (${getScoreInfo(mainScore).label})${manual}\n${subLines}`;
+      const { rated, total } = this.ratedCount(attr);
+      let source = '';
+      if (state.overrides[attr.key]) source = ' [set by the person directly, not averaged]';
+      else if (rated > 0 && rated < total) source = ` [average of the ${rated} rated sub-scores]`;
+      const main = mainScore === null ? 'not rated' : `${mainScore}/20 (${getScoreInfo(mainScore).label})`;
+      return `${attr.name}: ${main}${source}\n${subLines}`;
     }).join('\n\n');
 
     const personalityLines = TRAIT_ORDER.map(trait => {
       const score = bfiScores[trait];
       const info = TRAIT_INFO[trait];
+      if (score === null) return `${info.name}: not answered`;
       const level = getTraitLevel(score);
       const meaning = level === 'Low' ? info.lowShort
         : level === 'High' ? info.highShort
@@ -4800,7 +5474,7 @@ The data comes from The Character Sheet, a self-reflection tool that asks people
 The scale used:
 ${scaleLines}
 
-10 is not a failing grade. Nobody has 20s across the board. These scores represent a moment in time.
+10 is not a failing grade. Nobody has 20s across the board. These scores represent a moment in time. Anything marked "not rated" or "not answered" was left blank on purpose: do not guess at it.
 
 ---
 PROFILE
@@ -4871,26 +5545,14 @@ End with something true: Close with an observation that captures something essen
     if (event.target === event.currentTarget) this.hidePromptModal();
   },
 
-  copyPrompt() {
-    const modal = document.getElementById('prompt-modal');
-    const promptText = modal.dataset.promptText;
+  async copyPrompt() {
+    const promptText = document.getElementById('prompt-modal').dataset.promptText;
     const confirmEl = document.getElementById('prompt-copy-confirm');
     if (!promptText) return;
-    const report = (message) => {
-      confirmEl.textContent = message;
-      confirmEl.classList.add('visible');
-      setTimeout(() => confirmEl.classList.remove('visible'), 3000);
-    };
-    const succeed = () => report('Copied to clipboard');
-    const fallback = () => {
-      if (this._copyFallback(promptText)) succeed();
-      else report('Could not copy automatically. Select the text and copy it by hand.');
-    };
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(promptText).then(succeed).catch(fallback);
-    } else {
-      fallback();
-    }
+    const ok = await this._copyText(promptText);
+    confirmEl.textContent = ok ? 'Copied to clipboard' : 'Could not copy automatically. Select the text and copy it by hand.';
+    confirmEl.classList.add('visible');
+    setTimeout(() => confirmEl.classList.remove('visible'), 3000);
   },
 
   // For contexts without the async clipboard API (such as file:// pages).
@@ -4922,6 +5584,7 @@ window.addEventListener('load', () => app.init());
 document.addEventListener('keydown', (event) => {
   if (event.key !== 'Escape') return;
   app.hidePromptModal();
+  app.hideShareModal();
   app.closeMoreMenu();
 });
 
@@ -4937,6 +5600,12 @@ window.addEventListener('resize', () => {
   resizeTimer = setTimeout(() => {
     if (document.getElementById('sheet-view').classList.contains('active')) app.renderRadarChart();
   }, 150);
+});
+
+// A share link pasted into the address bar of an open page only changes the
+// fragment, so reload to open it properly
+window.addEventListener('hashchange', () => {
+  if (location.hash.startsWith(SHARE_PREFIX)) location.reload();
 });
 
 // Make sure a pending change is written before the page goes away

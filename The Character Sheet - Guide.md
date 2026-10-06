@@ -85,13 +85,25 @@ There are two ways to work through the sheet, and you can switch between them at
 
 Your sub-scores are averaged to give the main score for each attribute. If the average does not feel right, because the whole is different from the sum of its parts, you can set the main score yourself in Quick mode.
 
+You can skip any question. Nothing starts at a default value: a sub-score or personality statement you have not answered stays blank, is left out of the averages, and shows as "not rated" on your sheet, with a reminder of how many are still open. A blank is more honest than a guess, so leave a question blank if you would rather come back to it.
+
 ### Your Data
 
 Your sheet is stored in your browser, on your own device. Nothing is sent to a server, and no one can see your sheet unless you choose to share it.
 
-**Export** saves your sheet as a file. Use it to move your sheet to another device, or to keep a dated record of where you were. **Import** loads a saved file back in, replacing the sheet currently in that browser. If you clear your browser data, your sheet goes with it, so exporting from time to time is good practice.
+### Saving and Sharing
 
-You can also print your sheet, or generate an **AI prompt**: a block of text that summarises your sheet and asks an AI assistant to write a character study of you. The prompt contains your scores and profile details. Nothing is shared until you paste it somewhere yourself.
+**Export and share** on your sheet offers several ways to take your sheet beyond the browser:
+
+- **Backup file.** A .json file containing the whole sheet, including your photo. Keep it somewhere safe, and use **Import** to load it on another device or after clearing your browser. If you clear your browser data without a backup, your sheet is gone, so exporting from time to time is good practice.
+- **Image.** A picture of your sheet, with the chart, every score, your personality profile and your abilities. On a phone you can send it straight to a message or save it to your photos.
+- **Link.** A link that carries your sheet inside it. Nothing is uploaded anywhere: the sheet is encoded in the link itself, and whoever opens it sees a read-only copy that they can keep if they choose. Your photo is not included. Anyone who has the link can read the sheet, so share it as you would share the sheet itself.
+- **Text.** A plain-text summary to paste into a message, a journal, or a note.
+- **Print.** A clean two-page layout for paper or PDF.
+
+You can also generate an **AI prompt**: a block of text that summarises your sheet and asks an AI assistant to write a character study of you. The prompt contains your scores and profile details. Nothing is shared until you paste it somewhere yourself.
+
+If someone sends you their sheet as a link, you will see it marked as a shared sheet. Your own sheet stays where it was, and you can switch back to it or save a copy of theirs.
 
 ---
 
