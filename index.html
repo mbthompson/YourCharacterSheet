@@ -3178,6 +3178,15 @@ function scoreOrNull(value) {
 
 // Share links carry the sheet in the URL fragment: nothing is sent to a server.
 const SHARE_PREFIX = '#share=';
+const SITE_URL = 'https://mbthompson.github.io/YourCharacterSheet/';
+
+// The address a share link should open. A copy served over http(s) links to
+// itself; a copy opened as a file, or inside a sandboxed frame, links to the
+// published site, which reads the same links.
+function shareBaseUrl() {
+  if (/^https?:$/.test(location.protocol) && location.hostname) return location.href.split('#')[0];
+  return SITE_URL;
+}
 
 function bytesToBase64Url(bytes) {
   let bin = '';
@@ -5077,7 +5086,7 @@ const app = {
     data.profile = Object.assign({}, data.profile, { photo: null });
     data.abilities = state.abilities.filter(a => a.name.trim());
     const payload = await encodeSharePayload(data);
-    return location.href.split('#')[0] + SHARE_PREFIX + payload;
+    return shareBaseUrl() + SHARE_PREFIX + payload;
   },
 
   async copyShareLink() {
